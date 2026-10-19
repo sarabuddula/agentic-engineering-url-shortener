@@ -483,3 +483,8 @@ Chain: **Requirement → Scenario → Design → ADR → Task → Code → Test 
 ## Complexity Tracking
 
 *Fill only if Constitution Check violations require justification. None identified at planning time; if implementation reveals one, it must be recorded here with justification or the plan is revised (Constitution Check, above).*
+
+
+## Amendments — 2026-10-19 (change-controlled, human decisions)
+
+Replay after expiry (amends §2 Concurrency and idempotency mechanics). A replay carrying the same request identity and the same normalized payload returns the original link with HTTP 200, including its expired status (expires_at in the past is visible in the response); resolving the code still yields the defined expired-link behavior. The idempotency binding lasts as long as the SHORT_LINK row, which is permanent under FR-004; no second link is created and no code is reassigned. There is no purge endpoint.
