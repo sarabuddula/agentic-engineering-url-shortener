@@ -14,6 +14,13 @@ Every requirement in this specification carries a stable identifier and a proven
 
 Scenario identifiers: US-nnn (user stories), SCN-A/B/C (demonstration scenarios), FR-nnn (functional), NFR-nnn (non-functional), SC-nnn (success criteria), A-nnn (assumptions), PVT-nnn (validation targets).
 
+## Amendment Log
+
+- 2026-10-19 (C-005, spec deltas recorded in plan section 2; re-acceptance at T124): the request identity is carried in the Idempotency-Key header; same key and same normalized payload returns the existing link with 200 (a new link returns 201), including after the link has expired; same key and different payload returns 409 and is audited; a missing or malformed key returns 400 and allocates no short code.
+- 2026-10-19: 302 (active), 410 (expired) and the base-62 alphabet are adopted at the contract level.
+- 2026-10-19: MTTR excludes governance wait (reported separately, plus a labelled secondary figure).
+- 2026-10-19: replan control (staged revision, HELD nodes, cap 2), rework cap 2, sync-wait bound of 2 approval windows, boot recovery to SAFE_STOPPED, DNS lookup timeout 3 s, and resume of governed stops by an APPROVER key are plan-level details of FR-024, FR-028 and FR-029.
+
 ## Clarifications
 
 ### Session 2026-10-18
@@ -223,7 +230,7 @@ Each NFR states the area's verifiable expectation. Where the assignment provides
 ## Assumptions
 
 ### Confirmed Requirements
-All requirements tagged [Confirmed] above are directly supported by the assignment text, the approved execution guide (Prompt 2), the approved Constitution v1.0.0, or recorded human clarifications and decisions, including: the URL shortener feature set; the twelve orchestrated SDLC stages (requirement ingestion through final engineering summary); the orchestration properties (dependency graph, parallelism, state persistence, approval gates, retries, fallback, rollback/compensation, safe-stop, resumption, dynamic replanning, audit evidence, measurements); the three scenarios; the five user types; and the specification rules. The execution guide's tooling decision also confirms that the human candidate is the architecture owner, decision authority, approval authority, reviewer, and final quality owner — control-plane approval and evidence inspection are human-owned functions.
+All requirements tagged [Confirmed] above are directly supported by the assignment text, the approved execution guide (Prompt 2), the approved Constitution v1.0.0, or recorded human clarifications and decisions, including: the URL shortener feature set; the orchestrated SDLC stages (realized in the plan as 14 graph nodes N01-N14, two of them conditional) (requirement ingestion through final engineering summary); the orchestration properties (dependency graph, parallelism, state persistence, approval gates, retries, fallback, rollback/compensation, safe-stop, resumption, dynamic replanning, audit evidence, measurements); the three scenarios; the five user types; and the specification rules. The execution guide's tooling decision also confirms that the human candidate is the architecture owner, decision authority, approval authority, reviewer, and final quality owner — control-plane approval and evidence inspection are human-owned functions.
 
 ### Derived Requirements
 Requirements tagged [Derived] (FR-004, FR-013, FR-014, FR-015, FR-043) are necessary implications of confirmed requirements; FR-004 was explicitly retained as derived by human decision on 2026-10-18, and all derived requirements were confirmed at Human Gate 2 on 2026-10-18.

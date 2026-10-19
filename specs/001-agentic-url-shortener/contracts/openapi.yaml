@@ -3,8 +3,8 @@ info:
   title: Agentic Software Engineering System — URL Shortener API
   version: 1.0.0-draft
   description: >
-    Contract draft for plan review. Status notes: 302 redirect, 410 expired response,
-    and base-62 code alphabet are proposals pending contract review; the 409
+    Contract draft for plan review. Status notes (closed 2026-10-19, human decision): 302 redirect, 410 expired response,
+    and base-62 code alphabet are ADOPTED; the 409
     same-identity/different-payload conflict response is approved (spec delta,
     2026-10-18). Control-plane endpoints require role-scoped keys (FR-045);
     raw keys never appear in logs (NFR-001). Role names use the ROLE enum
@@ -68,7 +68,7 @@ paths:
                     expires_at: "2026-10-25T16:00:00Z"
                     created_at: "2026-10-18T16:00:00Z"
         '200':
-          description: Idempotent replay — same Idempotency-Key and same normalized payload; returns the existing link unchanged (distinct from 201 so contract tests can tell them apart)
+          description: Idempotent replay — same Idempotency-Key and same normalized payload; returns the existing link unchanged (also after the link has expired) (distinct from 201 so contract tests can tell them apart)
           content:
             application/json:
               schema: { $ref: '#/components/schemas/ShortLinkResponse' }
@@ -93,14 +93,14 @@ paths:
           schema: { type: string, minLength: 4, maxLength: 16, pattern: '^[A-Za-z0-9]+$' }
       responses:
         '302':
-          description: Active link — redirect to target (proposal)
+          description: Active link — redirect to target (adopted 2026-10-19)
           headers:
             Location:
               schema: { type: string, format: uri }
               description: 'The recorded target URL; the service never fetches it (D-003)'
         '404': { $ref: '#/components/responses/NotFound' }
         '410':
-          description: Link expired (FR-006; 410 proposed)
+          description: Link expired (FR-006; 410 adopted 2026-10-19)
           content:
             application/json:
               schema: { $ref: '#/components/schemas/Error' }
@@ -116,7 +116,7 @@ paths:
         - name: code
           in: query
           required: false
-          description: 'Optional short code; when present, counts are scoped to that link (SCN-A fixture)'
+          description: 'Optional short code; when present, counts are scoped to that link (FR-012 reporting)'
           schema: { type: string, minLength: 4, maxLength: 16, pattern: '^[A-Za-z0-9]+$' }
       responses:
         '200':
@@ -175,7 +175,7 @@ paths:
             examples:
               greenfield:
                 summary: SCN-A fixture
-                value: { requirement_text: "Analytics summary endpoint returning redirect counts by outcome for a link" }
+                value: { requirement_text: "Link status lookup returning whether a short code is active, expired or unknown, with its expiry time" }
               ambiguous:
                 summary: SCN-C fixture
                 value: { requirement_text: "Add support for links." }
@@ -200,6 +200,7 @@ paths:
       parameters:
         - { name: runId, in: path, required: true, schema: { type: string } }
       responses:
+        '429': { $ref: '#/components/responses/RateLimited' }
         '200':
           description: 'Run detail, including open approval requests with their approval IDs'
           content:
@@ -217,6 +218,10 @@ paths:
       parameters:
         - { name: runId, in: path, required: true, schema: { type: string } }
       responses:
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/RateLimited' }
         '200':
           description: 'Ordered state transitions, decisions, approvals, retries, failures, replanning, terminal outcome'
           content:
@@ -243,6 +248,10 @@ paths:
       parameters:
         - { name: runId, in: path, required: true, schema: { type: string } }
       responses:
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/RateLimited' }
         '200':
           description: Verification result (also re-verified at N14 after terminal appends)
           content:
@@ -273,6 +282,7 @@ paths:
         agent-approval attempts are denied, audited, and leave the approval pending.
       security: [ { ApiKeyAuth: [] } ]
       x-required-roles: [APPROVER, RELEASE_OWNER]
+      x-change-approval: 'CHANGE_APPROVAL (C-005) - APPROVER key, approver identity distinct from the requester'
       parameters:
         - { name: runId, in: path, required: true, schema: { type: string } }
         - { name: approvalId, in: path, required: true, schema: { type: string } }
@@ -292,6 +302,9 @@ paths:
                 summary: Rejection
                 value: { decision: "REJECT", reason: "design does not satisfy FR-012" }
       responses:
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/RateLimited' }
         '200':
           description: Decision recorded; affected path resumes or follows rejection behavior
         '403':
@@ -308,11 +321,16 @@ paths:
   /api/v1/orchestrator/runs/{runId}/resume:
     post:
       summary: Controlled resumption after safe-stop (FR-028; requires recorded conditions)
+      description: 'Governed stops (approval timeout, rejection, boot recovery) require an APPROVER key distinct from the run requester; ENGINEER may resume ungoverned stops only. Enforced from safe_stop_cause.'
       security: [ { ApiKeyAuth: [] } ]
-      x-required-roles: [ENGINEER, APPROVER]
+      x-required-roles: [ENGINEER, APPROVER]  # APPROVER mandatory for governed stops (server-enforced)
       parameters:
         - { name: runId, in: path, required: true, schema: { type: string } }
       responses:
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/RateLimited' }
         '200':
           description: Run resumed from durable state; operation outcomes reconciled (PVT-006)
         '409':
@@ -326,8 +344,13 @@ paths:
       parameters:
         - { name: runId, in: path, required: true, schema: { type: string } }
       responses:
+        '409': { description: 'Replan cap reached (2 accepted replans per run) or a replan is already staged' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/RateLimited' }
         '202':
-          description: Replan event recorded; downstream re-validation queued; acceptance pending human approval
+          description: Replan event recorded and revision staged; affected downstream nodes HELD; acceptance pending human approval
 
   /api/v1/orchestrator/runs/{runId}/release-readiness:
     get:
@@ -337,6 +360,10 @@ paths:
       parameters:
         - { name: runId, in: path, required: true, schema: { type: string } }
       responses:
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/RateLimited' }
         '200':
           description: 'Recommendation with per-check policy outcomes; decision is human-owned (RELEASE_OWNER records it via the approvals endpoint, kind RELEASE_AUTHORIZATION)'
           content:
@@ -361,6 +388,9 @@ paths:
       security: [ { ApiKeyAuth: [] } ]
       x-required-roles: [REVIEWER]
       responses:
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '429': { $ref: '#/components/responses/RateLimited' }
         '200':
           description: 'Success rate, failure rate, retry/rollback frequency, MTTR (null when no recovered failures), latency, unrecovered count'
           content:
@@ -449,7 +479,7 @@ components:
       type: object
       required: [short_code, target_url, expires_at, created_at]
       properties:
-        short_code: { type: string, pattern: '^[A-Za-z0-9]+$', description: 'Base-62 proposal; never reassigned (FR-004); reserved route words api and actuator are excluded from generation' }
+        short_code: { type: string, pattern: '^[A-Za-z0-9]+$', description: 'Base-62 (adopted 2026-10-19); never reassigned (FR-004); reserved route words api and actuator are excluded from generation' }
         target_url: { type: string, format: uri, description: 'Canonical form (FR-013)' }
         expires_at: { type: string, format: date-time }
         created_at: { type: string, format: date-time }
@@ -485,6 +515,7 @@ components:
       required: [requirement_text]
       properties:
         requirement_text: { type: string, minLength: 1 }
+        execution_class: { type: string, enum: [LIVE, REPLAY], default: LIVE, description: 'REPLAY labels a run that exercises behavior implemented before the run' }
 
     RunResponse:
       type: object
@@ -494,6 +525,7 @@ components:
         status: { type: string, enum: [RUNNING, AWAITING_APPROVAL, SUSPENDED_CLARIFICATION, SAFE_STOPPED, COMPLETED, TERMINATED] }
         policy_version: { type: string }
         run_revision: { type: integer }
+        execution_class: { type: string, enum: [LIVE, REPLAY] }
         terminal_outcome: { type: string, description: 'Present on terminal states' }
         pending_approvals:
           type: array
@@ -503,7 +535,7 @@ components:
             required: [approval_id, kind, requested_at, expires_at]
             properties:
               approval_id: { type: string }
-              kind: { type: string, enum: [CLARIFICATION, DESIGN_APPROVAL, SECURITY_SENSITIVE, DESTRUCTIVE_ACTION, POLICY_EXCEPTION, ACCEPTED_LIMITATION, REPLAN_ACCEPTANCE, RELEASE_AUTHORIZATION, FINAL_SUBMISSION] }
+              kind: { type: string, enum: [CLARIFICATION, DESIGN_APPROVAL, CHANGE_APPROVAL, SECURITY_SENSITIVE, DESTRUCTIVE_ACTION, POLICY_EXCEPTION, ACCEPTED_LIMITATION, REPLAN_ACCEPTANCE, RELEASE_AUTHORIZATION, FINAL_SUBMISSION] }
               gate: { type: string, description: 'Constitutional gate reference, e.g. G4' }
               reason: { type: string }
               requested_at: { type: string, format: date-time }
@@ -511,12 +543,15 @@ components:
 
     HistoryEntry:
       type: object
-      required: [seq, actor_type, action, occurred_at]
+      required: [seq, actor_type, action, affected, result, reason, occurred_at]
       properties:
         seq: { type: integer }
         actor_type: { type: string, enum: [HUMAN, AGENT, SYSTEM] }
         action: { type: string }
         affected: { type: string, description: 'Node, artifact, or state reference' }
+        rationale: { type: string, description: 'Decision rationale from DECISION_LINEAGE when the entry records a decision' }
+        rejected_alternatives: { type: array, items: { type: string } }
+        artifact_refs: { type: array, items: { type: string }, description: 'ARTIFACT id@version#content_hash' }
         result: { type: string }
         reason: { type: string }
         occurred_at: { type: string, format: date-time }
@@ -586,4 +621,7 @@ components:
         recovered_failure_events: { type: integer }
         unrecovered_failure_events: { type: integer }
         governance_wait_ms_total: { type: integer, description: 'Reported separately, not part of MTTR (plan §7)' }
+        mttr_incl_governance_wait_ms: { type: number, nullable: true, description: 'Labelled secondary figure: MTTR including governance wait (human decision 2026-10-19); mttr_ms is the primary figure and excludes governance wait' }
         p95_redirect_latency_ms: { type: number }
+        end_to_end_latency_ms: { type: number, description: 'Mean end-to-end workflow latency, run start to terminal outcome (FR-031)' }
+        p95_end_to_end_latency_ms: { type: number }

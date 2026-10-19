@@ -10,24 +10,24 @@ Storage: single H2 file database, both planes, behind repository interfaces (ADR
 
 | Entity | Fields |
 |---|---|
-| **SHORT_LINK** | id (PK), short_code (UNIQUE NOT NULL), target_url (canonical, NOT NULL), request_identity (UNIQUE NOT NULL — idempotency, FR-007), payload_hash (original request, 409 conflict detection), created_at, expires_at (explicit or created_at + default TTL, A-006) — expiry status is **derived lazily at resolution**, not stored |
-| **REDIRECT_EVENT** | id (PK), short_link_id (FK), occurred_at, outcome (REDIRECTED, EXPIRED, NOT_FOUND) — FR-012 |
+| **SHORT_LINK** | id (PK), short_code (UNIQUE NOT NULL), target_url (canonical, NOT NULL), request_identity (UNIQUE NOT NULL — idempotency, FR-007), payload_hash (original request, 409 conflict detection; the binding is retained for the life of the row, so a replay after expiry returns the original link with 200), created_at, expires_at (explicit or created_at + default TTL, A-006) — expiry status is **derived lazily at resolution**, not stored |
+| **REDIRECT_EVENT** | id (PK), short_link_id (FK, NULLABLE - null for NOT_FOUND events), attempted_code (requested code, length-capped), occurred_at, outcome (REDIRECTED, EXPIRED, NOT_FOUND) — FR-012 |
 | **LOSS_REPORT** | id (PK), period_start, period_end, unrecorded_count — FR-015 quantification checkpoint |
 
 ### Control plane
 
 | Entity | Fields |
 |---|---|
-| **WORKFLOW_RUN** | id (PK), requirement_ref, policy_version (FR-032), status, **run_revision** (incremented on accepted replans; NOT_APPLICABLE rules bind node states to a revision), version (optimistic lock), audit_head_hash, audit_event_count (independent truncation reference), created_at, terminal_outcome, safe_stop_cause |
+| **WORKFLOW_RUN** | id (PK), requirement_ref, policy_version (FR-032), status, **run_revision** (incremented on accepted replans, max 2 per run; a staged proposal is held in staged_revision; NOT_APPLICABLE rules bind node states to a revision), version (optimistic lock), audit_head_hash, audit_event_count (independent truncation reference), created_at, terminal_outcome, safe_stop_cause (incl. BOOT_RECOVERY), execution_class (LIVE, REPLAY), replan_count |
 | **REQUIREMENT_ARTIFACT** | id (PK), run_id (FK), content (normalized), provenance (CONFIRMED, DERIVED, PROPOSED), version, quality_report, assumptions |
 | **ARTIFACT** | id (PK), run_id (FK), type (DESIGN, ADR, IMPACT_ANALYSIS, CODE, TEST, DOC, SUMMARY, …), version, content_hash, provenance (DETERMINISTIC, AI_ASSISTED_HUMAN_REVIEWED — Constitution X labeling), created_at — the generic versioned-artifact table referenced by lineage rows |
 | **STAGE_NODE** | id (PK), run_id (FK), node_key (N01–N14), status, attempt_count, run_revision (bound at creation), version (optimistic lock), entry_state, exit_state, not_applicable_reason |
 | **STAGE_EDGE** | id (PK), run_id (FK), from_node, to_node, kind (DEPENDENCY, SYNC, CONDITIONAL) |
 | **TASK** | id (PK), run_id (FK), node_id (FK), title, requirement_refs, status, executor_class (DETERMINISTIC, HUMAN_INGESTED) |
 | **TASK_DEPENDENCY** | (task_id, depends_on_task_id) composite PK — explicit dependency rows, not a list column (FR-036) |
-| **OPERATION_RECORD** | operation_id (PK, stable identity), run_id (FK), node_id (FK), type, status (PENDING, COMPLETED, FAILED), effect_verified (bool — set by restart reconciliation), created_at, completed_at — the exactly-once mechanism of plan §3 |
+| **OPERATION_RECORD** | operation_id (PK, stable identity), run_id (FK), node_id (FK), type (ARTIFACT_WRITE, TEST_RUN, DOC_GENERATE, POLICY_EVAL, APPROVAL_REQUEST - each with an effect-verification rule, plan section 3), status (PENDING, COMPLETED, FAILED), effect_verified (bool — set by restart reconciliation), created_at, completed_at — the exactly-once mechanism of plan §3 |
 | **FAILURE_EVENT** | id (PK), run_id (FK), node_id (FK), failure_detected_at, recovery_start_at, recovery_complete_at, recovery_mechanism (FP-1, FP-2, FP-3, FP-4), recovered (bool), governance_wait_ms (reported separately per §7), mttr_excluded (bool + reason) — the MTTR capture record of plan §7 |
-| **APPROVAL** | id (PK), run_id (FK), gate (G1–G8), requester_key_id, approver_key_id (must differ — FR-046), decision (PENDING, APPROVED, REJECTED, ESCALATED), scope, timeout_at, second_window_timeout_at, decided_at, authorized_artifacts, reason |
+| **APPROVAL** | id (PK), run_id (FK), gate (G1–G8), requester_key_id, approver_key_id (must differ — FR-046), decision (PENDING, APPROVED, REJECTED, ESCALATED), scope, timeout_at, second_window_timeout_at, decided_at, authorized_artifacts, reason, evidence_class (HUMAN, SIMULATED) |
 | **ACCEPTED_LIMITATION** | id (PK), run_id (FK), description, approval_id (FK — individual approval with full fields, CL-5), compensating_control, approved_at — only valid when no mandatory policy failed and no non-waivable principle is implicated (FR-037) |
 | **RELEASE_DECISION** | id (PK), run_id (FK, UNIQUE), recommendation (READY, READY_WITH_ACCEPTED_LIMITATIONS, NOT_READY), blocking_reasons, decision (PENDING, APPROVED, REJECTED), approver_key_id (must differ from requester), decided_at, evidence_ref — the system recommends; the decision is human-owned (FR-037) |
 | **AUDIT_EVENT** | run_id, seq (UNIQUE(run_id, seq)), actor_type (HUMAN, AGENT, SYSTEM), action, occurred_at, affected_artifact, result, reason, prev_hash, event_hash — append-only |
@@ -35,7 +35,7 @@ Storage: single H2 file database, both planes, behind repository interfaces (ADR
 | **PLATFORM_AUDIT_HEAD** | id (singleton row), head_hash, event_count, updated_at — independent truncation reference for the platform chain |
 | **POLICY_EVALUATION** | id (PK), run_id (FK), check_id, outcome (PASS, FAIL, EXCEPTION_REQUESTED, NOT_APPLICABLE), evidence_ref, exception_id (nullable) |
 | **POLICY_EXCEPTION** | id (PK), run_id (FK), check_id, reason, scope, approving_authority_key_id, compensating_control, approved_at, expires_at |
-| **REPLANNING_EVENT** | id (PK), run_id (FK), trigger (ARTIFACT_VERSION_CHANGE, APPROVAL_INVALIDATION, POLICY_VERSION_CHANGE), affected_downstream, invalidation_records, approval_id (FK — approver differs from requester, D-006) |
+| **REPLANNING_EVENT** | id (PK), run_id (FK), status (STAGED, ACCEPTED, REJECTED, EXPIRED), staged_revision, trigger (ARTIFACT_VERSION_CHANGE, APPROVAL_INVALIDATION, POLICY_VERSION_CHANGE), affected_downstream, invalidation_records, approval_id (FK — approver differs from requester, D-006) |
 | **DECISION_LINEAGE** | id (PK), run_id (FK), decision, rationale, rejected_alternatives, artifact_version_refs (references ARTIFACT rows and their content hashes) |
 | **TEST_OUTCOME** | id (PK), run_id (FK), suite, test_id, requirement_refs, status, executed_at, evidence_ref |
 | **RISK_OUTCOME** | id (PK), run_id (FK), risk_desc, outcome, mitigation, requirement_refs |
@@ -52,7 +52,7 @@ Storage: single H2 file database, both planes, behind repository interfaces (ADR
 
 **Run:** RUNNING, AWAITING_APPROVAL, SUSPENDED_CLARIFICATION, SAFE_STOPPED, COMPLETED, TERMINATED. Every transition audited (FR-030). Resumption from SAFE_STOPPED requires recorded conditions + human approval where governed (FR-028). `run_revision` increments on accepted replans; node states bind to the revision they were created under.
 
-**Node:** PENDING → READY → RUNNING → SUCCEEDED | FAILED | NOT_APPLICABLE. FAILED → RETRY_WAITING (transient) → RUNNING; exhaustion → declared failure behavior (fallback, compensation, safe-stop). AWAITING_APPROVAL on human decision. Prohibited: PENDING → RUNNING; AWAITING_APPROVAL → SUCCEEDED; any exit from terminal; NOT_APPLICABLE → active on the same run revision (SC-004).
+**Node:** PENDING → READY → RUNNING → SUCCEEDED | FAILED | NOT_APPLICABLE. FAILED → RETRY_WAITING (transient) → RUNNING; exhaustion → declared failure behavior (fallback, compensation, safe-stop). AWAITING_APPROVAL on human decision. Legal AWAITING_APPROVAL exits: APPROVED recorded -> RUNNING (the executor finalizes with the approval record) -> SUCCEEDED; REJECTED -> FAILED (non-retryable, rework or governed termination); second timeout -> SAFE_STOPPED. Prohibited: PENDING → RUNNING; AWAITING_APPROVAL → SUCCEEDED; any exit from terminal; NOT_APPLICABLE → active on the same run revision (SC-004). HELD (replan staging): PENDING/READY/RETRY_WAITING -> HELD on a staged replan; HELD -> its prior state on rejection or timeout; HELD -> PENDING (re-validated) on acceptance; a HELD node is never dispatched.
 
 **Approval:** PENDING → APPROVED | REJECTED | (timeout) ESCALATED (one re-issue, equal second window, audited) → (second timeout) affected path SAFE_STOPPED. Timeouts and rejections non-retryable (FR-025); silence never approval.
 

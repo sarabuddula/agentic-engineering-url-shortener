@@ -12,13 +12,13 @@
 **Decision Drivers**: C-001 (language/runtime), C-006 (timebox), human-candidate fluency, test tooling breadth (constitution IV), NFR-004 maintainability.
 
 **Options Considered**:
-- Java 21 LTS — pros: candidate fluency, typed state/audit invariants (sealed types, records), virtual threads for the bounded parallel executors; cons: JVM startup vs native; risks: none material.
+- Java 21 LTS — pros: candidate fluency, typed state/audit invariants (sealed types, records), a simple bounded thread pool for the parallel executors (ADR-007; virtual threads are an optional later upgrade); cons: JVM startup vs native; risks: none material.
 - TypeScript/Node 22 — pros: single-language full stack, npm ecosystem; cons: weaker runtime typing on state/audit invariants, lower fluency; risks: invariant violations surface at runtime.
 - Python 3.12 — pros: fast iteration; cons: weaker concurrency and typing discipline for audit invariants; risks: same, amplified under PVT-003.
 
 **Decision**: Java 21 LTS.
 
-**Rationale**: Fluency under the timebox with typed workflow states and audit invariants; LTS support; virtual threads serve the bounded parallel executors without a reactive stack.
+**Rationale**: Fluency under the timebox with typed workflow states and audit invariants; LTS support; a simple bounded thread pool serves the parallel executors without a reactive stack.
 
 **Consequences**: Maven toolchain; Spring Boot 3.x baseline (ADR-002); fat-jar run model (ADR-004).
 
@@ -153,11 +153,11 @@
 - Sequential counter + base-62 — pros: zero collisions; cons: guessable codes, counter is a hot row under PVT-003; risks: contention.
 - Hash-derived from target — pros: deterministic; cons: same-URL requests would collide (violates AMB-2), code length blows up on long URLs; risks: violates FR-007 independence.
 
-**Decision**: Base-62 alphabet (proposal pending contract review), minimum length 4, random generation; uniqueness enforced by a DB unique constraint; on collision the generation is retried with a fresh code (bounded); the short-code generator never emits the reserved top-level route words `api` and `actuator` (a colliding generation is rejected and regenerated; the minimum length of 4 already excludes `api`, and the exclusion additionally protects the `actuator` route). Idempotency: the client supplies a stable `Idempotency-Key` header; the key is bound to the normalized payload; same key + same payload returns the existing link (HTTP 200); same key + different payload returns 409 with no overwrite (approved spec delta); no key or malformed key is rejected (400, no code allocated); independent requests to the same URL each create new links.
+**Decision**: Base-62 alphabet (adopted by human decision 2026-10-19; amendment re-acceptance recorded at T124), minimum length 4, random generation; uniqueness enforced by a DB unique constraint; on collision the generation is retried with a fresh code (bounded); the short-code generator never emits the reserved top-level route words `api` and `actuator` (a colliding generation is rejected and regenerated; the minimum length of 4 already excludes `api`, and the exclusion additionally protects the `actuator` route). Idempotency: the client supplies a stable `Idempotency-Key` header; the key is bound to the normalized payload; same key + same payload returns the existing link (HTTP 200); same key + different payload returns 409 with no overwrite (approved spec delta); no key or malformed key is rejected (400, no code allocated); independent requests to the same URL each create new links.
 
 **Rationale**: DB-constraint uniqueness makes the PVT-003 race provable rather than best-effort; random codes avoid enumeration; reserved-word exclusion guarantees no short code can collide with a first-level route.
 
-**Consequences**: Reserved-word exclusion slightly reduces the code space (disclosed); the idempotency binding is cleaned up only via TTL of the link itself (no purge endpoint).
+**Consequences**: Reserved-word exclusion slightly reduces the code space (disclosed); the idempotency binding is retained as long as the link row exists (no purge endpoint; links are never deleted), so a replay after the link's expiry returns the original link unchanged with HTTP 200 (human decision 2026-10-19).
 
 **Reversibility**: Low for issued codes — FR-004 makes allocation permanent; high for the generation algorithm itself pre-release.
 
