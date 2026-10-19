@@ -4,7 +4,7 @@
 
 **Input**: Feature specification from `specs/001-agentic-url-shortener/spec.md` (Approved — Human Gates 2 and 3 passed 2026-10-18)
 
-**Technology decisions**: Selected by the human candidate 2026-10-18; ADR acceptance pending Human Gate 4 (ADR-001 to ADR-005, drafted separately for the ADR gate). This plan itself is **Proposed** until the plan/ADR human gate passes.
+**Technology decisions**: Selected by the human candidate 2026-10-18. **ADR-001..ADR-009 accepted by the human candidate 2026-10-18** (Human Gate 4; the ADR gate extended the set from five to nine records, including the approved reserved-route-word exclusion, the hash-chain audit scope extension, and the corrected gate-role mapping). This plan itself is **Proposed** until the plan human gate passes.
 
 ## Summary
 
@@ -150,7 +150,7 @@ specs/001-agentic-url-shortener/
 |---|---|---|
 | API delivery | REST controllers, request/response mapping, defined error responses | FR-001, FR-002, FR-005, FR-006, FR-014 |
 | Domain logic | Create/resolve/expire decisions, idempotency, framework-free | FR-007, FR-008, FR-011 |
-| Short-code generation | Random base-62 candidates (proposal); uniqueness enforced by DB constraint; collision → regenerate within bounded retries; codes never reassigned | FR-004, FR-016, PVT-004 |
+| Short-code generation | Random base-62 candidates (proposal); uniqueness enforced by DB constraint; collision → regenerate within bounded retries; reserved route words `api`/`actuator` never emitted (ADR-006, accepted); codes never reassigned | FR-004, FR-016, PVT-004 |
 | URL validation | Scheme allowlist HTTP/HTTPS (A-007); internal/local address rejection (loopback, private, link-local and the full rule set — D-003, resolved in §8); size limit; whitespace stripping and canonical form | FR-002, FR-003, FR-013, NFR-001 |
 | Redirect resolution | Active → 302 to target (proposal); expired → defined expired-link response, 410 proposed; unknown/deleted → 404 with no redirect; expiration race resolves to expired behavior | FR-005, FR-006, FR-014 |
 | Persistence | JPA repositories; unique constraints on short code and request identity; optimistic locking | FR-007, FR-016, PVT-003 |
@@ -163,6 +163,8 @@ specs/001-agentic-url-shortener/
 **Concurrency and idempotency mechanics (design).** Creation runs in a transaction with a unique constraint on request identity: concurrent retries sharing one identity race on the constraint; the loser reads and returns the existing link (same short code, same result, original effective expiration preserved). A replay carrying the same request identity but a different normalized payload returns a defined conflict response (409, approved 2026-10-18) and is audited — no silent overwrite. Independently issued requests (distinct identities) each create new links (FR-007). Short-code collisions are handled by the separate short-code unique constraint with bounded regeneration. PVT-003's concurrency tests exercise both races distinctly.
 
 **Spec deltas (C-005).** The 409 conflict response for a request-identity replay carrying a different normalized payload is a behavior **not present in the approved specification**, recorded as a spec delta — **approved by the human candidate 2026-10-18** (it follows from the FR-007 idempotency design); treated as binding from that date. Items that remain proposals for contract review (not spec deltas): 302 redirect status, 410 expired-link response, base-62 code alphabet.
+
+**Header note (C-005).** FR-007 binds idempotency to the client-supplied request identity without naming a header; the binding mechanism is the contract-level `Idempotency-Key` header (renamed from X-Request-Id by human decision 2026-10-19). This is a contract-level decision recorded here for traceability, not a spec delta.
 
 **Analytics failure observability (FR-015, design proposal for Phase 1).** When synchronous capture fails but resolution succeeds, the failure is recorded best-effort and an in-memory unrecorded-event counter is incremented; a periodic durable checkpoint writes the counter to a loss-report record so the loss stays quantified and reportable. Disclosed limitation: a process crash between failure and checkpoint loses the count (bounded by the checkpoint interval); checkpoint interval is configurable.
 
@@ -274,7 +276,7 @@ All entities below are control-plane-owned rows in the shared H2 store; each car
 | G7 release readiness | N13 release authorization | Human candidate |
 | G8 final submission | Repository tag/push as the assessment submission | Human candidate |
 
-**Rules.** Requester and approver key identities must differ at every gate, including replan acceptance (D-006); self-approval and agent approval return 403, leave the gate pending, and are audited (FR-046). Agents never approve. Blocked progression attempts are blocked and audited (SC-004). Rejection leads to bounded rework or governed termination, never automatic retry. Approvals record approver **key ID only** (D-004). **Exception governance:** no exception may be granted against the non-waivable principles (II, III, VIII, X, XI); an approval of an open limitation (G6) is valid only when every limitation is individually approved, no mandatory policy has failed, and no non-waivable principle is among them — approval can never override a mandatory FAIL (FR-037).
+**Rules.** Requester and approver key identities must differ at every gate, including replan acceptance (D-006); self-approval and agent approval return 403, leave the gate pending, and are audited (FR-046). **Key-role mapping (ADR-008, accepted):** APPROVER key for G1, G2, G3, G4 and replan acceptance; RELEASE_OWNER key for G5, G6, G7, G8; REVIEWER key is read-and-verify only. Agents never approve. Blocked progression attempts are blocked and audited (SC-004). Rejection leads to bounded rework or governed termination, never automatic retry. Approvals record approver **key ID only** (D-004). **Exception governance:** no exception may be granted against the non-waivable principles (II, III, VIII, X, XI); an approval of an open limitation (G6) is valid only when every limitation is individually approved, no mandatory policy has failed, and no non-waivable principle is among them — approval can never override a mandatory FAIL (FR-037).
 
 ### 6. Reliability
 

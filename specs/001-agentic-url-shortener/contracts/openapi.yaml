@@ -258,17 +258,21 @@ paths:
     post:
       summary: Record a human decision on a pending approval (FR-024)
       description: >
-        Approval kinds and required roles (all approvals additionally require an
-        identity distinct from the requester, FR-046): CLARIFICATION (G3) —
-        ENGINEER (the requester answers with clarification_answer);
-        DESIGN_APPROVAL (G4, ADR/design acceptance) — APPROVER;
-        POLICY_EXCEPTION (G5) — RELEASE_OWNER, with the policy_exception payload;
-        ACCEPTED_LIMITATION (G6) — RELEASE_OWNER, with accepted_limitation_text;
-        REPLAN_ACCEPTANCE (FR-046) — APPROVER, distinct from the replan requester;
-        RELEASE_AUTHORIZATION (G7, FR-037) — RELEASE_OWNER. Self-approval and
+        Approval kinds, plan §5 gates, and required roles (ADR-008, accepted;
+        every approval additionally requires an approver key identity distinct
+        from the requester's, FR-046): CLARIFICATION (G1) — APPROVER;
+        DESIGN_APPROVAL (G2, architecture/ADR) — APPROVER; SECURITY_SENSITIVE
+        (G3, changes to security controls, keys, rate limits) — APPROVER;
+        DESTRUCTIVE_ACTION (G4 — none exists in the prototype; attempts are
+        rejected and audited) — APPROVER; POLICY_EXCEPTION (G5) — RELEASE_OWNER,
+        with the policy_exception payload; ACCEPTED_LIMITATION (G6) —
+        RELEASE_OWNER, with accepted_limitation_text; RELEASE_AUTHORIZATION
+        (G7, FR-037) — RELEASE_OWNER; FINAL_SUBMISSION (G8, repository tag/push)
+        — RELEASE_OWNER; REPLAN_ACCEPTANCE — APPROVER, distinct from the replan
+        requester. REVIEWER is read-and-verify only. Self-approval and
         agent-approval attempts are denied, audited, and leave the approval pending.
       security: [ { ApiKeyAuth: [] } ]
-      x-required-roles: [ENGINEER, APPROVER, RELEASE_OWNER]
+      x-required-roles: [APPROVER, RELEASE_OWNER]
       parameters:
         - { name: runId, in: path, required: true, schema: { type: string } }
         - { name: approvalId, in: path, required: true, schema: { type: string } }
@@ -279,10 +283,10 @@ paths:
             schema: { $ref: '#/components/schemas/ApprovalDecision' }
             examples:
               approve_design:
-                summary: G4 design approval
+                summary: G2 architecture/ADR approval
                 value: { decision: "APPROVE", reason: "ADRs reviewed" }
               answer_clarification:
-                summary: G3 clarification (SCN-C)
+                summary: G1 clarification (SCN-C)
                 value: { decision: "APPROVE", clarification_answer: "links = short links; the URL-shortener link entity" }
               reject:
                 summary: Rejection
@@ -499,7 +503,7 @@ components:
             required: [approval_id, kind, requested_at, expires_at]
             properties:
               approval_id: { type: string }
-              kind: { type: string, enum: [CLARIFICATION, DESIGN_APPROVAL, POLICY_EXCEPTION, ACCEPTED_LIMITATION, REPLAN_ACCEPTANCE, RELEASE_AUTHORIZATION] }
+              kind: { type: string, enum: [CLARIFICATION, DESIGN_APPROVAL, SECURITY_SENSITIVE, DESTRUCTIVE_ACTION, POLICY_EXCEPTION, ACCEPTED_LIMITATION, REPLAN_ACCEPTANCE, RELEASE_AUTHORIZATION, FINAL_SUBMISSION] }
               gate: { type: string, description: 'Constitutional gate reference, e.g. G4' }
               reason: { type: string }
               requested_at: { type: string, format: date-time }
@@ -534,7 +538,7 @@ components:
       properties:
         decision: { type: string, enum: [APPROVE, REJECT] }
         reason: { type: string }
-        clarification_answer: { type: string, description: 'Required when approving a CLARIFICATION (G3): the resolved meaning, e.g. links = short links' }
+        clarification_answer: { type: string, description: 'Required when approving a CLARIFICATION (G1): the resolved meaning, e.g. links = short links' }
         policy_exception:
           type: object
           description: 'Required when approving a POLICY_EXCEPTION (G5); constitution VI requires every listed field'

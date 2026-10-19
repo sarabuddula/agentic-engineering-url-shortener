@@ -20,7 +20,7 @@ Generate demo keys with the helper script (A-009/D-004). The committed `.demo-ke
 eval "$(scripts/generate-demo-keys.sh)"   # exports ENGINEER_KEY, APPROVER_KEY, RELEASE_OWNER_KEY, REVIEWER_KEY
 ```
 
-The script generates a second, distinct approver identity — self-approval is prohibited (FR-046). Approval roles by gate: clarification (G3) is answered by the ENGINEER key; design/ADR approval (G4) and replan acceptance use the APPROVER key; policy exceptions (G5), accepted limitations (G6), and release authorization (G7) use the RELEASE_OWNER key.
+The script generates a second, distinct approver identity — self-approval is prohibited (FR-046). Approval roles by gate (ADR-008, accepted; plan §5 numbering): G1 clarification, G2 architecture, G3 security-sensitive, G4 destructive actions, and replan acceptance use the APPROVER key; G5 policy exceptions, G6 accepted limitations, G7 release readiness, and G8 final submission use the RELEASE_OWNER key; the REVIEWER key is read-and-verify only; every approver's key identity must differ from the requester's.
 
 ## Fixed-local resolver
 
