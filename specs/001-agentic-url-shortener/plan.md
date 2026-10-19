@@ -488,3 +488,11 @@ Chain: **Requirement → Scenario → Design → ADR → Task → Code → Test 
 ## Amendments — 2026-10-19 (change-controlled, human decisions)
 
 Replay after expiry (amends §2 Concurrency and idempotency mechanics). A replay carrying the same request identity and the same normalized payload returns the original link with HTTP 200, including its expired status (expires_at in the past is visible in the response); resolving the code still yields the defined expired-link behavior. The idempotency binding lasts as long as the SHORT_LINK row, which is permanent under FR-004; no second link is created and no code is reassigned. There is no purge endpoint.
+
+Bounds added 2026-10-19 (proposed human decisions; confirmed at T124):
+- Rework cap: at most 2 rework cycles per node after a rejection or validation gap; a third failure leads to governed termination (TERMINATED).
+- Replan cap: at most 2 accepted replans per run, as stated in the Dynamic replanning paragraph; a further request is rejected (409) and audited.
+- Synchronization wait: a join waits at most two approval windows (10 minutes with the default 5-minute window) for a stopped path, then the dependent path enters SAFE_STOPPED.
+- Boot recovery: runs found RUNNING at startup are set to SAFE_STOPPED with cause BOOT_RECOVERY and wait for POST /resume by an APPROVER; there is no auto-resume.
+- Effect verification: each external-effect operation type declares an idempotent verification (for example artifact content hash present, commit SHA present, row present by idempotency key); the result is stored in OPERATION_RECORD.effect_verified.
+- Failure audit: failure events are recorded in a separate transaction so a state rollback cannot erase the failure's own audit event.
