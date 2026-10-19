@@ -1,0 +1,585 @@
+openapi: 3.0.3
+info:
+  title: Agentic Software Engineering System — URL Shortener API
+  version: 1.0.0-draft
+  description: >
+    Contract draft for plan review. Status notes: 302 redirect, 410 expired response,
+    and base-62 code alphabet are proposals pending contract review; the 409
+    same-identity/different-payload conflict response is approved (spec delta,
+    2026-10-18). Control-plane endpoints require role-scoped keys (FR-045);
+    raw keys never appear in logs (NFR-001). Role names use the ROLE enum
+    spelling of data-model.md (ENGINEER, APPROVER, RELEASE_OWNER, REVIEWER).
+servers:
+  - url: http://localhost:8080
+    description: Local single-process prototype (ADR-004)
+
+# ------------------------------------------------------------------ versioning
+# Versioning notes:
+# - All paths are versioned under /api/v1; within v1 only ADDITIVE changes are
+#   permitted (new optional fields, new endpoints).
+# - Breaking changes require a new major version (/api/v2) plus migration steps,
+#   affected-consumer analysis, and change approval under C-005/plan §9.
+# - The redirect path GET /{code} is unversioned by design: short codes are
+#   permanent public identifiers (FR-004 never-reassign).
+# - Reserved route words: the short-code generator never emits the top-level
+#   route words "api" or "actuator"; a generated code colliding with a reserved
+#   route word is rejected and regenerated.
+# - Idempotency header: Idempotency-Key (renamed from X-Request-Id by human
+#   decision, 2026-10-19; X-Request-Id style names are commonly overwritten by
+#   proxies and logging tools).
+
+paths:
+  # ----------------------------- application plane (public / rate-limited) ----
+  /api/v1/links:
+    post:
+      summary: Create a short link (FR-001); open creation (A-002), per-IP limited (A-008a)
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: true
+          description: 'Stable idempotency identity for this request (FR-007); same identity + same normalized payload replays the same link, same identity + different payload returns 409'
+          schema: { type: string, minLength: 8, maxLength: 64 }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateLinkRequest' }
+            examples:
+              valid:
+                summary: Standard creation with default TTL
+                value:
+                  target_url: "https://example.com/some/long/path?query=1"
+              with_expiry:
+                summary: Explicit expiration
+                value:
+                  target_url: "https://example.com/report"
+                  expires_at: "2026-10-21T12:00:00Z"
+      responses:
+        '201':
+          description: New link created; no short code is allocated on any error path
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ShortLinkResponse' }
+              examples:
+                created:
+                  value:
+                    short_code: "aB3xK9mQ"
+                    target_url: "https://example.com/some/long/path?query=1"
+                    expires_at: "2026-10-25T16:00:00Z"
+                    created_at: "2026-10-18T16:00:00Z"
+        '200':
+          description: Idempotent replay — same Idempotency-Key and same normalized payload; returns the existing link unchanged (distinct from 201 so contract tests can tell them apart)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ShortLinkResponse' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '409':
+          description: Same Idempotency-Key replayed with a different normalized payload (approved spec delta 2026-10-18); no overwrite
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+              examples:
+                conflict:
+                  value: { code: "REQUEST_IDENTITY_CONFLICT", message: "Idempotency key already bound to a different payload", request_id: "req-7f3a2b" }
+        '429': { $ref: '#/components/responses/RateLimited' }
+
+  /{code}:
+    get:
+      summary: Resolve a short code and redirect (FR-005)
+      parameters:
+        - name: code
+          in: path
+          required: true
+          schema: { type: string, minLength: 4, maxLength: 16, pattern: '^[A-Za-z0-9]+$' }
+      responses:
+        '302':
+          description: Active link — redirect to target (proposal)
+          headers:
+            Location:
+              schema: { type: string, format: uri }
+              description: 'The recorded target URL; the service never fetches it (D-003)'
+        '404': { $ref: '#/components/responses/NotFound' }
+        '410':
+          description: Link expired (FR-006; 410 proposed)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+              examples:
+                expired:
+                  value: { code: "LINK_EXPIRED", message: "This short link has expired", request_id: "req-9d1c" }
+        '429': { $ref: '#/components/responses/RateLimited' }
+
+  /api/v1/analytics/summary:
+    get:
+      summary: Redirect analytics by outcome, optionally scoped to one link (FR-012 reporting; demonstration-grade, A-003); public — FR-045 requires keys only for control-plane endpoints
+      parameters:
+        - name: code
+          in: query
+          required: false
+          description: 'Optional short code; when present, counts are scoped to that link (SCN-A fixture)'
+          schema: { type: string, minLength: 4, maxLength: 16, pattern: '^[A-Za-z0-9]+$' }
+      responses:
+        '200':
+          description: Outcome counts; successful redirects distinguished from other outcomes
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AnalyticsSummary' }
+              examples:
+                summary_all:
+                  value:
+                    window: "all-time"
+                    redirected: 1523
+                    expired: 47
+                    not_found: 31
+                    unrecorded_capture_failures: 2
+                    loss_report_ref: "loss-report-3"
+                summary_for_link:
+                  value:
+                    code: "aB3xK9mQ"
+                    window: "all-time"
+                    redirected: 1523
+                    expired: 47
+                    not_found: 31
+                    unrecorded_capture_failures: 2
+                    loss_report_ref: "loss-report-3"
+
+  /actuator/health:
+    get:
+      summary: Health and dependency reachability (FR-010); Actuator-aligned
+      responses:
+        '200':
+          description: 'Service up; components include storage reachability. Aligned with Spring Boot Actuator output: each component is an object carrying at least a status; component details are NOT exposed publicly (default show-details=never remains in effect)'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/HealthStatus' }
+              examples:
+                up:
+                  value: { status: "UP", components: { storage: { status: "UP" } } }
+        '503':
+          description: Service or a critical dependency is down
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/HealthStatus' }
+
+  # ----------------------------- control plane (role-scoped keys, FR-045) ----
+  /api/v1/orchestrator/runs:
+    post:
+      summary: Ingest a requirement and create a workflow run (N01)
+      security: [ { ApiKeyAuth: [] } ]
+      x-required-roles: [ENGINEER]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RunRequest' }
+            examples:
+              greenfield:
+                summary: SCN-A fixture
+                value: { requirement_text: "Analytics summary endpoint returning redirect counts by outcome for a link" }
+              ambiguous:
+                summary: SCN-C fixture
+                value: { requirement_text: "Add support for links." }
+      responses:
+        '201':
+          description: Run created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RunResponse' }
+              examples:
+                created:
+                  value: { run_id: "run-42e1", status: "RUNNING", policy_version: "POL-2026-10-18-v1" }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+
+  /api/v1/orchestrator/runs/{runId}:
+    get:
+      summary: Run status, current node states, and pending approvals (US-005)
+      security: [ { ApiKeyAuth: [] } ]
+      x-required-roles: [ENGINEER, APPROVER, RELEASE_OWNER, REVIEWER]
+      parameters:
+        - { name: runId, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: 'Run detail, including open approval requests with their approval IDs'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RunResponse' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /api/v1/orchestrator/runs/{runId}/history:
+    get:
+      summary: Full decision lineage for reconstruction (FR-023, FR-030, US-005)
+      security: [ { ApiKeyAuth: [] } ]
+      x-required-roles: [ENGINEER, APPROVER, RELEASE_OWNER, REVIEWER]
+      parameters:
+        - { name: runId, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: 'Ordered state transitions, decisions, approvals, retries, failures, replanning, terminal outcome'
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/HistoryEntry' }
+              examples:
+                entry:
+                  value:
+                    seq: 17
+                    actor_type: "AGENT"
+                    action: "NODE_TRANSITION"
+                    affected: "N08"
+                    result: "SUCCEEDED"
+                    reason: "all task nodes succeeded"
+                    occurred_at: "2026-10-18T17:03:11Z"
+
+  /api/v1/orchestrator/runs/{runId}/verify:
+    get:
+      summary: Audit-chain integrity verification (FR-048)
+      security: [ { ApiKeyAuth: [] } ]
+      x-required-roles: [REVIEWER]
+      parameters:
+        - { name: runId, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: Verification result (also re-verified at N14 after terminal appends)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/VerificationResult' }
+              examples:
+                pass:
+                  value: { run_id: "run-42e1", verified: true, head_hash: "9f2c…", event_count: 214 }
+                fail:
+                  value: { run_id: "run-42e1", verified: false, failed_at_seq: 131, check: "hash-mismatch" }
+
+  /api/v1/orchestrator/runs/{runId}/approvals/{approvalId}:
+    post:
+      summary: Record a human decision on a pending approval (FR-024)
+      description: >
+        Approval kinds and required roles (all approvals additionally require an
+        identity distinct from the requester, FR-046): CLARIFICATION (G3) —
+        ENGINEER (the requester answers with clarification_answer);
+        DESIGN_APPROVAL (G4, ADR/design acceptance) — APPROVER;
+        POLICY_EXCEPTION (G5) — RELEASE_OWNER, with the policy_exception payload;
+        ACCEPTED_LIMITATION (G6) — RELEASE_OWNER, with accepted_limitation_text;
+        REPLAN_ACCEPTANCE (FR-046) — APPROVER, distinct from the replan requester;
+        RELEASE_AUTHORIZATION (G7, FR-037) — RELEASE_OWNER. Self-approval and
+        agent-approval attempts are denied, audited, and leave the approval pending.
+      security: [ { ApiKeyAuth: [] } ]
+      x-required-roles: [ENGINEER, APPROVER, RELEASE_OWNER]
+      parameters:
+        - { name: runId, in: path, required: true, schema: { type: string } }
+        - { name: approvalId, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ApprovalDecision' }
+            examples:
+              approve_design:
+                summary: G4 design approval
+                value: { decision: "APPROVE", reason: "ADRs reviewed" }
+              answer_clarification:
+                summary: G3 clarification (SCN-C)
+                value: { decision: "APPROVE", clarification_answer: "links = short links; the URL-shortener link entity" }
+              reject:
+                summary: Rejection
+                value: { decision: "REJECT", reason: "design does not satisfy FR-012" }
+      responses:
+        '200':
+          description: Decision recorded; affected path resumes or follows rejection behavior
+        '403':
+          description: 'Self-approval or agent-approval attempt (FR-046) — approval remains pending, attempt audited'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+              examples:
+                self:
+                  value: { code: "SELF_APPROVAL_DENIED", message: "Approver key identity must differ from the requester's", request_id: "req-4b8a" }
+        '410':
+          description: Approval window elapsed through escalation — affected path safe-stopped (PVT-005)
+
+  /api/v1/orchestrator/runs/{runId}/resume:
+    post:
+      summary: Controlled resumption after safe-stop (FR-028; requires recorded conditions)
+      security: [ { ApiKeyAuth: [] } ]
+      x-required-roles: [ENGINEER, APPROVER]
+      parameters:
+        - { name: runId, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: Run resumed from durable state; operation outcomes reconciled (PVT-006)
+        '409':
+          description: Resumption conditions not met (cause not addressed / governed approval missing)
+
+  /api/v1/orchestrator/runs/{runId}/replan:
+    post:
+      summary: Trigger dynamic replanning (FR-029; acceptance requires a distinct APPROVER)
+      security: [ { ApiKeyAuth: [] } ]
+      x-required-roles: [ENGINEER]
+      parameters:
+        - { name: runId, in: path, required: true, schema: { type: string } }
+      responses:
+        '202':
+          description: Replan event recorded; downstream re-validation queued; acceptance pending human approval
+
+  /api/v1/orchestrator/runs/{runId}/release-readiness:
+    get:
+      summary: Release-readiness recommendation and human decision record (FR-037)
+      security: [ { ApiKeyAuth: [] } ]
+      x-required-roles: [RELEASE_OWNER, REVIEWER]
+      parameters:
+        - { name: runId, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: 'Recommendation with per-check policy outcomes; decision is human-owned (RELEASE_OWNER records it via the approvals endpoint, kind RELEASE_AUTHORIZATION)'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ReleaseReadiness' }
+              examples:
+                ready:
+                  value:
+                    run_id: "run-42e1"
+                    recommendation: "READY"
+                    policy_outcomes: [ { check_id: "DEP-01", outcome: "PASS" }, { check_id: "CMP-02", outcome: "PASS" } ]
+                    decision: "PENDING"
+                not_ready:
+                  value:
+                    run_id: "run-43a7"
+                    recommendation: "NOT_READY"
+                    blocking_reasons: [ "DEP-01: undeclared dependency detected" ]
+
+  /api/v1/metrics/demo:
+    get:
+      summary: Demonstration metrics, clearly labeled demonstration-grade (FR-031; REVIEWER key)
+      security: [ { ApiKeyAuth: [] } ]
+      x-required-roles: [REVIEWER]
+      responses:
+        '200':
+          description: 'Success rate, failure rate, retry/rollback frequency, MTTR (null when no recovered failures), latency, unrecovered count'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DemoMetrics' }
+              examples:
+                demo:
+                  value:
+                    measurement_class: "DEMONSTRATION"
+                    workflow_success_rate: 1.0
+                    retry_count: 7
+                    rollback_count: 1
+                    compensation_count: 2
+                    mttr_ms: 4120
+                    recovered_failure_events: 3
+                    unrecovered_failure_events: 0
+                    governance_wait_ms_total: 61000
+                    p95_redirect_latency_ms: 38
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: 'Role-scoped demo key (A-009); stored as SHA-256 hash, key ID only in audit records (D-004). Scope is expressed via x-required-roles because non-OAuth schemes take an empty scope array in OpenAPI 3.0.'
+
+  responses:
+    ValidationError:
+      description: Malformed or disallowed input (FR-002); no short code allocated
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+          examples:
+            scheme:
+              value: { code: "URL_REJECTED", message: "Only HTTP and HTTPS targets are accepted", request_id: "req-1a2b" }
+    NotFound:
+      description: Unknown or deleted short code; no redirect (FR-014)
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+          examples:
+            unknown:
+              value: { code: "LINK_NOT_FOUND", message: "No such short code", request_id: "req-5c6d" }
+    Unauthorized:
+      description: Missing or invalid key (FR-045); audited (A-008d)
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    Forbidden:
+      description: Valid key lacking a required role (FR-045); audited
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    RateLimited:
+      description: Over A-008 limit; 429 with retry hint; no short code allocated; audited (FR-047)
+      headers:
+        Retry-After:
+          description: 'Delay in seconds until the client may retry (delay-seconds form)'
+          schema: { type: integer, minimum: 1 }
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+          examples:
+            limited:
+              value: { code: "RATE_LIMITED", message: "Too many requests; retry after the indicated interval", request_id: "req-7e8f", retry_after_seconds: 12 }
+
+  schemas:
+    Error:
+      type: object
+      required: [code, message]
+      properties:
+        code: { type: string, description: 'Stable machine-readable code, e.g. URL_REJECTED, LINK_NOT_FOUND, LINK_EXPIRED, REQUEST_IDENTITY_CONFLICT, SELF_APPROVAL_DENIED, RATE_LIMITED' }
+        message: { type: string }
+        request_id: { type: string, description: 'Correlation identifier echoed to the client' }
+        retry_after_seconds: { type: integer, description: 'Present only on 429 (FR-047 retry hint); mirrors the Retry-After header' }
+
+    CreateLinkRequest:
+      type: object
+      required: [target_url]
+      properties:
+        target_url: { type: string, format: uri, maxLength: 2048, description: 'HTTP/HTTPS only (A-007); internal/local addresses rejected (D-003)' }
+        expires_at: { type: string, format: date-time, description: 'Optional; default TTL 7 days applies when absent (A-006)' }
+
+    ShortLinkResponse:
+      type: object
+      required: [short_code, target_url, expires_at, created_at]
+      properties:
+        short_code: { type: string, pattern: '^[A-Za-z0-9]+$', description: 'Base-62 proposal; never reassigned (FR-004); reserved route words api and actuator are excluded from generation' }
+        target_url: { type: string, format: uri, description: 'Canonical form (FR-013)' }
+        expires_at: { type: string, format: date-time }
+        created_at: { type: string, format: date-time }
+
+    AnalyticsSummary:
+      type: object
+      required: [window, redirected, expired, not_found]
+      properties:
+        code: { type: string, description: 'Present only when the request scoped the summary to one link' }
+        window: { type: string }
+        redirected: { type: integer }
+        expired: { type: integer }
+        not_found: { type: integer }
+        unrecorded_capture_failures: { type: integer, description: 'Quantified loss (FR-015)' }
+        loss_report_ref: { type: string }
+
+    HealthStatus:
+      type: object
+      required: [status]
+      properties:
+        status: { type: string, enum: [UP, DOWN] }
+        components:
+          type: object
+          description: 'Actuator component map; each value is an object carrying at least a status. Component details are not exposed publicly (default show-details=never).'
+          additionalProperties:
+            type: object
+            required: [status]
+            properties:
+              status: { type: string, enum: [UP, DOWN, OUT_OF_SERVICE, UNKNOWN] }
+
+    RunRequest:
+      type: object
+      required: [requirement_text]
+      properties:
+        requirement_text: { type: string, minLength: 1 }
+
+    RunResponse:
+      type: object
+      required: [run_id, status, policy_version]
+      properties:
+        run_id: { type: string }
+        status: { type: string, enum: [RUNNING, AWAITING_APPROVAL, SUSPENDED_CLARIFICATION, SAFE_STOPPED, COMPLETED, TERMINATED] }
+        policy_version: { type: string }
+        run_revision: { type: integer }
+        terminal_outcome: { type: string, description: 'Present on terminal states' }
+        pending_approvals:
+          type: array
+          description: 'Open approval requests on this run; each carries the approval ID used with POST /approvals/{approvalId}'
+          items:
+            type: object
+            required: [approval_id, kind, requested_at, expires_at]
+            properties:
+              approval_id: { type: string }
+              kind: { type: string, enum: [CLARIFICATION, DESIGN_APPROVAL, POLICY_EXCEPTION, ACCEPTED_LIMITATION, REPLAN_ACCEPTANCE, RELEASE_AUTHORIZATION] }
+              gate: { type: string, description: 'Constitutional gate reference, e.g. G4' }
+              reason: { type: string }
+              requested_at: { type: string, format: date-time }
+              expires_at: { type: string, format: date-time }
+
+    HistoryEntry:
+      type: object
+      required: [seq, actor_type, action, occurred_at]
+      properties:
+        seq: { type: integer }
+        actor_type: { type: string, enum: [HUMAN, AGENT, SYSTEM] }
+        action: { type: string }
+        affected: { type: string, description: 'Node, artifact, or state reference' }
+        result: { type: string }
+        reason: { type: string }
+        occurred_at: { type: string, format: date-time }
+
+    VerificationResult:
+      type: object
+      required: [run_id, verified]
+      properties:
+        run_id: { type: string }
+        verified: { type: boolean }
+        head_hash: { type: string }
+        event_count: { type: integer }
+        failed_at_seq: { type: integer, description: 'Present only on failure (FR-048)' }
+        check: { type: string, description: 'Failure check: hash-mismatch | link-broken | sequence-gap | truncation' }
+
+    ApprovalDecision:
+      type: object
+      required: [decision]
+      properties:
+        decision: { type: string, enum: [APPROVE, REJECT] }
+        reason: { type: string }
+        clarification_answer: { type: string, description: 'Required when approving a CLARIFICATION (G3): the resolved meaning, e.g. links = short links' }
+        policy_exception:
+          type: object
+          description: 'Required when approving a POLICY_EXCEPTION (G5); constitution VI requires every listed field'
+          required: [policy_check_id, scope, compensating_control, expiry_or_review_condition]
+          properties:
+            policy_check_id: { type: string }
+            scope: { type: string }
+            compensating_control: { type: string }
+            expiry_or_review_condition: { type: string }
+        accepted_limitation_text: { type: string, description: 'Required when approving an ACCEPTED_LIMITATION (G6): the disclosed limitation being accepted' }
+
+    ReleaseReadiness:
+      type: object
+      required: [run_id, recommendation]
+      properties:
+        run_id: { type: string }
+        recommendation: { type: string, enum: [READY, READY_WITH_ACCEPTED_LIMITATIONS, NOT_READY] }
+        policy_outcomes:
+          type: array
+          items:
+            type: object
+            required: [check_id, outcome]
+            properties:
+              check_id: { type: string }
+              outcome: { type: string, enum: [PASS, FAIL, EXCEPTION_REQUESTED, NOT_APPLICABLE] }
+        accepted_limitations:
+          type: array
+          items: { type: string }
+          description: 'Present only when individually approved (CL-5)'
+        blocking_reasons:
+          type: array
+          items: { type: string }
+        decision: { type: string, enum: [PENDING, APPROVED, REJECTED], description: 'Human-owned (FR-037); recorded via the approvals endpoint, kind RELEASE_AUTHORIZATION, by RELEASE_OWNER' }
+
+    DemoMetrics:
+      type: object
+      required: [measurement_class, workflow_success_rate, mttr_ms]
+      properties:
+        measurement_class: { type: string, enum: [DEMONSTRATION], description: 'Always DEMONSTRATION — never presented as production statistics (C-004)' }
+        workflow_success_rate: { type: number }
+        retry_count: { type: integer }
+        rollback_count: { type: integer }
+        compensation_count: { type: integer }
+        mttr_ms: { type: number, nullable: true, description: 'N/A (null) when no recovered failures' }
+        recovered_failure_events: { type: integer }
+        unrecovered_failure_events: { type: integer }
+        governance_wait_ms_total: { type: integer, description: 'Reported separately, not part of MTTR (plan §7)' }
+        p95_redirect_latency_ms: { type: number }
