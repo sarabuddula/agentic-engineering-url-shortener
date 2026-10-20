@@ -25,3 +25,11 @@ Decision: I, the human candidate, accept JDK 21.0.12.1 (Temurin) and Apache Mave
 Observed output, run 2026-10-20 on the candidate's machine:
 - `java -version`: openjdk version "21.0.12.1" 2026-08-18 LTS; OpenJDK Runtime Environment Temurin-21.0.12.1+1 (build 21.0.12.1+1-LTS)
 - `mvn -v`: Apache Maven 3.9.16 (2bdd9fddda4b155ebf8000e807eb73fd829a51d5); Java version: 21.0.12.1, vendor: Eclipse Adoptium; OS: mac os x 13.7.8, x86_64
+
+## Spring Boot pin and disclosed limitation (2026-10-20; governed edit reviewed by the human candidate)
+
+Decision: the human candidate pinned Spring Boot 3.5.16 (`spring-boot-starter-parent`) at T001, within ADR-002 (Spring Boot 3.x). Observed on Maven Central 2026-10-20: 3.5.16 is the latest 3.x release; the latest overall is 4.2.0-M2.
+
+Disclosed limitation: open-source support for the Spring Boot 3.5 line ended on 30 June 2026 (date confirmed by the human candidate 2026-10-20). The prototype therefore runs on a framework line without upstream OSS patches; this is relevant to DEP-02 (vulnerability scan) and release readiness.
+
+Upgrade path: Spring Boot 4.x. A move to 4.x is a change to the approved architecture (ADR-002 names 3.x) and requires impact analysis and change approval under C-005; it is not part of the current task plan.
