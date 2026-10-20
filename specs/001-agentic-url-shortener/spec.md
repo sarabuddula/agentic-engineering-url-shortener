@@ -21,6 +21,30 @@ Scenario identifiers: US-nnn (user stories), SCN-A/B/C (demonstration scenarios)
 - 2026-10-19: MTTR excludes governance wait (reported separately, plus a labelled secondary figure).
 - 2026-10-19: replan control (staged revision, HELD nodes, cap 2), rework cap 2, sync-wait bound of 2 approval windows, boot recovery to SAFE_STOPPED, DNS lookup timeout 3 s, and resume of governed stops by an APPROVER key are plan-level details of FR-024, FR-028 and FR-029.
 
+### Amendment Appendix A - Checklist closure (2026-10-19, C-005; proposals confirmed at T124; approved requirement text above is unchanged)
+
+**Glossary.**
+- Request identity: the client-supplied Idempotency-Key header value that identifies one logical creation request (FR-007).
+- Operation: a side-effecting unit of work with a stable operation_id recorded in OPERATION_RECORD (type ARTIFACT_WRITE, TEST_RUN, DOC_GENERATE, POLICY_EVAL or APPROVAL_REQUEST).
+- Approval: a human decision record on a gate (G1-G8, replan acceptance, CHANGE_APPROVAL) with states PENDING, APPROVED, REJECTED, ESCALATED, made with an approver key identity distinct from the requester's.
+
+**Parent mapping for Derived FRs.** FR-004 derives from FR-005 and FR-006 (an expired link must never redirect to an unrelated target); FR-013 derives from FR-002, FR-003 and FR-007 (canonical form is needed for validation and request-identity comparison); FR-014 derives from FR-005 (an unknown code needs a defined non-redirect response); FR-015 derives from FR-012 (synchronous capture needs a defined failure outcome); FR-043 derives from FR-020 (an explicit graph must be shown running parallel paths with a synchronization point).
+
+**Definitions.** Material ambiguity (FR-035): a requirement statement is materially ambiguous when it admits two or more interpretations that would yield different API contracts, data schemas or acceptance criteria, or omits a subject, action or acceptance condition needed to derive a testable acceptance criterion. Re-validating (FR-029): recomputing the content hash of each input artifact, evidence record and approval of an affected downstream node against the changed upstream version; a mismatch marks the item INVALIDATED and it must be regenerated and re-approved before the node can succeed.
+
+**Sub-outcomes of bundled requirements (FR-007, FR-024, FR-037).** Each sub-outcome is separately observable and testable; the requirement text above is unchanged.
+- FR-007: (a) same identity and same normalized payload returns the existing link without a second link; (b) concurrent retries with one identity leave exactly one link; (c) independent requests for the same URL create separate links; (d) a replay does not double-count analytics.
+- FR-024: (a) the covered actions are gated; (b) progression from PENDING is impossible; (c) rejection leads to bounded rework or governed termination; (d) a first timeout escalates and re-issues once with an equal window; (e) a second timeout puts the path in safe-stop; (f) silence is never approval; (g) timeouts and rejections are non-retryable.
+- FR-037: (a) exactly one of READY, READY WITH ACCEPTED LIMITATIONS, NOT READY; (b) a mandatory policy failure or an unapproved or expired exception gives NOT READY; (c) the middle outcome requires every limitation individually approved and no non-waivable principle among them; (d) the system recommends and the human decides.
+
+**Objective pass/fail rules.** SC-005 passes when, for every demonstration run, the metrics endpoint returns success rate, retry and rollback counts, MTTR (null when no recovered failure), unrecovered count and end-to-end latency, each response carries measurement_class = DEMONSTRATION, and no document presents these figures as production measurements; otherwise it fails. SC-006 passes when a reviewer holding only the repository and the persisted audit records reproduces, for a chosen demonstration run, the ordered list of state transitions, approvals, retries, failures, replans and the terminal outcome, and that list matches the history endpoint with a passing chain verification; any mismatch or missing record fails it.
+
+**Method and environment for PVT-005..008 (proposed; confirmed at T124).** Environment for all four: local single JVM, demonstration configuration, fixed-local resolver. PVT-005: low-timeout test configuration; measure escalation at the first window, one re-issue, and SAFE_STOPPED at the second window. PVT-006: kill the JVM mid-run, restart and reconcile; count effects per operation_id and require exactly one. PVT-007: for each demonstration run compare the set of state transitions with the audit events and require every required field present. PVT-008: compute success rate and MTTR from FAILURE_EVENT and run records for every demonstration run; report N/A when there is no recovered failure.
+
+**Burst values (proposed; confirmed at T124).** A-008c control-plane per key: burst capacity 30. A-008d failed authentication per IP: burst capacity 10.
+
+**Numeric bounds recorded as assumptions (proposed; confirmed at T124).** A-013: retry backoff 1 s, 2 s, 4 s with +/-20% jitter; per-operation timeout 10 s; automated-path deadline 60 s. A-014: up to 5 in-transaction optimistic-lock re-attempts, not counted against the 3 stage retries. A-015: DNS lookup timeout 3 s. A-016: rework cap 2 per node. A-017: replan cap 2 accepted replans per run. A-018: synchronization wait limit of 2 approval windows.
+
 ## Clarifications
 
 ### Session 2026-10-18

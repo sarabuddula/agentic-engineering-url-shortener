@@ -23,6 +23,7 @@ Storage: single H2 file database, both planes, behind repository interfaces (ADR
 | **ARTIFACT** | id (PK), run_id (FK), type (DESIGN, ADR, IMPACT_ANALYSIS, CODE, TEST, DOC, SUMMARY, …), version, content_hash, provenance (DETERMINISTIC, AI_ASSISTED_HUMAN_REVIEWED — Constitution X labeling), created_at — the generic versioned-artifact table referenced by lineage rows |
 | **STAGE_NODE** | id (PK), run_id (FK), node_key (N01–N14), status, attempt_count, run_revision (bound at creation), version (optimistic lock), entry_state, exit_state, not_applicable_reason |
 | **STAGE_EDGE** | id (PK), run_id (FK), from_node, to_node, kind (DEPENDENCY, SYNC, CONDITIONAL) |
+| **NODE_INPUT** | node_id (FK), artifact_id (FK), artifact_version, content_hash_at_read, role (INPUT, EVIDENCE, APPROVAL_REF), recorded_at - composite PK (node_id, artifact_id, artifact_version); records exactly which artifact versions a stage read so a resumed run reconstructs what the stage saw and replanning re-validation compares content_hash_at_read (plan sections 3 and 4) |
 | **TASK** | id (PK), run_id (FK), node_id (FK), title, requirement_refs, status, executor_class (DETERMINISTIC, HUMAN_INGESTED) |
 | **TASK_DEPENDENCY** | (task_id, depends_on_task_id) composite PK — explicit dependency rows, not a list column (FR-036) |
 | **OPERATION_RECORD** | operation_id (PK, stable identity), run_id (FK), node_id (FK), type (ARTIFACT_WRITE, TEST_RUN, DOC_GENERATE, POLICY_EVAL, APPROVAL_REQUEST - each with an effect-verification rule, plan section 3), status (PENDING, COMPLETED, FAILED), effect_verified (bool — set by restart reconciliation), created_at, completed_at — the exactly-once mechanism of plan §3 |
@@ -45,7 +46,7 @@ Storage: single H2 file database, both planes, behind repository interfaces (ADR
 ## Relationships
 
 - WORKFLOW_RUN 1—n STAGE_NODE, STAGE_EDGE, TASK, TASK_DEPENDENCY, OPERATION_RECORD, FAILURE_EVENT, APPROVAL, ACCEPTED_LIMITATION, RELEASE_DECISION, AUDIT_EVENT, POLICY_EVALUATION, POLICY_EXCEPTION, REPLANNING_EVENT, DECISION_LINEAGE, TEST_OUTCOME, RISK_OUTCOME, ARTIFACT; 1—1 ENGINEERING_SUMMARY, REQUIREMENT_ARTIFACT (current version).
-- STAGE_NODE 1—n TASK; TASK 1—n TASK_DEPENDENCY; APPROVAL 1—0..1 REPLANNING_EVENT; APPROVAL 1—0..n ACCEPTED_LIMITATION; POLICY_EXCEPTION 1—0..1 POLICY_EVALUATION.
+- STAGE_NODE 1—n TASK; TASK 1—n TASK_DEPENDENCY; APPROVAL 1—0..1 REPLANNING_EVENT; APPROVAL 1—0..n ACCEPTED_LIMITATION; POLICY_EXCEPTION 1—0..1 POLICY_EVALUATION. STAGE_NODE 1—n NODE_INPUT; NODE_INPUT n—1 ARTIFACT.
 - SHORT_LINK 1—n REDIRECT_EVENT (application plane; cross-plane references by identifier only).
 
 ## State transitions
@@ -86,7 +87,7 @@ Storage: single H2 file database, both planes, behind repository interfaces (ADR
 | SEC-02 | Security | Internal/local address rejection rule set enforced (D-003, incl. approved additions) | Automated | Test suites |
 | SEC-03 | Security | No secrets or raw keys in logs or committed files (secret scan + log-content test) | Automated (offline) | gitleaks (local file scan) + log-content test |
 | CMP-01 | Compliance | Policy version recorded on the run; every applicable check produced exactly one four-valued outcome | Automated | Engine evaluation |
-| CMP-02 | Compliance | Failed-mandatory-check blocking semantics: PASS when no mandatory failure exists in the run, **or** when a failure existed and authorization was verifiably blocked (negative-path evidence); FAIL when a mandatory failure exists without a blocked-authorization record | Automated | Engine evaluation + forced-FAIL demonstration |
+| CMP-02 | Compliance | Failed-mandatory-check blocking semantics: PASS when no mandatory failure exists in the run, **or** when a failure existed and authorization was verifiably blocked (negative-path evidence); FAIL when a mandatory failure exists without a blocked-authorization record; rollback/compensation coverage (amendment 2026-10-19): additionally PASS only when every FAILURE_EVENT of the run recovered by FP-3 has a recorded compensating action, every rollback attempt on an irreversible operation (FR-049) was rejected and audited, and no operation was recovered by rollback unless classified reversible; FAIL otherwise | Automated | Engine evaluation + forced-FAIL demonstration |
 | PRV-01 | Privacy | Analytics fields limited to the approved set; no personal information (field-level check) | Automated | Test suites |
 | PRV-02 | Privacy | No PII in logs or analytics beyond the approved minimum | Attestation (human review, recorded) | — |
 | AUD-01 | Audit retention | No update/delete API exists on audit/workflow records (API surface test) | Automated | Test suites |

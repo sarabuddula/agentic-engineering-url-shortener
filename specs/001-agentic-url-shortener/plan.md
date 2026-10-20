@@ -162,7 +162,7 @@ specs/001-agentic-url-shortener/
 
 **Concurrency and idempotency mechanics (design).** Creation runs in a transaction with a unique constraint on request identity: concurrent retries sharing one identity race on the constraint; the loser reads and returns the existing link (same short code, same result, original effective expiration preserved); this also holds after the link has expired - a replay returns the original link with 200, never 410 or a new link (human decision 2026-10-19). A replay carrying the same request identity but a different normalized payload returns a defined conflict response (409, approved 2026-10-18) and is audited — no silent overwrite. Independently issued requests (distinct identities) each create new links (FR-007). Short-code collisions are handled by the separate short-code unique constraint with bounded regeneration. PVT-003's concurrency tests exercise both races distinctly.
 
-**Spec deltas (C-005).** The 409 conflict response for a request-identity replay carrying a different normalized payload is a behavior **not present in the approved specification**, recorded as a spec delta — **approved by the human candidate 2026-10-18** (it follows from the FR-007 idempotency design); treated as binding from that date. Contract-review decision closed by human decision 2026-10-19 (not spec deltas): 302 for active redirects, 410 for expired links, base-62 code alphabet adopted.
+**Spec deltas (C-005).** The 409 conflict response for a request-identity replay carrying a different normalized payload is a behavior **not present in the approved specification**, recorded as a spec delta — **approved by the human candidate 2026-10-18** (it follows from the FR-007 idempotency design); treated as binding from that date. Contract-review decision closed by human decision 2026-10-19 (not spec deltas): 302 for active redirects, 410 for expired links, base-62 code alphabet adopted. Further spec deltas recorded in the spec Amendment Log (human decisions 2026-10-18/19), without changing approved requirement text: (a) HTTP 201 for a newly created link and HTTP 200 for an idempotent replay (same Idempotency-Key and same normalized payload); (b) HTTP 400 with no short code allocated when the Idempotency-Key is missing or malformed (8-64 characters); (c) a replay after the link has expired returns the original link with 200, because the idempotency binding lives as long as the SHORT_LINK row. Re-acceptance of the 2026-10-19 items is recorded at T124.
 
 **Header note (C-005).** FR-007 binds idempotency to the client-supplied request identity without naming a header; the binding mechanism is the contract-level `Idempotency-Key` header (renamed from X-Request-Id by human decision 2026-10-19). This is a contract-level decision recorded here for traceability, not a spec delta.
 
@@ -184,6 +184,8 @@ specs/001-agentic-url-shortener/
 - **Human/AI-assisted artifact production** — where a stage's work product (design text, ADRs, code) is produced by the human candidate with AI assistance *outside* the runtime system and ingested as a versioned artifact with provenance (labeled AI-assisted, human-reviewed, per Constitution X). The runtime records execution and validation evidence; it does not fabricate authorship.
 
 The runtime graph demonstrates governance for **ingested demonstration requirements** (SCN-A/B/C). The in-system gates (N07, N13) mirror but do **not** replace the constitution's separate lifecycle gates for building this prototype itself — architecture approval (Human Gate 4), checklist, task generation, analysis, pre-implementation review, and reviewer gates remain authoritative for this repository.
+
+**Per-node executor whitelist (amendment 2026-10-19, C-005).** Whitelisted operations: versioned artifact read (AR), versioned artifact write (AW), test-suite invocation (TS), metrics query (MQ), policy evaluation (PE), approval-request creation (AQ). N01 AW; N02 AR, AW; N03 AR, AQ; N04 AR, AW (read-only scan of the repository and the mapping manifest); N05 AR, AW; N06 AR, AW; N07 AR, AQ; N08 AR, AW (ingested artifacts only; no approval and no git history rewrite); N09 AR, TS; N10 AR, AW; N11 AR, AW, MQ; N12 AR, PE; N13 AR, AQ; N14 AR, AW. An operation outside a node's list is blocked and audited (actor_type AGENT, result BLOCKED).
 
 **Graph (SCN-A path; conditional nodes marked).**
 
@@ -302,6 +304,9 @@ All entities below are control-plane-owned rows in the shared H2 store; each car
 | N09 testing | Re-run suite (idempotent) | Repeated failure → permanent | Evidence gap → NOT READY path |
 | N10 documentation | Regenerate (idempotent) | — | Path failure |
 | N11–N12 evidence/policy | FP-1 retry | Policy FAIL is deterministic — no retry | Blocks release authorization (§9) |
+| N04 impact-analysis (amendment 2026-10-19, C-005) | FP-1 retry (idempotent static scan) | Permanent failure: no fallback, because the change cannot proceed without impact identification | Governed termination (TERMINATED) or rework of the change request; N05 never starts without the impact artifact |
+| N13 release-readiness gate (amendment 2026-10-19, C-005) | No retries: timeouts and rejections are non-retryable (FR-025); escalation per PVT-005 | - | Rejection: bounded rework (cap 2) or governed termination; double timeout: SAFE_STOPPED; release is not authorized |
+| N14 engineering-summary (amendment 2026-10-19, C-005) | FP-1 retry (idempotent regeneration) | Permanent failure: the run stays in its last decided state and no completion is declared (FR-044) | SAFE_STOPPED with a summary-failure cause; the NOT READY determination persisted at N12 is unaffected |
 
 **Idempotency and duplicate-execution protection.** Request-identity unique constraint (FR-007); durable operation identities + completion records; on resumption, operations without a completion record are reconciled or the run safe-stops — never blindly re-executed (§3).
 
@@ -311,6 +316,7 @@ All entities below are control-plane-owned rows in the shared H2 store; each car
 |---|---|---|
 | Audit-chain appends, issued short codes, recorded approvals/decisions, recorded analytics events, released/tagged/published artifacts (FR-027 list) | Irreversible | Compensation recorded and applied (FR-049); attempted rollback rejected + audited |
 | Candidate rows inserted inside an **uncommitted transaction** | **Reversible** | Rollback: inject failure before commit, transaction rolls back, verify no rows remain — the demonstrable rollback case (FR-027) |
+| N08 committed code and test files (implementation) (amendment 2026-10-19, C-005) | Irreversible (a git revert is a new forward commit) | Compensation: the revert commit is recorded as the compensating action; issued artifacts are never rewritten (data-model rollback table) |
 | Unclassified operations | Irreversible (default) | Compensation |
 
 **Safe-stop and resumption.** FP-4 causes: retry exhaustion on a mandatory path, double approval timeout, unknown failure on a mandatory path (governed termination is a separate TERMINATED state, not a safe-stop), or no viable fallback (FR-026). Resumption requires recorded conditions (cause addressed) plus human approval where the stop involved a governed decision (FR-028). PVT-006 demonstration: kill-and-restart, including interruption after an effect but before its completion record — zero duplicate side effects.
@@ -379,6 +385,7 @@ Test types (guide-required) mapped to what they verify; the seven NFR-009 catego
 | Fallback | FP-2 alternatives per stage group; safe-stop when none pre-approved | FR-026 |
 | Rollback / compensation | Uncommitted-transaction rollback case; irreversible rejection + compensation | FR-027, FR-049 |
 | Safe-stop / resumption | Kill-and-restart; after-effect/before-completion-record case; zero duplicate effects | FR-028, PVT-006 |
+| Audit completeness (orchestration transition + integration) (amendment 2026-10-19, C-005) | Every state transition of a fixture run is retrievable from AUDIT_EVENT with all required fields; the history endpoint reconstructs the run (100%) | PVT-007, FR-030, NFR-006 |
 | Replanning | Trigger set, invalidation, approver-differs rule | FR-029, D-006 |
 | Concurrency | 100 concurrent creations with stub DNS and a controlled (fresh, test-configured) rate-limit initial state; duplicate-identity races | FR-008, PVT-003 |
 | Performance | PVT-001 (≥ 99% resolution success) and PVT-002 (≥ 95% < 200 ms): recorded workload (request count, population of valid active links), environment (local, single JVM), and measured results; failures reported as deviations through the FR-033 process | PVT-001, PVT-002 |
@@ -387,6 +394,8 @@ Test types (guide-required) mapped to what they verify; the seven NFR-009 catego
 | Release-readiness | Policy outcomes, NOT READY path, forced mandatory-FAIL demonstration (POL-DEP-01), completion gate | FR-032, FR-033, FR-037, FR-044 |
 
 **PVT-008:** workflow success rate and MTTR (N/A when no recovered failures) are reported for **every** demonstration run, alongside the other demonstration metrics (§7).
+
+**NFR validation approach (amendment 2026-10-19, C-005).** NFR-004 maintainability: ArchUnit plane and layer rules plus the ADR inventory review (T009, architecture-orchestration checklist). NFR-005 observability: correlation-ID log-capture test and a history reconstruction test (T022, T085). NFR-006 auditability: audit-event field-completeness test over every transition plus the tamper-detection suite (T020, T021, T053). NFR-010 change safety: CHG-01 and CHG-02 policy checks plus the CHANGE_APPROVAL flow test (T062, T119). NFR-011 controlled autonomy: executor-whitelist block test, agent-approval 403 test and blocked-progression audit test (T051, T059, T065).
 
 ### 11. Scenario Designs
 
@@ -429,7 +438,7 @@ Scenario inputs below are **proposed demonstration fixtures** — demonstration 
 
 ### 12. Technology Decisions
 
-Full records (context, drivers, options, consequences, risks, reversibility, validation) in ADR-001 to ADR-005 at the ADR gate — the gate may identify **additional** material decisions beyond these five. Summary (ADR-level vs implementation):
+Full records (context, drivers, options, consequences, risks, reversibility, validation) are in ADR-001 to ADR-009, all Accepted by the human candidate on 2026-10-18 (Human Gate 4); ADR-006 to ADR-009 were added at the ADR gate (short-code and idempotency, orchestration model, approval and authentication, failure semantics). ADR-001 and ADR-006 carry 2026-10-19 amendments whose re-acceptance is recorded at T124. The table below summarizes the first decisions (ADR-level vs implementation):
 
 | # | Decision | Level | Selected | Rejected | Rationale | Risk | Reversibility | Validation |
 |---|---|---|---|---|---|---|---|---|
