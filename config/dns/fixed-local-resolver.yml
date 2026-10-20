@@ -1,0 +1,7 @@
+# Fixed-local resolution table (quickstart "Fixed-local resolver"). Demonstration fixture data:
+# used when app.dns.resolver-mode is fixed-local, so no DNS query is made. Entries must be IP literals.
+# Add hostnames used by demonstration fixtures here.
+resolver-mode: fixed-local
+entries:
+  example.com: 93.184.216.34
+  example.org: 93.184.215.14

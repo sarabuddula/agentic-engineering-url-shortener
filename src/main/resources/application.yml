@@ -1,0 +1,22 @@
+app:
+  dns:
+    # fixed-local: table at config/dns/fixed-local-resolver.yml, no network (demonstration default); live: real DNS
+    resolver-mode: fixed-local
+    lookup-timeout: 3s                # A-015
+  rate-limit:
+    creation-per-ip:                  # A-008a
+      requests-per-minute: 60
+      burst: 100
+    redirect-per-ip:                  # A-008b
+      requests-per-minute: 600
+      burst: 200
+    control-plane-per-key:            # A-008c
+      requests-per-minute: 120
+    failed-auth-per-ip:               # A-008d, D-004
+      failures-per-minute: 10
+      block-duration: 5m
+  default-ttl-days: 7                 # A-006
+  approval-timeout-minutes: 5         # PVT-005
+  rework-cap: 2                       # A-016
+  replan-cap: 2                       # A-017
+  sync-wait-approval-windows: 2       # A-018

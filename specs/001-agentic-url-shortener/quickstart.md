@@ -46,6 +46,10 @@ Behavior: a target hostname present in the table resolves to the listed address 
 | `app.rate-limit.failed-auth-per-ip` | 10/min, then 5-min block | A-008d + D-004 |
 | `app.default-ttl-days` | 7 | A-006 |
 | `app.approval-timeout-minutes` | 5 | PVT-005 (escalation re-issue, equal second window) |
+| `app.dns.lookup-timeout` | 3s | A-015; bounds `live` DNS lookups |
+| `app.rework-cap` | 2 | A-016; rework cycles per rejected gate before governed termination |
+| `app.replan-cap` | 2 | A-017; accepted replans per run |
+| `app.sync-wait-approval-windows` | 2 | A-018; approval windows a synchronization point waits for a stopped path |
 
 ## Build and test
 
