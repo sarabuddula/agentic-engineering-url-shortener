@@ -26,6 +26,8 @@
         <swagger-request-validator.version>2.44.8</swagger-request-validator.version>
         <!-- Pinned at T004; LIC-01 license inventory -->
         <license-maven-plugin.version>2.7.1</license-maven-plugin.version>
+        <!-- Pinned at T009; NFR-004 architecture rules -->
+        <archunit.version>1.5.1</archunit.version>
     </properties>
 
     <dependencies>
@@ -61,6 +63,13 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!-- Plane and layer rules fail the build on forbidden dependencies (T009) -->
+        <dependency>
+            <groupId>com.tngtech.archunit</groupId>
+            <artifactId>archunit-junit5</artifactId>
+            <version>${archunit.version}</version>
             <scope>test</scope>
         </dependency>
         <!-- Executable OpenAPI contract validation in API contract tests -->

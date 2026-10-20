@@ -7,7 +7,7 @@
 | 1 | Java 21 LTS | Candidate fluency under the 2–3 day timebox; typed workflow states and audit invariants (sealed types, records); virtual threads for PVT-003 concurrency | TypeScript/Node 22 (weaker runtime typing on state/audit invariants, lower fluency); Python 3.12 + FastAPI (concurrency and typing discipline weaker) |
 | 2 | Spring Boot 3.x (Web MVC) | Actuator covers FR-010 health; security filter chain fits role-scoped keys and rate limiting; deepest candidate fluency | Quarkus 3.x (shallower fluency, custom auth path); Javalin/plain JDK (hand-built plumbing) |
 | 3 | H2 file mode, behind repository interfaces (`com.h2database:h2` 2.3.232, runtime scope, Boot-managed, added at T008 on 2026-10-20; `mvn dependency:tree` line: `+- com.h2database:h2:jar:2.3.232:runtime`) | Zero-install durability for FR-022 resumability; MVCC for PVT-003; declarative uniqueness; PostgreSQL stays a documented swap path with a portable persistence test suite | SQLite (single-writer risk); PostgreSQL (external dependency vs A-004); in-memory-only (cannot satisfy FR-022) |
-| 4 | JUnit 5 + Spring Boot Test + AssertJ + Mockito + REST Assured + ArchUnit (`spring-boot-starter-test` 3.5.16 added at T007 on 2026-10-20, test scope, Boot-managed: JUnit Jupiter 5.12.2, AssertJ 3.27.7, Mockito 5.17.0; see T007 dependency:tree output below) | Spring-native; covers all seven NFR-009 categories; container-free domain tests for red-green-refactor; ArchUnit enforces plane/layer separation | Spock/Groovy (second toolchain, fluency risk); TestNG (fights Spring Boot's JUnit-5-first ecosystem) |
+| 4 | JUnit 5 + Spring Boot Test + AssertJ + Mockito + REST Assured + ArchUnit (`spring-boot-starter-test` 3.5.16 added at T007 on 2026-10-20, test scope, Boot-managed: JUnit Jupiter 5.12.2, AssertJ 3.27.7, Mockito 5.17.0; see T007 dependency:tree output below; `archunit-junit5` pinned 1.5.1, test scope, at T009 on 2026-10-20, see T009 dependency:tree output below) | Spring-native; covers all seven NFR-009 categories; container-free domain tests for red-green-refactor; ArchUnit enforces plane/layer separation | Spock/Groovy (second toolchain, fluency risk); TestNG (fights Spring Boot's JUnit-5-first ecosystem) |
 | 5 | Single Spring Boot fat jar, Maven single module | Simplest reviewer setup; kill-and-restart is the cleanest PVT-006 interruption/resumption demonstration | Two processes (inter-process contract, doubled ops surface); Docker Compose (mandatory Docker dependency vs A-004) |
 | 6 | Workflow state as relational tables in the shared H2 store (ADR-005) | State transitions and audit events commit in one transaction; approvals carry explicit lifecycle columns; US-005 reconstruction is a query, not a rebuild | Event-sourced journal with replay/snapshots (machinery exceeds state size); per-run JSON files (no transactional coupling, no queryability) |
 | 7 | Bucket4j `bucket4j_jdk17-core` (Apache-2.0; version to be verified and pinned at the engineering-baseline task; pinned 8.21.0, compile scope, at T003 on 2026-10-20, see T003 dependency:tree output below), own servlet filter | Tested token-bucket implementation for FR-047/A-008a-d; bounded bucket map with eviction rules and capacity-pressure test | Hand-rolled counter (concurrency bug risk under PVT-003); Resilience4j RateLimiter (broader toolbox than needed, larger scan surface) |
@@ -62,4 +62,16 @@ Licensing items for the policy checks (T057, T107), recorded without a decision:
 |  +- org.junit.jupiter:junit-jupiter:jar:5.12.2:test
 |  +- org.mockito:mockito-core:jar:5.17.0:test
 |  +- org.mockito:mockito-junit-jupiter:jar:5.17.0:test
+```
+
+## T009 dependency:tree output (2026-10-20)
+
+`mvn dependency:tree` run 2026-10-20 (JDK 21.0.12.1, Maven 3.9.16), exit 0. ArchUnit lines, as printed. 1.5.1 was the latest release on Maven Central on that date.
+
+```text
++- com.tngtech.archunit:archunit-junit5:jar:1.5.1:test
+|  +- com.tngtech.archunit:archunit-junit5-api:jar:1.5.1:test
+|  |  \- com.tngtech.archunit:archunit:jar:1.5.1:test
+|  \- com.tngtech.archunit:archunit-junit5-engine:jar:1.5.1:test
+|     \- com.tngtech.archunit:archunit-junit5-engine-api:jar:1.5.1:test
 ```
