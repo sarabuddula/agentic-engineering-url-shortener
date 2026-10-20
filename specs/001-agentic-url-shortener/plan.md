@@ -4,7 +4,7 @@
 
 **Input**: Feature specification from `specs/001-agentic-url-shortener/spec.md` (Approved — Human Gates 2 and 3 passed 2026-10-18)
 
-**Technology decisions**: Selected by the human candidate 2026-10-18. **ADR-001..ADR-009 accepted by the human candidate 2026-10-18** (Human Gate 4; the ADR gate extended the set from five to nine records, including the approved reserved-route-word exclusion, the hash-chain audit scope extension, and the corrected gate-role mapping). This plan itself is **Proposed** until the plan human gate passes. Lifecycle note: the plan human gate, the pre-implementation checklist run and an analyze re-run must be recorded before implementation; T096 is a convergence re-run only.
+**Technology decisions**: Selected by the human candidate 2026-10-18. **ADR-001..ADR-009 accepted by the human candidate 2026-10-18** (Human Gate 4; the ADR gate extended the set from five to nine records, including the approved reserved-route-word exclusion, the hash-chain audit scope extension, and the corrected gate-role mapping). Plan status: **Approved at Human Gate 4 (2026-10-18); 2026-10-19 amendments pending re-acceptance under T124**. Lifecycle note: the plan human gate, the pre-implementation checklist run and an analyze re-run must be recorded before implementation; T096 is a convergence re-run only.
 
 ## Summary
 
@@ -50,7 +50,7 @@ Domain and orchestration-transition tests are container-free for fast red-green-
 
 ## Constitution Check
 
-*GATE: must pass before Phase 0 research; re-checked after Phase 1 design. The table below is an **initial design-conformance assessment** of this proposed plan, not a completed gate. The technology selections were approved by the human candidate on 2026-10-18; this plan and its ADRs are not yet approved — ADR acceptance and the final constitution check are pending Human Gate 4.*
+*GATE: must pass before Phase 0 research; re-checked after Phase 1 design. The table below is the **design-conformance assessment** reviewed at the plan gate. The technology selections were approved by the human candidate on 2026-10-18. Final gate decision: Approved at Human Gate 4 (2026-10-18); 2026-10-19 amendments pending re-acceptance under T124.*
 
 | Principle | Assessment | Basis |
 |---|---|---|
@@ -66,7 +66,7 @@ Domain and orchestration-transition tests are container-free for fast red-green-
 | X. Traceability and repository integrity | Conforms (design) | §13: requirement-to-evidence chain; small coherent commits per task group |
 | XI. Evidence-based completion | Conforms (design) | §10/§14 and the FR-044 completion gate enforced by the engine |
 
-No violations identified at this stage. If later parts introduce any, they must be recorded in Complexity Tracking with justification, or the plan is revised before the gate. Final gate decision: **pending** (re-check after Phase 1 design and full-plan assembly).
+No violations identified at this stage. If later parts introduce any, they must be recorded in Complexity Tracking with justification, or the plan is revised before the gate. Final gate decision: **Approved at Human Gate 4 (2026-10-18); 2026-10-19 amendments pending re-acceptance under T124**.
 
 ## Project Structure
 
