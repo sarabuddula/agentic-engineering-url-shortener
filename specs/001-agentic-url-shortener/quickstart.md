@@ -61,7 +61,7 @@ Offline note: DEP-02 uses the NVD data cached during the first online run; with 
 
 ```bash
 mvn spring-boot:run
-# or: java -jar target/urlshortener-*.jar
+# or: java -jar target/url-shortener-*.jar
 ```
 
 - Application plane: `http://localhost:8080/api/v1/links`, `http://localhost:8080/{code}`
@@ -98,7 +98,7 @@ curl localhost:8080/api/v1/orchestrator/runs/<runId>/verify -H "X-API-Key: $REVI
 ```bash
 # While a run is executing:
 kill -9 $(pgrep -f urlshortener)      # hard interruption
-java -jar target/urlshortener-*.jar   # restart
+java -jar target/url-shortener-*.jar   # restart
 curl -X POST localhost:8080/api/v1/orchestrator/runs/<runId>/resume -H "X-API-Key: $ENGINEER_KEY"
 ```
 
