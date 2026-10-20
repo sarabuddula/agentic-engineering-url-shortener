@@ -45,6 +45,14 @@ Scenario identifiers: US-nnn (user stories), SCN-A/B/C (demonstration scenarios)
 
 **Numeric bounds recorded as assumptions (proposed; confirmed at T124).** A-013: retry backoff 1 s, 2 s, 4 s with +/-20% jitter; per-operation timeout 10 s; automated-path deadline 60 s. A-014: up to 5 in-transaction optimistic-lock re-attempts, not counted against the 3 stage retries. A-015: DNS lookup timeout 3 s. A-016: rework cap 2 per node. A-017: replan cap 2 accepted replans per run. A-018: synchronization wait limit of 2 approval windows.
 
+### Amendment Appendix B - Checklist closure, continued (2026-10-19, C-005)
+
+**Assumption approval state.** A-001, A-004 and A-005 are part of the specification approved at Human Gate 2 (2026-10-18). A-002, A-003, A-006 and A-007 are recorded above as approved at the same gate. A-008 to A-012 carry their own state notes.
+
+**User story to requirement mapping.** US-001: FR-001 to FR-016, FR-045 (public creation and redirect), FR-047 (creation and redirect limits). US-002: FR-024, FR-045, FR-046, FR-047. US-003: FR-027, FR-033, FR-041, FR-049. US-004: FR-032, FR-033, FR-037, FR-038, FR-044. US-005: FR-023, FR-030, FR-031, FR-048. The orchestration requirements FR-020 to FR-022, FR-025 to FR-029, FR-034 to FR-036, FR-039 and FR-040 to FR-043 are exercised through SCN-A, SCN-B and SCN-C and the US-002 to US-005 evidence.
+
+**Identifier policy.** FR-017 to FR-019 are not assigned. Identifiers are stable and are never reused or renumbered.
+
 ## Clarifications
 
 ### Session 2026-10-18
