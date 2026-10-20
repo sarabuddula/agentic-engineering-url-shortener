@@ -38,3 +38,44 @@ DUP-1 T044 and T024 both mention the contract versioning guard.
 Human decisions 2026-10-19: (a) MTTR excludes governance wait, reported separately plus
 labelled secondary figure; (b) repository pre-implementation approval is a precondition
 outside the task graph; (c) replay after expiry returns original link with 200.
+
+# Analyze Run 2 — CRITICAL pass only (2026-10-19)
+Result: NOT READY — 1 CRITICAL finding.
+Baseline: commit dc8a8d1, clean working tree. Scope: read-only; only this file was written.
+Only the CRITICAL pass was performed. HIGH, MEDIUM and LOW passes were not run, so no
+claim is made about findings at those levels.
+
+Checks executed (scripted over tasks.md, spec.md, contracts/openapi.yaml, data-model.md):
+- Task graph: 127 tasks; every Prereq ID exists; no prerequisite cycle; the Execution Order
+  lists all 127 tasks once and places every task after all of its prerequisites.
+- Coverage: 74 FR/NFR/SC/PVT IDs in spec.md; all have at least one citing task except
+  FR-017 and FR-019, which Appendix B leaves unassigned (FR-018 likewise).
+- Contract and data model: re-read for the items behind the Run 1 CRITICAL findings.
+
+Run 1 CRITICAL dispositions
+CON-1 CLOSED: T025 Prereq is T021-T024, T026, T124; T018 Prereq is T014; no cycle found.
+CON-2 CLOSED: T101 implements the FR-044 runtime completion gate (failing-first).
+CON-3 CLOSED: openapi.yaml HistoryEntry requires seq, actor_type, action, affected, result,
+  reason, occurred_at.
+CON-4 CLOSED: the "no requirement lacks a task" claim is withdrawn in tasks.md Summary;
+  coverage check above finds no unmapped assigned ID; T112 and T090 remain the enforcement.
+
+CRITICAL
+GATE-1 Plan human gate not recorded as passed (Constitution III; tasks.md:175 precondition
+  before T001). plan.md:7 says the plan is "Proposed until the plan human gate passes";
+  plan.md:53 and plan.md:69 say the final gate decision is "pending". approvals/
+  pre-implementation.md:12 states the plan was reviewed at Human Gate 4 and amended
+  2026-10-19, with re-acceptance of amendments open (T124). The records conflict and the
+  gate state cannot be determined from the repository. Resolution is a human decision:
+  if the plan was approved, record that through a governed status update to plan.md; if
+  not, hold the plan gate before T001. The assistant must not settle this by editing plan.md.
+
+Gating note (not a separate finding): approvals/pre-implementation.md (baseline 6f8b108)
+authorizes T001, but tasks.md:175 also requires an analyze re-run with no CRITICAL
+findings before T001. This run does not meet that condition while GATE-1 is open.
+
+Observed outside the CRITICAL pass, not classified: `.specify/memory/constitution copy.md`
+(tracked since cd39910) differs from constitution.md; this run used constitution.md.
+Toolchain observed 2026-10-19 on the candidate's machine: `java -version` reports OpenJDK
+21.0.12.1 (Temurin) and `mvn -v` reports Apache Maven 3.9.16. Acceptance and recording in
+research.md are pending the human candidate.
