@@ -17,3 +17,11 @@
 | 11 | DNS access behind an explicit resolver interface | Testability (stub injection) and a declared trust boundary (Constitution VII) | Direct `InetAddress` calls (untestable, hidden dependency) |
 | 12 | Simple bounded thread pool for parallel stage executors | Minimal sufficient parallelism to satisfy FR-043 (parallel paths + synchronization) without framework machinery; disclosed as a minimal implementation | Actor framework (complexity unjustified under timebox); purely sequential execution (fails FR-043) |
 | 13 | Surefire (`*Test`) / Failsafe (`*IT`) split | Every test category executes under `mvn verify`; ArchUnit runs in the unit phase | Single plugin for all categories (slower feedback, blurred category boundaries) |
+
+## Toolchain acceptance (2026-10-20)
+
+Decision: I, the human candidate, accept JDK 21.0.12.1 (Temurin) and Apache Maven 3.9.16 as the toolchain for T001.
+
+Observed output, run 2026-10-20 on the candidate's machine:
+- `java -version`: openjdk version "21.0.12.1" 2026-08-18 LTS; OpenJDK Runtime Environment Temurin-21.0.12.1+1 (build 21.0.12.1+1-LTS)
+- `mvn -v`: Apache Maven 3.9.16 (2bdd9fddda4b155ebf8000e807eb73fd829a51d5); Java version: 21.0.12.1, vendor: Eclipse Adoptium; OS: mac os x 13.7.8, x86_64
