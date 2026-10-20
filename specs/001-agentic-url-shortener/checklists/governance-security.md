@@ -27,7 +27,7 @@
 
 - [x] CHK072 — Does the URL validation rule set cover every D-003 addition (IPv6 ::, fc00::/7, *.localhost, IPv4-mapped IPv6, decimal/octal IP forms, userinfo URLs, localhost names) plus scheme allowlist and size limits? [Completeness — D-003, Plan §8, FR-003]
 - [x] CHK073 — Is the resolver-mode switch defined (fixed-local demonstration default with committed resolution table; live mode) with its trust boundary and test-stub injection? [Clarity — Plan §1/§8, quickstart.md, PVT-003]
-- [ ] CHK074 — Are rate limits A-008a..A-008d defined with per-IP/per-key scope and burst values, and the in-memory per-instance limitation disclosed? [Measurability — A-008, FR-047, research.md row 7]
+- [x] CHK074 — Are rate limits A-008a..A-008d defined with per-IP/per-key scope and burst values, and the in-memory per-instance limitation disclosed? [Measurability — A-008, FR-047, research.md row 7]
 - [x] CHK075 — Are 429 responses specified with a retry hint (header and body) and no short code allocated? [Completeness — FR-047, contracts/openapi.yaml]
 - [x] CHK076 — Is key material handling specified (raw keys from a gitignored demo-only source; SHA-256 hashes stored; constant-time comparison; key ID only in audit records; no keys in logs)? [Completeness — D-004, ADR-008, NFR-001]
 - [x] CHK077 — Is the failed-auth rate limit (10/min per IP then block) defined with a configurable block duration? [Measurability — A-008d, D-004]
@@ -43,7 +43,7 @@
 - [x] CHK084 — Are policy exceptions required to record applicable policy, reason, scope, approving authority, compensating control, approval timestamp, and expiry or review condition? [Completeness — Constitution VI, contracts/openapi.yaml]
 - [x] CHK085 — Is the offline degradation of DEP-02 defined (attestation using cached NVD data, degradation recorded and reported on the outcome)? [Clarity — Plan §8]
 - [x] CHK086 — Are changes to approved requirements, architecture, schemas, workflow states, security controls, and release criteria covered by formal impact analysis and change approval? [Completeness — C-005, Plan §9]
-- [ ] CHK087 — Is the spec-delta list under C-005 complete and current (409 approved; Idempotency-Key header note recorded; 200/201 split, 400 on missing or malformed key and replay-after-expiry recorded; 302/410/base-62 closed by human decision 2026-10-19)? [Completeness — C-005, Plan §2]
+- [x] CHK087 — Is the spec-delta list under C-005 complete and current (409 approved; Idempotency-Key header note recorded; 200/201 split, 400 on missing or malformed key and replay-after-expiry recorded; 302/410/base-62 closed by human decision 2026-10-19)? [Completeness — C-005, Plan §2]
 - [x] CHK088 — Are dependency approval and licensing policy checks named with their build-time tools and offline behavior (gitleaks, OWASP DependencyCheck, license-maven-plugin)? [Completeness — DEP-01..02, LIC-01..02, Plan §8]
 
 ## Audit tamper evidence

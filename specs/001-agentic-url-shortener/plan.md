@@ -505,3 +505,5 @@ Bounds added 2026-10-19 (proposed human decisions; confirmed at T124):
 - Boot recovery: runs found RUNNING at startup are set to SAFE_STOPPED with cause BOOT_RECOVERY and wait for POST /resume by an APPROVER; there is no auto-resume.
 - Effect verification: each external-effect operation type declares an idempotent verification (for example artifact content hash present, commit SHA present, row present by idempotency key); the result is stored in OPERATION_RECORD.effect_verified.
 - Failure audit: failure events are recorded in a separate transaction so a state rollback cannot erase the failure's own audit event.
+
+Metrics labelling (amendment 2026-10-19, SC-005, C-004): every metrics response, report and engineering-summary figure carries measurement_class = DEMONSTRATION; demonstration measurements are never presented as production statistics (section 7).

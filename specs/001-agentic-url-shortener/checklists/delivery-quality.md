@@ -10,7 +10,7 @@
 
 - [x] CHK091 — Does the plan require red-green-refactor TDD for domain and orchestration behavior, with each failing test shown failing first for the expected reason? [Completeness — Constitution IV, Plan §10]
 - [x] CHK092 — Are all required test categories mapped to a framework and execution plugin (domain unit, API contract, persistence, integration, orchestration transition, reliability, security, e2e; Surefire/Failsafe split)? [Completeness — Plan §10, research.md rows 4/13]
-- [ ] CHK093 — Does every validation target PVT-001..PVT-008 have a named test category and measurement method? [Traceability — Plan §10/§11]
+- [x] CHK093 — Does every validation target PVT-001..PVT-008 have a named test category and measurement method? [Traceability — Plan §10/§11]
 - [x] CHK094 — Are the performance validation targets (PVT-001 ≥99% resolution success, PVT-002 ≥95% under 200 ms, PVT-003 100 concurrent creations) recorded as approved demonstration targets for the local environment? [Measurability — NFR-007, PVT-001..003]
 - [x] CHK095 — Is the API contract test specified to validate against contracts/openapi.yaml using the approved validator, with hand-written schema assertions as the recorded fallback? [Completeness — Plan §10, research.md row 9]
 - [x] CHK096 — Are ArchUnit rules specified for domain purity (no Spring in domain) and plane separation (shortener never imports orchestration)? [Completeness — Plan §3/§10]
@@ -20,9 +20,9 @@
 ## Documentation
 
 - [x] CHK099 — Is documentation required to evolve with implementation rather than remain a static artifact? [Completeness — Constitution X]
-- [ ] CHK100 — Do the quickstart reviewer steps cover the full US-005 reconstruction (clone, verify, walkthrough, history/verify/release-readiness/metrics, traceability both directions)? [Completeness — quickstart.md, US-005, SC-006]
-- [ ] CHK101 — Is the resolver-mode documentation consistent between plan and quickstart (fixed-local table location and contents, live mode, stub injection for tests)? [Consistency — Plan §1/§8, quickstart.md]
-- [ ] CHK102 — Are demo keys documented as demo-only with raw keys never in the file, logs, or commits (helper script generating raw keys to shell exports, hashes to the gitignored file)? [Clarity — A-009, D-004, quickstart.md]
+- [x] CHK100 — Do the quickstart reviewer steps cover the full US-005 reconstruction (clone, verify, walkthrough, history/verify/release-readiness/metrics, traceability both directions)? [Completeness — quickstart.md, US-005, SC-006]
+- [x] CHK101 — Is the resolver-mode documentation consistent between plan and quickstart (fixed-local table location and contents, live mode, stub injection for tests)? [Consistency — Plan §1/§8, quickstart.md]
+- [x] CHK102 — Are demo keys documented as demo-only with raw keys never in the file, logs, or commits (helper script generating raw keys to shell exports, hashes to the gitignored file)? [Clarity — A-009, D-004, quickstart.md]
 
 ## Repository and GitHub evidence
 

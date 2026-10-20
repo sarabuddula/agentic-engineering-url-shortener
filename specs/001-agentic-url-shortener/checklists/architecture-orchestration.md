@@ -8,7 +8,7 @@
 
 ## ADR and plan consistency
 
-- [ ] CHK031 — Is every accepted ADR-001..ADR-009 consistent with plan §12 and the corresponding research.md rows? [Consistency — ADR-001..ADR-009, Plan §12]
+- [x] CHK031 — Is every accepted ADR-001..ADR-009 consistent with plan §12 and the corresponding research.md rows? [Consistency — ADR-001..ADR-009, Plan §12]
 - [x] CHK032 — Does any accepted ADR conflict with an approved spec constraint C-001..C-006 or a confirmed requirement? [Conflict — ADRs, Spec]
 - [x] CHK033 — Does each ADR record rejected alternatives with pros/cons/risks, rationale, reversibility, and a validation approach? [Completeness — ADR-001..ADR-009]
 - [x] CHK034 — Does the data model support every ADR decision (STAGE_EDGE, TASK_DEPENDENCY, hash-chained AUDIT_EVENT, run_revision, FAILURE_EVENT)? [Consistency — data-model.md, ADR-005/007/009]
@@ -16,7 +16,7 @@
 ## Graph versus linear chaining
 
 - [x] CHK035 — Does the orchestration design satisfy "more than sequential agent chaining" with an explicit stateful dependency graph? [Completeness — Constitution II, ADR-007]
-- [ ] CHK036 — Does every stage N01..N14 define inputs, outputs, entry criteria, exit criteria, ownership, and failure behavior? [Completeness — Constitution II, Plan §3]
+- [x] CHK036 — Does every stage N01..N14 define inputs, outputs, entry criteria, exit criteria, ownership, and failure behavior? [Completeness — Constitution II, Plan §3]
 - [x] CHK037 — Does STAGE_EDGE express all required edge kinds (sequencing, parallel fan-out, synchronization joins, conditional branching)? [Completeness — data-model.md]
 - [x] CHK038 — Is TASK_DEPENDENCY restricted to task-level dependencies, distinct from stage-graph edges? [Consistency — data-model.md, ADR-007]
 - [x] CHK039 — Is the bounded thread pool for parallel executors disclosed as a minimal implementation with its upgrade path noted? [Clarity — Plan §3, research.md row 12]
@@ -25,7 +25,7 @@
 
 - [x] CHK040 — Is every workflow state transition specified to commit atomically with its audit event? [Consistency — ADR-005, FR-048]
 - [x] CHK041 — Is artifact provenance persisted for every produced artifact (type, version, content hash, provenance label)? [Completeness — Constitution II, data-model.md ARTIFACT]
-- [ ] CHK042 — Is cross-stage context persistence specified so a resumed run reconstructs what each stage saw? [Completeness — Constitution II, Plan §4]
+- [x] CHK042 — Is cross-stage context persistence specified so a resumed run reconstructs what each stage saw? [Completeness — Constitution II, Plan §4]
 
 ## Parallel paths and synchronization
 
@@ -39,7 +39,7 @@
 
 ## Controlled autonomy
 
-- [ ] CHK047 — Are agent autonomy bounds defined per node and auditable? [Completeness — Constitution II, Plan §3]
+- [x] CHK047 — Are agent autonomy bounds defined per node and auditable? [Completeness — Constitution II, Plan §3]
 - [x] CHK048 — Can every agent decision be reconstructed from persisted records alone? [Measurability — FR-023, FR-030, PVT-007]
 
 ## Retry bounds
@@ -52,8 +52,8 @@
 
 - [x] CHK052 — Is every external-effect operation classified reversible or irreversible in the rollback-vs-compensation table? [Completeness — Plan §6]
 - [x] CHK053 — Is at least one provably reversible operation identified (uncommitted transaction rows) so rollback is demonstrable? [Completeness — Plan §6]
-- [ ] CHK054 — Is the N08 committed-code case classified as compensation (revert commit), not rollback, consistently across plan and data model? [Consistency — data-model.md, Plan §6]
-- [ ] CHK055 — Is CMP-02 semantics defined (what the check verifies about rollback/compensation coverage)? [Clarity — data-model.md]
+- [x] CHK054 — Is the N08 committed-code case classified as compensation (revert commit), not rollback, consistently across plan and data model? [Consistency — data-model.md, Plan §6]
+- [x] CHK055 — Is CMP-02 semantics defined (what the check verifies about rollback/compensation coverage)? [Clarity — data-model.md]
 
 ## Safe-stop
 
