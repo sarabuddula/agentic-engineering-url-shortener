@@ -30,7 +30,7 @@ A production-oriented, locally runnable prototype delivered as a single Spring B
 |---|---|---|
 | Unit (domain) | JUnit 5 + AssertJ (container-free) | `…urlshortener.shortener.domain` (co-located) / `tests.unit` |
 | Integration | Spring Boot Test slices (`@DataJpaTest`, context tests) | `…tests.integration` |
-| API contract | REST Assured + OpenAPI validator (proposed dep, above) validating status, headers, and bodies against `contracts/openapi.yaml` | `…tests.contract` |
+| API contract | REST Assured + OpenAPI validator (approved dep (2026-10-18), above) validating status, headers, and bodies against `contracts/openapi.yaml` | `…tests.contract` |
 | Orchestration transition | JUnit 5 (state-machine tests, container-free) | `…tests.orchestration` |
 | Reliability | JUnit 5 + fault-injection harness (retry/timeout/safe-stop/resume) | `…tests.reliability` |
 | Security | REST Assured (auth/rate-limit) + ArchUnit security rules (separate from functional tests) | `…tests.security` |
@@ -449,7 +449,7 @@ Full records (context, drivers, options, consequences, risks, reversibility, val
 | 5 | Local run model | ADR-004 | Single fat jar (Maven, single module) | Two processes; Docker Compose | Simplest setup; kill-restart = PVT-006 demo | Single process failure domain (disclosed, acceptable) | Medium (module boundaries) | Kill-restart test |
 | 6 | Workflow state | ADR-005 | Relational tables in H2 | Event-sourced journal; JSON files | Transactional state-audit coupling; queryability | Lineage spread across tables (mitigated: history view) | Medium | Orchestration tests + chain verifier |
 | 7 | Rate limiting | Implementation | Bucket4j (approved) | Hand-rolled; Resilience4j | Tested token-bucket; Apache-2.0 | In-memory reset on restart (disclosed) | High (filter) | Rate-limit + capacity tests |
-| 8 | OpenAPI validation | Implementation | swagger-request-validator-restassured (pending Phase 0 approval) | Hand-written schema assertions | Executable contract validation | Extra dependency (needs approval) | High | Contract tests |
+| 8 | OpenAPI validation | Implementation | swagger-request-validator-restassured (approved by the human candidate 2026-10-18) | Hand-written schema assertions | Executable contract validation | Extra dependency (approved 2026-10-18; version pinned at T003) | High | Contract tests |
 
 ### 13. Traceability
 
