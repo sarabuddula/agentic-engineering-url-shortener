@@ -24,6 +24,8 @@
         <!-- Pinned at T003; recorded in research.md rows 7 and 9 -->
         <bucket4j.version>8.21.0</bucket4j.version>
         <swagger-request-validator.version>2.44.8</swagger-request-validator.version>
+        <!-- Pinned at T004; LIC-01 license inventory -->
+        <license-maven-plugin.version>2.7.1</license-maven-plugin.version>
     </properties>
 
     <dependencies>
@@ -57,4 +59,18 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <!-- LIC-01: license manifest committed under docs/compliance/ (target/ is gitignored) -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <version>${license-maven-plugin.version}</version>
+                <configuration>
+                    <licensesOutputFile>${project.basedir}/docs/compliance/licenses.xml</licensesOutputFile>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

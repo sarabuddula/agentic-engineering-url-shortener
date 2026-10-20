@@ -45,3 +45,9 @@ com.agenticengineering:url-shortener:jar:0.1.0-SNAPSHOT
 ```
 
 The validator brings in `swagger-request-validator-core` 2.44.8 and `io.rest-assured:rest-assured` 5.5.7 (both test scope). Observed on Maven Central the same day: newer releases exist (Bucket4j none newer than 8.21.0; validator 2.44.9 and 3.0.0). The approved versions were kept; any version change needs human approval.
+
+## T004 build-time tool pin (2026-10-20)
+
+`org.codehaus.mojo:license-maven-plugin` pinned 2.7.1 in `pom.xml` at T004 (LIC-01; not managed by Spring Boot). 2.7.1 was the latest release on Maven Central on that date. `mvn license:download-licenses` exited 0 and wrote `docs/compliance/licenses.xml` (125 dependencies, each with a license entry); 12 warnings were failed downloads of license texts from gnu.org, with license names still recorded. The manifest reflects the pom as of T004 and must be regenerated before any license check relies on it.
+
+Licensing items for the policy checks (T057, T107), recorded without a decision: `org.hibernate.orm:hibernate-core` (GNU Library General Public License v2.1 or later); `com.sun.mail:mailapi` (CDDL/GPLv2+CE); `ch.qos.logback` logback-classic and logback-core (EPL-2.0 or LGPL-2.1-only); eight `com.github.java-json-tools` artifacts (Apache-2.0 or LGPL-3.0+).
