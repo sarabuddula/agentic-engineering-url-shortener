@@ -114,6 +114,8 @@ specs/001-agentic-url-shortener/
 - `orchestration.*` → `orchestration.*`, `shared`, and `shortener.domain` **only via interfaces declared in `shared`**.
 - `shortener.api` / `orchestration.api` → their own plane + `shared`; controllers stay thin adapters.
 
+**Implementation sub-packages (recorded 2026-10-20, human decision; implementation detail within the three planes, no ADR change):** `shortener.dns` (resolver implementations), `shortener.config` and `orchestration.config` (configuration-properties records).
+
 **Structure Decision**: single-module Maven layout with package-level plane separation. The plane and layer rules above make the boundaries testable; a multi-module split is deferred unless implementation evidence justifies it (would require a change approval under C-005).
 
 ## Plan — Required Coverage
