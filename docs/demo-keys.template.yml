@@ -1,0 +1,20 @@
+# Template for .demo-keys.yml (gitignored), which scripts/generate-demo-keys.sh writes.
+# Demo-only (A-009). The file holds key IDs, roles and SHA-256 hashes only; raw keys are
+# printed as shell exports and never stored (NFR-001). Fields follow KEY_IDENTITY (data-model.md).
+keys:
+  - key_id: demo-engineer
+    role: ENGINEER
+    key_hash: <sha256-hex-of-ENGINEER_KEY>
+    label: demo-only
+  - key_id: demo-approver
+    role: APPROVER
+    key_hash: <sha256-hex-of-APPROVER_KEY>
+    label: demo-only
+  - key_id: demo-release-owner
+    role: RELEASE_OWNER
+    key_hash: <sha256-hex-of-RELEASE_OWNER_KEY>
+    label: demo-only
+  - key_id: demo-reviewer
+    role: REVIEWER
+    key_hash: <sha256-hex-of-REVIEWER_KEY>
+    label: demo-only

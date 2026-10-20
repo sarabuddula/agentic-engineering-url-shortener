@@ -2,3 +2,5 @@
 __pycache__/
 *.pyc
 target/
+.demo-keys.yml
+.demo-keys.yml.tmp
