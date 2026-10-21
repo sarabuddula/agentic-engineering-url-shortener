@@ -155,6 +155,8 @@
 
 **Decision**: Base-62 alphabet (adopted by human decision 2026-10-19; re-accepted 2026-10-21 at T124), minimum length 4, random generation; uniqueness enforced by a DB unique constraint; on collision the generation is retried with a fresh code (bounded); the short-code generator never emits the reserved top-level route words `api` and `actuator` (a colliding generation is rejected and regenerated; the minimum length of 4 already excludes `api`, and the exclusion additionally protects the `actuator` route). Idempotency: the client supplies a stable `Idempotency-Key` header; the key is bound to the normalized payload; same key + same payload returns the existing link (HTTP 200); same key + different payload returns 409 with no overwrite (approved spec delta); no key or malformed key is rejected (400, no code allocated); independent requests to the same URL each create new links.
 
+**Related contract decision (T113, human decision 2026-10-19)**: codes issued under this ADR resolve with HTTP 302 while active and 410 once expired (contracts/openapi.yaml status notes; plan section 2 redirect resolution); unknown codes return 404 with no redirect.
+
 **Rationale**: DB-constraint uniqueness makes the PVT-003 race provable rather than best-effort; random codes avoid enumeration; reserved-word exclusion guarantees no short code can collide with a first-level route.
 
 **Consequences**: Reserved-word exclusion slightly reduces the code space (disclosed); the idempotency binding is retained as long as the link row exists (no purge endpoint; links are never deleted), so a replay after the link's expiry returns the original link unchanged with HTTP 200 (human decision 2026-10-19).
