@@ -10,14 +10,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 
 /**
  * T019: control-plane schema (data-model.md "Control plane") - every entity present and the invariants the data model
- * names enforced by the database (FR-020, FR-022, FR-036, FR-046, FR-048).
+ * names enforced by the database (FR-020, FR-022, FR-036, FR-046, FR-048). Re-running the whole schema script is
+ * covered by ApplicationSchemaTest: DDL commits implicitly in H2, so it must not run after rows are seeded here.
  */
 @JdbcTest
 class ControlPlaneSchemaTest {
@@ -112,13 +111,6 @@ class ControlPlaneSchemaTest {
     @Test
     void runScopedRowsMustReferenceAnExistingRun() {
         assertThatThrownBy(() -> insertAudit("no-such-run", 1)).isInstanceOf(DataIntegrityViolationException.class);
-    }
-
-    @Test
-    void schemaScriptCanRunAgainOnAnExistingDatabase() {
-        new ResourceDatabasePopulator(new ClassPathResource("schema.sql")).execute(jdbc.getDataSource());
-
-        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM WORKFLOW_RUN", Integer.class)).isEqualTo(1);
     }
 
     private void insertAudit(String runId, long seq) {

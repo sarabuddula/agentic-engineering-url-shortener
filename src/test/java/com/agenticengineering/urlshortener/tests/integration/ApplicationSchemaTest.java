@@ -93,7 +93,8 @@ class ApplicationSchemaTest {
 
     @Test
     void schemaScriptCanRunAgainOnAnExistingDatabase() {
-        // kill-and-restart against the same H2 file (PVT-006) re-runs the script on existing tables
+        // kill-and-restart against the same H2 file (PVT-006) re-runs the whole script (both planes) on existing tables;
+        // no rows are seeded first because DDL commits implicitly in H2
         new ResourceDatabasePopulator(new ClassPathResource("schema.sql")).execute(jdbc.getDataSource());
 
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM SHORT_LINK", Integer.class)).isZero();
