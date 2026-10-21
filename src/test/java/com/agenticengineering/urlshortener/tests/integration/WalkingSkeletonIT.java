@@ -39,6 +39,15 @@ class WalkingSkeletonIT {
         assertThat(response.getBody()).contains("\"status\":\"UP\"");
     }
 
+    /** FR-010: health shows that the critical dependency (database) is reachable; component details stay hidden. */
+    @Test
+    void healthShowsDatabaseComponentWithoutDetails() {
+        ResponseEntity<String> response = rest.getForEntity("/actuator/health", String.class);
+
+        assertThat(response.getBody()).contains("\"db\":{\"status\":\"UP\"}");
+        assertThat(response.getBody()).doesNotContain("\"details\"");
+    }
+
     @Test
     void fatJarBootsAndReportsHealthUp() throws Exception {
         Path jar = findFatJar();
