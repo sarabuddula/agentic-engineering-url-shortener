@@ -25,16 +25,9 @@ public class GlobalExceptionHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-    private static final Map<InvalidTargetUrlException.Reason, String> URL_MESSAGES = Map.of(
-            InvalidTargetUrlException.Reason.BLANK, "A target URL is required",
-            InvalidTargetUrlException.Reason.TOO_LONG, "The target URL exceeds the accepted size",
-            InvalidTargetUrlException.Reason.MALFORMED, "The target URL is not a valid absolute URL",
-            InvalidTargetUrlException.Reason.SCHEME_NOT_ALLOWED, "Only HTTP and HTTPS targets are accepted",
-            InvalidTargetUrlException.Reason.MISSING_HOST, "The target URL has no host");
-
     @ExceptionHandler(InvalidTargetUrlException.class)
     public ResponseEntity<Map<String, Object>> handle(InvalidTargetUrlException e, HttpServletRequest request) {
-        return respond(HttpStatus.BAD_REQUEST, ErrorResponse.of("URL_REJECTED", URL_MESSAGES.get(e.reason()), requestId(request)));
+        return respond(HttpStatus.BAD_REQUEST, ErrorResponse.of("URL_REJECTED", urlMessage(e.reason()), requestId(request)));
     }
 
     /** A malformed code cannot name an existing link, so it is reported as not found. */
@@ -50,6 +43,20 @@ public class GlobalExceptionHandler {
         LOG.error("unexpected failure type={} request_id={}", e.getClass().getName(), requestId);
         return respond(HttpStatus.INTERNAL_SERVER_ERROR,
                 ErrorResponse.of("INTERNAL_ERROR", "An internal error occurred", requestId));
+    }
+
+    /** Exhaustive switch: a new rejection reason cannot compile without a message. Messages never echo the input. */
+    private static String urlMessage(InvalidTargetUrlException.Reason reason) {
+        return switch (reason) {
+            case BLANK -> "A target URL is required";
+            case TOO_LONG -> "The target URL exceeds the accepted size";
+            case MALFORMED -> "The target URL is not a valid absolute URL";
+            case SCHEME_NOT_ALLOWED -> "Only HTTP and HTTPS targets are accepted";
+            case MISSING_HOST -> "The target URL has no host";
+            case USERINFO_NOT_ALLOWED -> "Target URLs must not contain user information";
+            case LOCALHOST_NAME, INTERNAL_ADDRESS, IPV4_MAPPED_IPV6, NUMERIC_HOST_FORM -> "The target address is not allowed";
+            case UNRESOLVABLE_HOST -> "The target host could not be resolved";
+        };
     }
 
     private static ResponseEntity<Map<String, Object>> respond(HttpStatus status, ErrorResponse error) {

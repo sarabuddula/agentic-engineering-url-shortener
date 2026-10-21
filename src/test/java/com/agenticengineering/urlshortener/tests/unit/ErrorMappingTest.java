@@ -43,6 +43,17 @@ class ErrorMappingTest {
     }
 
     @Test
+    void everyRejectionReasonMapsTo400WithAMessage() {
+        for (InvalidTargetUrlException.Reason reason : InvalidTargetUrlException.Reason.values()) {
+            ResponseEntity<Map<String, Object>> response =
+                    handler.handle(new InvalidTargetUrlException(reason, "detail"), requestWithId("req-" + reason));
+
+            assertThat(response.getStatusCode().value()).as("status for %s", reason).isEqualTo(400);
+            assertThat((String) response.getBody().get("message")).as("message for %s", reason).isNotBlank();
+        }
+    }
+
+    @Test
     void malformedShortCodeMapsTo404LinkNotFound() throws Exception {
         ResponseEntity<Map<String, Object>> response =
                 handler.handle(new InvalidShortCodeException("ab-c"), requestWithId("req-404"));
