@@ -28,6 +28,8 @@
         <license-maven-plugin.version>2.7.1</license-maven-plugin.version>
         <!-- Pinned at T009; NFR-004 architecture rules -->
         <archunit.version>1.5.1</archunit.version>
+        <!-- Pinned at T106 (human decision 2026-10-21); DEP-02 vulnerability scan, profile dep-scan -->
+        <dependency-check.version>13.0.0</dependency-check.version>
     </properties>
 
     <dependencies>
@@ -112,4 +114,41 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <!-- T106, DEP-02: vulnerability scan with OWASP DependencyCheck (pinned 13.0.0 by human decision 2026-10-21).
+             Needs NVD network access; offline, DEP-02 degrades to attestation with a recorded note (plan section 8).
+             The profile only produces the report: the FAIL threshold for "scan clean" is decided at T057. -->
+        <profile>
+            <id>dep-scan</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.owasp</groupId>
+                        <artifactId>dependency-check-maven</artifactId>
+                        <version>${dependency-check.version}</version>
+                        <configuration>
+                            <formats>
+                                <format>HTML</format>
+                                <format>JSON</format>
+                            </formats>
+                            <outputDirectory>${project.build.directory}/dependency-check</outputDirectory>
+                            <failBuildOnCVSS>11</failBuildOnCVSS>
+                            <!-- 13.x refuses to update NVD data without a key; read it from the environment, never from files -->
+                            <nvdApiKeyEnvironmentVariable>NVD_API_KEY</nvdApiKeyEnvironmentVariable>
+                            <ossindexAnalyzerEnabled>false</ossindexAnalyzerEnabled>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>check</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
