@@ -7,7 +7,6 @@ import com.agenticengineering.urlshortener.shortener.domain.InvalidExpirationExc
 import com.agenticengineering.urlshortener.shortener.domain.RequestIdentityConflictException;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Map;
-import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -118,7 +117,6 @@ public class GlobalExceptionHandler {
     }
 
     private static String requestId(HttpServletRequest request) {
-        Object id = request.getAttribute(REQUEST_ID_ATTRIBUTE);
-        return id instanceof String s && !s.isBlank() ? s : UUID.randomUUID().toString();
+        return RequestIds.of(request);
     }
 }
