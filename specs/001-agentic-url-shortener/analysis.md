@@ -119,3 +119,56 @@ N-2 `.specify/memory/constitution copy.md` (tracked since cd39910) differs from
   constitution.md; the analysis uses constitution.md.
 N-3 Toolchain acceptance pending: OpenJDK 21.0.12.1 (Temurin) and Apache Maven 3.9.16 were
   observed 2026-10-19; human acceptance and the dated research.md entry are not yet recorded.
+# Analyze Run 4 — full pass after the fourth governed change (2026-10-21)
+Result: 0 CRITICAL, 4 HIGH, 6 MEDIUM, 4 LOW.
+Baseline: commit 9537617 (scope-control board and fourth governed change). Scope: read-only report; this record
+was written after the run.
+
+Checks executed (scripted over tasks.md, spec.md, plan.md, data-model.md, quickstart.md, openapi.yaml):
+- Coverage by the Req field of active tasks: 56 of 64 FR/NFR/SC IDs; PVT-001..008 all covered.
+- Task graph: 113 active tasks; no task precedes a prerequisite; no active task depends on a deferred task.
+- Contract and documentation text checked against the deferred behaviour.
+
+HIGH
+C1 FR-008 cited by no active task (T115 deferred; T035 cited FR-016, PVT-003 only). Re-opened Run 1 COV-5.
+C2 SC-001, SC-002, SC-004, SC-005, SC-007, NFR-003, NFR-011 lost all active citations when T112 was folded.
+  Re-opened Run 1 CON-4/COV-4.
+I1 openapi.yaml /replan promised a staged revision and HELD nodes (deferred T120/T121).
+I2 openapi.yaml health example showed `storage`; with T043 deferred Actuator reports `db`.
+MEDIUM
+I3 Control-plane 429 declared but unreachable (A-008c deferred).
+I4 quickstart, plan section 8 and application.yml presented A-008c/d as active.
+I5 T089 lacked FR-035 and SCN-A.4 after absorbing T116.
+U1 T128 makes Maven a runtime tool; DEP-01 inventory and A-004 trust boundary not updated.
+X1 Replay after expiry (human decision 2026-10-19) left without a test (Constitution XI).
+X2 L-SC-03 is next to non-waivable principles II and VIII; determination belongs to the human at T093.
+LOW
+D1 plan replanning paragraph and data-model node states still mention HELD/cap (overridden by Amendments 2026-10-21).
+D2 Execution-order header claimed algorithmic generation.
+D3 Summary still said A-008c was closed by T101-T115.
+D4 T041 platform-audit work lacked explicit T019/T021 prerequisites.
+
+Human decisions 2026-10-21: apply all recommendations; approve contract amendments I1-I3 (health example `db`);
+restore T109.
+
+# Analyze Run 5 — re-check after run 4 remediation (2026-10-21)
+Result: 0 CRITICAL, 0 HIGH. Open: X2 (human determination at T093), D1 (accepted as amendment-overridden text).
+Baseline: commit cb86fb1, clean working tree.
+
+Checks executed:
+- Coverage by the Req field of active tasks: 64 of 64 FR/NFR/SC IDs; PVT-001..008 covered.
+- Task graph: 128 tasks, 114 active; each active task appears once in the Execution Order; no task precedes a
+  prerequisite; no active task depends on a deferred task.
+- openapi.yaml parses (OpenAPI 3.0.3, 13 paths); no remaining text promises HELD nodes, a replan cap or a
+  `storage` component; the health example is `{status: UP, components: {db: {status: UP}}}`.
+- quickstart.md and application.yml: every A-008c/d mention is marked deferred.
+
+Run 4 dispositions
+C1, C2, I5 CLOSED (citations restored, commit 6b2de01). I1, I2, I3 CLOSED (contract descriptions and example,
+6b2de01). I4, U1, D2, D3, D4 CLOSED (6b2de01). X1 CLOSED (T109 restored, L-SC-05 withdrawn, 6b2de01).
+X2 OPEN by design: decided at T093. D1 ACCEPTED: overridden by plan Amendments 2026-10-21.
+
+Found during remediation (not by the document analysis): the running jar returned only {"status":"UP"} because
+show-details=never also hides components, so FR-010 was not met with T043 deferred. Fixed test-first: red
+da654e4 (assertion on `db` failed for that reason), green cb86fb1 (show-components=always, show-details=never);
+mvn clean verify exit 0 (Surefire 10/10, Failsafe 3/3) and a java -jar check returned the `db` component as UP.
