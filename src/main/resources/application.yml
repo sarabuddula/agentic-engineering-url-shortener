@@ -20,6 +20,10 @@ app:
   rework-cap: 2                       # A-016
   replan-cap: 2                       # A-017
   sync-wait-approval-windows: 2       # A-018
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: none                  # schema.sql is authoritative (T018, ADR-003); Hibernate never alters tables
 management:
   endpoint:
     health:
