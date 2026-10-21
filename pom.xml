@@ -83,6 +83,24 @@
 
     <build>
         <plugins>
+            <!-- T010: executable fat jar (repackage); version managed by the Boot parent -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <!-- T010: Failsafe runs *IT integration and e2e tests in mvn verify (plan section 10 execution wiring) -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <!-- LIC-01: license manifest committed under docs/compliance/ (target/ is gitignored) -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
