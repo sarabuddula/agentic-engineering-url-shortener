@@ -21,6 +21,8 @@ app:
   rework-cap: 2                       # A-016
   replan-cap: 2                       # A-017
   sync-wait-approval-windows: 2       # A-018
+  analytics:
+    checkpoint-interval: PT60S        # FR-015 loss checkpoint interval (plan section 2)
   data-dir: ./data                    # H2 file location (T026); gitignored
 spring:
   datasource:
