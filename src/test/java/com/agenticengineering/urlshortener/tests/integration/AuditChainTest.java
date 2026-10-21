@@ -174,8 +174,14 @@ class AuditChainTest {
                 + " 'RUNNING', 0, 0, 0, ?, 'LIVE', 0)", runId, Timestamp.from(T0));
     }
 
+    /**
+     * Used by the non-transactional tests: their rows, including the run-1 seed from {@link #seedRun()}, are committed
+     * and must be removed so later tests start clean.
+     */
     private void cleanUp(String runId) {
-        jdbc.update("DELETE FROM AUDIT_EVENT WHERE RUN_ID = ?", runId);
-        jdbc.update("DELETE FROM WORKFLOW_RUN WHERE ID = ?", runId);
+        for (String id : new String[] {runId, "run-1"}) {
+            jdbc.update("DELETE FROM AUDIT_EVENT WHERE RUN_ID = ?", id);
+            jdbc.update("DELETE FROM WORKFLOW_RUN WHERE ID = ?", id);
+        }
     }
 }
