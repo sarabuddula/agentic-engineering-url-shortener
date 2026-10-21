@@ -1,0 +1,1 @@
+Link status lookup: a read-only endpoint returning whether a short code is active, expired or unknown, with its expiry time (new additive /api/v1 capability; NOT part of the MVP)

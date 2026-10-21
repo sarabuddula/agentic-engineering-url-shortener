@@ -1,0 +1,10 @@
+# T012 test profile "lowlimits" (PVT-003, FR-047): small A-008a/b limits so rate-limit tests reach 429 quickly.
+# Test-only; never used by the running application.
+app:
+  rate-limit:
+    creation-per-ip:
+      requests-per-minute: 3
+      burst: 3
+    redirect-per-ip:
+      requests-per-minute: 5
+      burst: 5

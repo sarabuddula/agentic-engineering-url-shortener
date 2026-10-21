@@ -1,0 +1,19 @@
+# T012 test fixture in the .demo-keys.yml format (A-009, D-004): key IDs, roles and SHA-256 hashes only.
+# The raw test keys are non-secret constants in DemoKeyFixtures.java; they are valid only in tests.
+keys:
+  - key_id: test-engineer
+    role: ENGINEER
+    key_hash: a78204f9db08e809f1c4c68910656208306007591788909cd7c2156d8457fcb3
+    label: test-only
+  - key_id: test-approver
+    role: APPROVER
+    key_hash: e56bd6c434cd9dc42ff45f1c38f4fc2e04c5a47497c4c9aa32ee474225586607
+    label: test-only
+  - key_id: test-release-owner
+    role: RELEASE_OWNER
+    key_hash: d3da18bdd78b9bdb8fbf545884a7bd84b1d481f5d8a7c79904c3b50c05c4833a
+    label: test-only
+  - key_id: test-reviewer
+    role: REVIEWER
+    key_hash: 3dca39facf8c87c30910e765767702c2022da2a49eae6931013fdf364ef39f59
+    label: test-only

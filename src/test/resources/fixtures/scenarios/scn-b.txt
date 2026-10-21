@@ -1,0 +1,1 @@
+Change the default link TTL from 7 days to 24 hours.
