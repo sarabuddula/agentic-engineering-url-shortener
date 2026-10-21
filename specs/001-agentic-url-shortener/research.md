@@ -79,3 +79,7 @@ gitleaks 8.30.1 (MIT), installed with Homebrew on 2026-10-20 at the human candid
 |  \- com.tngtech.archunit:archunit-junit5-engine:jar:1.5.1:test
 |     \- com.tngtech.archunit:archunit-junit5-engine-api:jar:1.5.1:test
 ```
+
+## T033 short-code implementation choices (2026-10-21, within ADR-006)
+
+ADR-006 fixes the base-62 alphabet, the minimum length of 4, random generation, uniqueness by the database constraint and a bounded regeneration on collision, without numbers. Implementation choices, to be confirmed at the T050 checkpoint: generated length 8 (the length of the contract example `aB3xK9mQ`; 62^8 is about 2.2e14 codes); at most 3 regenerations after the first attempt, reusing the approved retry bound of PVT-004; exhaustion raises ShortCodeCollisionException and stores nothing (mapped to the generic 500 INTERNAL_ERROR); reserved route words `api` and `actuator` compared without case; java.security.SecureRandom as the random source.

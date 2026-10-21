@@ -15,6 +15,9 @@ import java.util.Optional;
  */
 public class LinkService {
 
+    /** Regenerations after a short-code collision; the approved retry bound of PVT-004 (3). */
+    static final int MAX_REGENERATIONS = 3;
+
     private final LinkRepository links;
     private final ShortCodeGenerator codes;
     private final TimeSource clock;
@@ -38,8 +41,15 @@ public class LinkService {
             throw new InvalidExpirationException("expires_at must be in the future");
         }
         Instant expiresAt = requestedExpiresAt != null ? requestedExpiresAt : now.plus(defaultTtl);
-        return links.insert(new NewLink(codes.next(), target, requestIdentity, PayloadHash.of(target, requestedExpiresAt),
-                now, expiresAt));
+        String payloadHash = PayloadHash.of(target, requestedExpiresAt);
+        for (int attempt = 1; attempt <= 1 + MAX_REGENERATIONS; attempt++) {
+            try {
+                return links.insert(new NewLink(codes.next(), target, requestIdentity, payloadHash, now, expiresAt));
+            } catch (DuplicateShortCodeException collision) {
+                // the unique constraint rejected the code; try a fresh one (ADR-006)
+            }
+        }
+        throw new ShortCodeCollisionException(1 + MAX_REGENERATIONS);
     }
 
     public Resolution resolve(String rawCode) {
