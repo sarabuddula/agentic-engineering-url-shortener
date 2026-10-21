@@ -100,4 +100,4 @@ Storage: single H2 file database, both planes, behind repository interfaces (ADR
 | CHG-02 | Change control | Downstream revalidation recorded on replan triggers | Automated | Engine evaluation |
 | CHG-03 | Change control | Bidirectional traceability complete (manifest join check; both directions clean) | Automated | Manifest join check |
 
-All checks are mandatory for release; attestations are recorded as human decisions with the same evidence structure (PRV-02, LIC-02; DEP-02 when offline). Build-time tools (gitleaks, OWASP DependencyCheck plugin, license-maven-plugin) are build-scope dependencies, listed in the DEP-01 inventory.
+Runtime tool (fourth governed change 2026-10-21, T128): the N09 testing executor invokes Maven as a local subprocess; Maven is therefore listed in the DEP-01 inventory as a runtime tool, not only a build tool. All checks are mandatory for release; attestations are recorded as human decisions with the same evidence structure (PRV-02, LIC-02; DEP-02 when offline). Build-time tools (gitleaks, OWASP DependencyCheck plugin, license-maven-plugin) are build-scope dependencies, listed in the DEP-01 inventory.

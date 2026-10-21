@@ -65,12 +65,14 @@ Scenario identifiers: US-nnn (user stories), SCN-A/B/C (demonstration scenarios)
 | L-SC-02 | FR-008 | Dedicated concurrent-resolution test | Concurrent creation and concurrent duplicate submission tests | Resolution is a read plus an append-only analytics insert; analytics totals are checked in scenario evidence |
 | L-SC-03 | FR-029, A-017 | Staged revision, HELD downstream nodes, replan cap of 2 | Upstream change triggers re-validation by content hash, invalidation, and human-approved replan acceptance (approver differs from requester) | Every replan needs human acceptance, so no replan runs unbounded without a human |
 | L-SC-04 | FR-024(c), A-016 | Rework cycles and the rework cap of 2 | A rejection ends the path in governed termination (TERMINATED, audited), which FR-024(c) permits ("bounded rework or governed termination") | None needed; behaviour stays within FR-024(c) |
-| L-SC-05 | FR-007, ADR-006 amendment (replay after expiry) | Test of idempotent replay after the link has expired | Idempotent replay of active links; concurrent retries leave exactly one link | Flagged for T124, where ADR-006 is re-accepted: the human decides whether the replay-after-expiry wording stays as a design with no test evidence |
+| L-SC-05 | (withdrawn) | Withdrawn 2026-10-21 after analyze run 4 (X1): T109 restored, so replay after expiry keeps its test | — | — |
 | L-SC-06 | FR-045 | Full control-plane role-matrix tests | 401 without key, 403 for wrong role, 403 self-approval (T059-T061) | Approval endpoints are the only state-changing control-plane path and are tested |
 
 **Requirements still fully met by reduced tasks.** FR-010 through the Actuator default DataSource health indicator (custom check T043 deferred; plan tier 1). FR-022 through H2 file mode (PostgreSQL portability seam deferred; already in the backlog). FR-031 end-to-end latency per run (p95 deferred). NFR-001 input rejection matrix (T046 reduced; log secrecy covered by T022).
 
-**Addition.** T128: N09 testing invokes a real test suite (whitelisted operation TS, plan section 3) and records actual outcomes as LIVE TEST_RUN evidence. No requirement text changes; it strengthens evidence for FR-020, FR-030 and C-004. Its test-run timeout (proposed 180 s) is outside the A-013 per-operation bound of 10 s and is a proposal confirmed at T124.
+**Addition.** T128: N09 testing invokes a real test suite (whitelisted operation TS, plan section 3) and records actual outcomes as LIVE TEST_RUN evidence. No requirement text changes; it strengthens evidence for FR-020, FR-030 and C-004. Its test-run timeout (proposed 180 s) is outside the A-013 per-operation bound of 10 s and is a proposal confirmed at T124. A-004 note: T128 makes Maven a local runtime tool of N09 (a repository checkout is a precondition); it is a documented trust boundary and is listed in the DEP-01 inventory as a runtime tool.
+
+**Determination at T093.** L-SC-03 is next to non-waivable principles II and VIII; replanning stays implemented and human-gated. Whether this limitation affects a non-waivable principle is decided by the human candidate at T093, before any READY WITH ACCEPTED LIMITATIONS outcome.
 
 ## Clarifications
 

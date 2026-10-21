@@ -134,7 +134,7 @@ specs/001-agentic-url-shortener/
 
 **Trust boundaries.**
 1. Public client → application plane: all input validated and normalized (FR-002, FR-013), rate-limited (A-008).
-2. Key-authenticated client → control plane: 401/403 with audit (FR-045/046), per-key rate limit (A-008c), failed-auth per-IP limit (A-008d).
+2. Key-authenticated client → control plane: 401/403 with audit (FR-045/046), per-key rate limit (A-008c), failed-auth per-IP limit (A-008d). (A-008c and A-008d deferred 2026-10-21, L-SC-01; see Amendments 2026-10-21.)
 3. Application plane ↔ control plane: the `shared` package interface only; ArchUnit forbids `shortener` importing orchestration internals.
 4. Process ↔ storage: direct storage access can tamper with the audit chain — hash-chaining detects but does not prevent this (A-011, disclosed).
 
@@ -517,3 +517,5 @@ Scope-control change (C-005, C-006; fourth governed change). The C-006 timebox i
 Bounds affected (amends Amendments 2026-10-19). Rework cap: rework cycles are deferred; a rejection ends the path in governed termination (TERMINATED), so the cap of 2 is not exercised (L-SC-04). Replan cap: staged revision, HELD nodes and the cap of 2 are deferred; replanning keeps content-hash re-validation and human acceptance (L-SC-03). Failure audit in a separate transaction is kept (T123). Boot recovery and effect verification are kept (T122).
 
 Real test-suite execution in N09 (T128; amends section 3 Agent executor model). The N09 executor uses the already whitelisted operation TS to run the project test suite as a bounded subprocess (`mvn -q test -Dtest=<pattern>`, pattern restricted to `[A-Za-z0-9_*#,]`, configurable working directory and timeout), parses the Surefire XML reports, and records the actual counts and failures as TEST_RUN operation evidence with execution_class LIVE. A failing suite fails N09; a timeout or missing toolchain is a classified failure (transient: retried within A-013; permanent: safe-stop). It never records a pass it did not observe. The subprocess command is fixed (only the test pattern varies), so the executor cannot run arbitrary commands. Proposed for confirmation at T124: TS operation timeout 180 s, outside the A-013 per-operation bound of 10 s, because a Maven test run takes tens of seconds. Code production remains human/AI-assisted outside the runtime and ingested with provenance (section 3, unchanged).
+
+Analyze run 4 follow-up (2026-10-21, human decision): T109 (replay after expiry) restored; contract descriptions aligned with the deferrals (openapi.yaml info.description); Maven listed in the DEP-01 inventory as an N09 runtime tool (data-model.md) and documented as an A-004 trust boundary.

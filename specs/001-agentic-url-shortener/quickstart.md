@@ -42,8 +42,8 @@ Behavior: a target hostname present in the table resolves to the listed address 
 | `app.dns.resolver-mode` | `fixed-local` | `fixed-local`: fixed local resolution table (`config/dns/fixed-local-resolver.yml`), no network — demonstration default, offline-safe and deterministic. `live`: real DNS. Tests inject a stub resolver (PVT-003). |
 | `app.rate-limit.creation-per-ip` | 60/min, burst 100 | A-008a; configurable low limits for rate-limit tests |
 | `app.rate-limit.redirect-per-ip` | 600/min, burst 200 | A-008b |
-| `app.rate-limit.control-plane-per-key` | 120/min | A-008c |
-| `app.rate-limit.failed-auth-per-ip` | 10/min, then 5-min block | A-008d + D-004 |
+| `app.rate-limit.control-plane-per-key` | 120/min | A-008c - deferred 2026-10-21 (L-SC-01): configured but not enforced |
+| `app.rate-limit.failed-auth-per-ip` | 10/min, then 5-min block | A-008d + D-004 - deferred 2026-10-21 (L-SC-01): configured but not enforced |
 | `app.default-ttl-days` | 7 | A-006 |
 | `app.approval-timeout-minutes` | 5 | PVT-005 (escalation re-issue, equal second window) |
 | `app.dns.lookup-timeout` | 3s | A-015; bounds `live` DNS lookups |

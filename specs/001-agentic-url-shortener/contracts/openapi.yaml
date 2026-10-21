@@ -9,6 +9,11 @@ info:
     2026-10-18). Control-plane endpoints require role-scoped keys (FR-045);
     raw keys never appear in logs (NFR-001). Role names use the ROLE enum
     spelling of data-model.md (ENGINEER, APPROVER, RELEASE_OWNER, REVIEWER).
+    Amended 2026-10-21 (fourth governed change, analyze run 4 findings I1-I3, approved by the human candidate):
+    replan responses no longer promise staged revisions, HELD nodes or a replan cap (deferred, L-SC-03); the health
+    example shows the Actuator DataSource component `db` (custom storage check deferred, T043); control-plane 429
+    responses are reserved because the per-key limit A-008c is deferred (L-SC-01). Description and example changes
+    only; no schema field is added or removed.
 servers:
   - url: http://localhost:8080
     description: Local single-process prototype (ADR-004)
@@ -148,13 +153,13 @@ paths:
       summary: Health and dependency reachability (FR-010); Actuator-aligned
       responses:
         '200':
-          description: 'Service up; components include storage reachability. Aligned with Spring Boot Actuator output: each component is an object carrying at least a status; component details are NOT exposed publicly (default show-details=never remains in effect)'
+          description: 'Service up; components include database reachability (Actuator DataSource indicator `db`). Aligned with Spring Boot Actuator output: each component is an object carrying at least a status; component details are NOT exposed publicly (default show-details=never remains in effect)'
           content:
             application/json:
               schema: { $ref: '#/components/schemas/HealthStatus' }
               examples:
                 up:
-                  value: { status: "UP", components: { storage: { status: "UP" } } }
+                  value: { status: "UP", components: { db: { status: "UP" } } }
         '503':
           description: Service or a critical dependency is down
           content:
@@ -344,13 +349,13 @@ paths:
       parameters:
         - { name: runId, in: path, required: true, schema: { type: string } }
       responses:
-        '409': { description: 'Replan cap reached (2 accepted replans per run) or a replan is already staged' }
+        '409': { description: 'Replan not possible in the current run state (run terminal, or a replan acceptance already pending). The replan cap of 2 is deferred (L-SC-03, 2026-10-21)' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
         '429': { $ref: '#/components/responses/RateLimited' }
         '202':
-          description: Replan event recorded and revision staged; affected downstream nodes HELD; acceptance pending human approval
+          description: Replan event recorded; affected downstream artifacts, evidence and approvals re-validated by content hash and invalidated where changed; acceptance pending human approval by an APPROVER other than the requester (staged revision and HELD nodes deferred, L-SC-03)
 
   /api/v1/orchestrator/runs/{runId}/release-readiness:
     get:
@@ -446,7 +451,7 @@ components:
         application/json:
           schema: { $ref: '#/components/schemas/Error' }
     RateLimited:
-      description: Over A-008 limit; 429 with retry hint; no short code allocated; audited (FR-047)
+      description: 'Over an A-008 limit; 429 with retry hint; no short code allocated; audited (FR-047). Emitted for link creation and redirect (A-008a/b). On control-plane operations this response is reserved: the per-key limit A-008c is deferred (L-SC-01, 2026-10-21)'
       headers:
         Retry-After:
           description: 'Delay in seconds until the client may retry (delay-seconds form)'

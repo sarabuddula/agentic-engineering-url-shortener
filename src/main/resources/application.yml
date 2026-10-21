@@ -10,9 +10,9 @@ app:
     redirect-per-ip:                  # A-008b
       requests-per-minute: 600
       burst: 200
-    control-plane-per-key:            # A-008c
+    control-plane-per-key:            # A-008c - deferred 2026-10-21 (L-SC-01): bound, not enforced
       requests-per-minute: 120
-    failed-auth-per-ip:               # A-008d, D-004
+    failed-auth-per-ip:               # A-008d, D-004 - deferred 2026-10-21 (L-SC-01): bound, not enforced
       failures-per-minute: 10
       block-duration: 5m
   default-ttl-days: 7                 # A-006

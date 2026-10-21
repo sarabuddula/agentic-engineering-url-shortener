@@ -22,7 +22,7 @@ three analyze runs, independent review). Implementation started 2026-10-20 (T001
 exceeded. This is disclosed, not hidden. This cut is the governed response: it keeps every capability the assignment
 names and every never-cut item, and moves hardening beyond the assignment to the backlog as accepted limitations.
 
-Remaining effort estimate after this cut: about 28-33 focused hours (assistant estimate, not a measurement).
+Remaining effort estimate after this cut: about 29-34 focused hours (assistant estimate, not a measurement).
 
 ## Never cut
 
@@ -35,7 +35,7 @@ depend on. Required analytics reporting (FR-012) is never cut. The three scenari
 |---|---|---|
 | 1-2. Baseline, walking skeleton | T001-T014, T125 (cut list, with T013) | done through T010; T011-T014 open |
 | Foundational | T015-T023, T024 (reduced), T025, T026 (reduced), T124 | Day 1 |
-| 3. Core URL behavior | T027-T041, T044, T045, T046 (reduced), T047, T048, T102, T108, T113; checkpoint T050 | end of Day 1 |
+| 3. Core URL behavior | T027-T041, T044, T045, T046 (reduced), T047, T048, T102, T108, T109, T113; checkpoint T050 | end of Day 1 |
 | 4. Orchestration state model | T051-T058, T105, T118, T127 | Day 2 AM |
 | 5. Approval governance | T059-T064, T119, T110; checkpoint T066 | mid Day 2 |
 | 6. Reliability controls | T067, T068, T071-T072, T073, T074, T075, T076, T077, T078, T079, T122, T123, T128 | Day 2 PM |
@@ -58,7 +58,6 @@ T074-T078 -> T087-T089 -> T084 -> T090-T094 -> T099 -> T100.
 | T065 | Control-plane role-matrix security tests | 401, 403 and self-approval tests in T059-T061 | FR-045, L-SC-06 |
 | T097 | ADR evidence pass | ADR validation covered by the suite and traceability (T090) | ADR-001..009 |
 | T103 | Per-key control-plane rate limit (A-008c) | Per-IP creation and redirect limits (A-008a/b) | FR-047, L-SC-01 |
-| T109 | Test of idempotent replay after link expiry | Idempotent replay of active links (T028, T034) | FR-007, ADR-006, L-SC-05 |
 | T111 | Bucket4j capacity-pressure test | Bounded bucket map implemented in T041 | FR-047, L-SC-01 |
 | T115 | Dedicated concurrent-resolution test | Concurrent creation and duplicate tests (T035) | FR-008, L-SC-02 |
 | T120, T121 | Staged revision, HELD nodes, replan cap 2 (A-017) | Replanning with re-validation and human acceptance (T071-T073) | FR-029, L-SC-03 |
@@ -97,6 +96,7 @@ T074-T078 -> T087-T089 -> T084 -> T090-T094 -> T099 -> T100.
 | T105 | Prerequisite of T101 (FR-044 completion gate, never cut) |
 | T108 | FR-012 requires not-found analytics outcomes; FR-012 is never cut |
 | T123 | Without a separate transaction, a rolled-back operation can erase its own failure audit (T076, T079 evidence) |
+| T109 | Restored after analyze run 4 (X1, human decision 2026-10-21): the replay-after-expiry behaviour decided 2026-10-19 needs test evidence |
 
 ### Added
 
