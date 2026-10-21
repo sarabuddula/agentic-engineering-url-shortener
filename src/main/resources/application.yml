@@ -20,3 +20,8 @@ app:
   rework-cap: 2                       # A-016
   replan-cap: 2                       # A-017
   sync-wait-approval-windows: 2       # A-018
+management:
+  endpoint:
+    health:
+      show-components: always         # FR-010: component statuses visible (e.g. db UP)
+      show-details: never             # component details stay hidden publicly (contract HealthStatus)
