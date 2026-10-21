@@ -29,3 +29,6 @@ management:
     health:
       show-components: always         # FR-010: component statuses visible (e.g. db UP)
       show-details: never             # component details stay hidden publicly (contract HealthStatus)
+logging:
+  pattern:
+    level: "%5p [request_id=%X{request_id:-} run_id=%X{run_id:-}]"   # correlation ids on every log line (T022, NFR-005)
