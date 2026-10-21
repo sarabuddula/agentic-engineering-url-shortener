@@ -45,6 +45,8 @@
 
 **Decision**: Spring Boot 3.x (Web MVC, Data JPA, Actuator; no auto-configured rate limiter).
 
+**Amendment (2026-10-21, human decision, specs/001-agentic-url-shortener/approvals/2026-10-21-persistence-and-t027-t034.md)**: Data JPA is replaced by Spring JDBC; persistence is plain SQL behind repository interfaces (ADR-003 unchanged). Web MVC and Actuator are unaffected.
+
 **Rationale**: Transactional audit coupling (ADR-005) and test-slice coverage of all constitution-IV categories are native fits; Actuator covers FR-010; fluency reduces risk.
 
 **Consequences**: Jakarta EE 10 baseline; ArchUnit rules enforce domain-not-Spring and plane boundaries.

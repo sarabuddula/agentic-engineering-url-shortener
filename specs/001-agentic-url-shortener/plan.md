@@ -15,7 +15,7 @@ A production-oriented, locally runnable prototype delivered as a single Spring B
 **Language/Version**: Java 21 (LTS, e.g. Temurin) — ADR-001. Rejected: TypeScript/Node 22, Python 3.12 + FastAPI (see ADR-001).
 
 **Primary Dependencies** (version pins recorded in `pom.xml` and the dependency/license policy inventory at the engineering-baseline task, per Constitution VI):
-- Spring Boot 3.x (Web MVC, Spring Data JPA, Actuator) — ADR-002; domain layer framework-free (NFR-004), enforced by ArchUnit.
+- Spring Boot 3.x (Web MVC, Spring JDBC, Actuator; Spring Data JPA replaced by Spring JDBC by human decision 2026-10-21, Amendments 2026-10-21) — ADR-002; domain layer framework-free (NFR-004), enforced by ArchUnit.
 - **Bucket4j: `com.bucket4j:bucket4j_jdk17-core` 8.21.0 (Apache-2.0)** — version to be verified and pinned at the engineering-baseline task — approved 2026-10-18 for FR-047 / A-008a-d. Implemented via our own servlet filter (no starter auto-configuration), in-memory buckets for the single-instance prototype, bounded bucket map with a max-entries ceiling; eviction removes only entries whose removal cannot restore restricted capacity (long-idle identities); when capacity is exhausted, new identities are rejected rather than discarding active limits — a capacity-pressure test is required (§8). Limits reset on restart and are per-instance; a shared backend would be the production path (out of scope). Failed-auth temporary block retained as a separate mechanism (D-004, resolved — §8).
 - JUnit 5, AssertJ, Mockito, REST Assured, ArchUnit — testing stack (implementation decision, below).
 - H2 2.x (file mode) — ADR-003.
@@ -29,7 +29,7 @@ A production-oriented, locally runnable prototype delivered as a single Spring B
 | Test category | Tool | Test package |
 |---|---|---|
 | Unit (domain) | JUnit 5 + AssertJ (container-free) | `…urlshortener.shortener.domain` (co-located) / `tests.unit` |
-| Integration | Spring Boot Test slices (`@DataJpaTest`, context tests) | `…tests.integration` |
+| Integration | Spring Boot Test slices (`@JdbcTest`, context tests; was `@DataJpaTest` before 2026-10-21) | `…tests.integration` |
 | API contract | REST Assured + OpenAPI validator (approved dep (2026-10-18), above) validating status, headers, and bodies against `contracts/openapi.yaml` | `…tests.contract` |
 | Orchestration transition | JUnit 5 (state-machine tests, container-free) | `…tests.orchestration` |
 | Reliability | JUnit 5 + fault-injection harness (retry/timeout/safe-stop/resume) | `…tests.reliability` |
@@ -79,7 +79,7 @@ src/main/java/com/agenticengineering/urlshortener/
 ├── shortener/               # APPLICATION plane
 │   ├── api/                 # REST controllers, error mapping (Spring)
 │   ├── domain/              # framework-free domain logic
-│   ├── persistence/         # JPA entities + repository implementations
+│   ├── persistence/         # Spring JDBC repository implementations (JPA until 2026-10-21)
 │   └── analytics/           # capture + reporting
 └── orchestration/           # CONTROL plane
     ├── api/                 # control-plane REST endpoints
@@ -87,7 +87,7 @@ src/main/java/com/agenticengineering/urlshortener/
     ├── policy/              # versioned policy evaluation
     ├── approval/            # approval lifecycle
     ├── audit/               # hash chain + verifier
-    └── persistence/         # control-plane JPA repositories
+    └── persistence/         # control-plane Spring JDBC repositories (JPA until 2026-10-21)
 
 src/test/java/com/agenticengineering/urlshortener/
 ├── shortener/domain/        # container-free domain unit tests
@@ -155,7 +155,7 @@ specs/001-agentic-url-shortener/
 | Short-code generation | Random base-62 candidates (adopted 2026-10-19); uniqueness enforced by DB constraint; collision → regenerate within bounded retries; reserved route words `api`/`actuator` never emitted (ADR-006, accepted); codes never reassigned | FR-004, FR-016, PVT-004 |
 | URL validation | Scheme allowlist HTTP/HTTPS (A-007); internal/local address rejection (loopback, private, link-local and the full rule set — D-003, resolved in §8); size limit; whitespace stripping and canonical form | FR-002, FR-003, FR-013, NFR-001 |
 | Redirect resolution | Active → 302 to target (adopted 2026-10-19); expired → defined expired-link response, 410 adopted 2026-10-19; unknown/deleted → 404 with no redirect; expiration race resolves to expired behavior | FR-005, FR-006, FR-014 |
-| Persistence | JPA repositories; unique constraints on short code and request identity; optimistic locking | FR-007, FR-016, PVT-003 |
+| Persistence | Spring JDBC repositories behind repository interfaces (JPA until the 2026-10-21 amendment); unique constraints on short code and request identity; optimistic locking | FR-007, FR-016, PVT-003 |
 | Analytics | Synchronous capture in the redirect path (attempt outcome, count, timestamp); bounded, quantified loss on capture failure; no personal information | FR-012, FR-015, A-003 |
 | Expiration | Explicit expiry or default TTL 7 days (A-006); lazy evaluation at resolution | FR-011 |
 | Health/readiness | Actuator health plus custom dependency check (storage reachable) | FR-010 |
@@ -519,3 +519,5 @@ Bounds affected (amends Amendments 2026-10-19). Rework cap: rework cycles are de
 Real test-suite execution in N09 (T128; amends section 3 Agent executor model). The N09 executor uses the already whitelisted operation TS to run the project test suite as a bounded subprocess (`mvn -q test -Dtest=<pattern>`, pattern restricted to `[A-Za-z0-9_*#,]`, configurable working directory and timeout), parses the Surefire XML reports, and records the actual counts and failures as TEST_RUN operation evidence with execution_class LIVE. A failing suite fails N09; a timeout or missing toolchain is a classified failure (transient: retried within A-013; permanent: safe-stop). It never records a pass it did not observe. The subprocess command is fixed (only the test pattern varies), so the executor cannot run arbitrary commands. Decided 2026-10-21 at T124 (human candidate): TS operation timeout 180 s, at most 1 retry, excluded from the 60 s automated-path deadline (exception to A-013, because a Maven test run takes tens of seconds); a timeout stays a classified failure. Code production remains human/AI-assisted outside the runtime and ingested with provenance (section 3, unchanged).
 
 Analyze run 4 follow-up (2026-10-21, human decision): T109 (replay after expiry) restored; contract descriptions aligned with the deferrals (openapi.yaml info.description); Maven listed in the DEP-01 inventory as an N09 runtime tool (data-model.md) and documented as an A-004 trust boundary.
+
+Persistence technology (human decision 2026-10-21, specs/001-agentic-url-shortener/approvals/2026-10-21-persistence-and-t027-t034.md). Persistence uses Spring JDBC (JdbcTemplate) behind repository interfaces instead of JPA; schema.sql stays authoritative and Hibernate is removed (spring-boot-starter-data-jpa replaced by spring-boot-starter-jdbc). ADR-003 is unchanged (repository interfaces, H2 file mode, DB-enforced uniqueness); ADR-002's component list is amended accordingly. Reason: explicit SQL fits the authoritative schema, the audit-chain row lock (SELECT ... FOR UPDATE) and constraint-violation mapping. The difference arose in implementation from T021 on and was reported before T035. Rejected: converting to JPA entities (3-4 hours, no functional gain).

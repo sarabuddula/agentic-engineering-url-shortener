@@ -28,9 +28,6 @@ spring:
   sql:
     init:
       mode: always                    # Boot only auto-runs schema.sql for in-memory databases; the script is re-run safe
-  jpa:
-    hibernate:
-      ddl-auto: none                  # schema.sql is authoritative (T018, ADR-003); Hibernate never alters tables
 management:
   endpoint:
     health:

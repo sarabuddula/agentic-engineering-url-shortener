@@ -50,7 +50,7 @@ The validator brings in `swagger-request-validator-core` 2.44.8 and `io.rest-ass
 
 `org.codehaus.mojo:license-maven-plugin` pinned 2.7.1 in `pom.xml` at T004 (LIC-01; not managed by Spring Boot). 2.7.1 was the latest release on Maven Central on that date. `mvn license:download-licenses` exited 0 and wrote `docs/compliance/licenses.xml` (125 dependencies, each with a license entry); 12 warnings were failed downloads of license texts from gnu.org, with license names still recorded. The manifest reflects the pom as of T004 and must be regenerated before any license check relies on it.
 
-Licensing items for the policy checks (T057, T107), recorded without a decision: `org.hibernate.orm:hibernate-core` (GNU Library General Public License v2.1 or later); `com.sun.mail:mailapi` (CDDL/GPLv2+CE); `ch.qos.logback` logback-classic and logback-core (EPL-2.0 or LGPL-2.1-only); eight `com.github.java-json-tools` artifacts (Apache-2.0 or LGPL-3.0+).
+Licensing items for the policy checks (T057, T107), recorded without a decision: `org.hibernate.orm:hibernate-core` (GNU Library General Public License v2.1 or later; removed from the build 2026-10-21 with the JPA starter); `com.sun.mail:mailapi` (CDDL/GPLv2+CE); `ch.qos.logback` logback-classic and logback-core (EPL-2.0 or LGPL-2.1-only); eight `com.github.java-json-tools` artifacts (Apache-2.0 or LGPL-3.0+).
 
 ## T005 secret scanner (2026-10-20)
 
