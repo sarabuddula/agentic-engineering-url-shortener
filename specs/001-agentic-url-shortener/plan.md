@@ -335,7 +335,7 @@ All entities below are control-plane-owned rows in the shared H2 store; each car
 
 ### 8. Security
 
-**Input validation.** Size limit, whitespace stripping, canonical normalization (FR-002, FR-013); scheme allowlist HTTP/HTTPS only (A-007).
+**Input validation.** Size limit, whitespace stripping, canonical normalization (FR-002, FR-013; canonical form defined in spec Amendment Appendix D, human decision 2026-10-21: scheme and host lowercased, default port removed, empty path "/", percent-encoding hex uppercased, path/query/fragment otherwise unchanged); scheme allowlist HTTP/HTTPS only (A-007).
 
 **Malicious redirect and internal addresses (D-003).** The service **never fetches target URLs** — resolution returns the recorded target, so there is no SSRF fetch surface; creation-time address validation is abuse reduction. Rejected at creation: loopback (127/8, ::1), RFC 1918, fd00::/8, link-local (169.254/16, fe80::/10), 0.0.0.0, cloud-metadata addresses (169.254.169.254), IPv4-mapped IPv6, decimal/octal IP forms, `localhost` names, and URLs containing userinfo. Checks run after bounded DNS resolution against all resolved IPs; unresolved results are rejected. **Resolver mode is configurable:** `live` (real DNS) or `fixed-local` (fixed local resolution table, no network access — demonstration default; offline-safe, deterministic demos); tests inject the stub resolver. Also rejected (additions approved by the human candidate 2026-10-18): IPv6 unspecified `::`, full unique-local fc00::/7, and localhost subdomains (`*.localhost`). **Recorded limitation:** DNS rebinding after creation is not re-checked (target fixed at creation).
 

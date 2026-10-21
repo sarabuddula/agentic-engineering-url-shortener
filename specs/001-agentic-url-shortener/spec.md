@@ -21,7 +21,7 @@ Scenario identifiers: US-nnn (user stories), SCN-A/B/C (demonstration scenarios)
 - 2026-10-19: MTTR excludes governance wait (reported separately, plus a labelled secondary figure).
 - 2026-10-19: replan control (staged revision, HELD nodes, cap 2), rework cap 2, sync-wait bound of 2 approval windows, boot recovery to SAFE_STOPPED, DNS lookup timeout 3 s, and resume of governed stops by an APPROVER key are plan-level details of FR-024, FR-028 and FR-029.
 
-### Amendment Appendix A - Checklist closure (2026-10-19, C-005; proposals confirmed at T124; approved requirement text above is unchanged)
+### Amendment Appendix A - Checklist closure (2026-10-19, C-005; proposals confirmed at T124 on 2026-10-21; approved requirement text above is unchanged)
 
 **Glossary.**
 - Request identity: the client-supplied Idempotency-Key header value that identifies one logical creation request (FR-007).
@@ -45,7 +45,7 @@ Scenario identifiers: US-nnn (user stories), SCN-A/B/C (demonstration scenarios)
 
 **Numeric bounds recorded as assumptions (proposed; confirmed at T124).** A-013: retry backoff 1 s, 2 s, 4 s with +/-20% jitter; per-operation timeout 10 s; automated-path deadline 60 s *(confirmed 2026-10-21 at T124; exception: test-suite operations (T128) have their own 180 s timeout, at most 1 retry, and are excluded from the 60 s deadline)*. A-014: up to 5 in-transaction optimistic-lock re-attempts, not counted against the 3 stage retries *(confirmed 2026-10-21 at T124)*. A-015: DNS lookup timeout 3 s. A-016: rework cap 2 per node. A-017: replan cap 2 accepted replans per run. A-018: synchronization wait limit of 2 approval windows.
 
-### Amendment Appendix B - Checklist closure, continued (2026-10-19, C-005)
+### Amendment Appendix B - Checklist closure, continued (2026-10-19, C-005; accepted at T124 on 2026-10-21)
 
 **Assumption approval state.** A-001, A-004 and A-005 are part of the specification approved at Human Gate 2 (2026-10-18). A-002, A-003, A-006 and A-007 are recorded above as approved at the same gate. A-008 to A-012 carry their own state notes.
 
@@ -73,6 +73,10 @@ Scenario identifiers: US-nnn (user stories), SCN-A/B/C (demonstration scenarios)
 **Addition.** T128: N09 testing invokes a real test suite (whitelisted operation TS, plan section 3) and records actual outcomes as LIVE TEST_RUN evidence. No requirement text changes; it strengthens evidence for FR-020, FR-030 and C-004. Its test-run timeout of 180 s, with at most 1 retry and exclusion from the 60 s automated-path deadline, was decided by the human candidate on 2026-10-21 at T124 as an exception to A-013. A-004 note: T128 makes Maven a local runtime tool of N09 (a repository checkout is a precondition); it is a documented trust boundary and is listed in the DEP-01 inventory as a runtime tool.
 
 **Determination at T093.** L-SC-03 is next to non-waivable principles II and VIII; replanning stays implemented and human-gated. Whether this limitation affects a non-waivable principle is decided by the human candidate at T093, before any READY WITH ACCEPTED LIMITATIONS outcome.
+
+### Amendment Appendix D - Canonical form of target URLs (2026-10-21, C-005; human decision; approved requirement text above is unchanged)
+
+**Definition for FR-013.** The canonical form of a target URL (RFC 3986 section 6.2.2-6.2.3 syntax- and scheme-based normalization): scheme and host lowercased; default port removed (80 for http, 443 for https); empty path becomes "/"; hex digits in percent-encodings uppercased; path, query and fragment otherwise unchanged. Example: "HTTPS://Example.com:443" and "https://example.com/" are the same target. Two creation requests whose targets have the same canonical form carry the same normalized payload for request-identity comparison (FR-007). Recorded in specs/001-agentic-url-shortener/approvals/2026-10-21-t014-t124.md; implemented and tested by T029-T031.
 
 ## Clarifications
 
