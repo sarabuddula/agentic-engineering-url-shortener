@@ -13,7 +13,7 @@ Log, spec Amendment Appendix C, plan Amendments 2026-10-21).
 | Date | 2026-10-21 |
 | Recorded words | "go with that" (deeper cut plus real test-execution agent); "confirm adjusted cut" (after never-cut conflicts were reported) |
 | Proposed by | Claude Code (AI assistant); the assistant does not approve |
-| Pending | T125 confirmation of this file as written, including three keeps added after the confirmation (T105, T108, T123; see "Kept to protect never-cut work") |
+| Confirmed | T125 confirmed by the human candidate on 2026-10-21 ("T125 confirmed"), including the keeps T105, T108, T109 and T123 |
 
 ## Timebox status (disclosed)
 
