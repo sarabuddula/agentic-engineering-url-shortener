@@ -1,6 +1,7 @@
 package com.agenticengineering.urlshortener.shortener.config;
 
 import com.agenticengineering.urlshortener.shared.dns.ResolverMode;
+import java.nio.file.Path;
 import java.time.Duration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -8,8 +9,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties("app")
 public record ShortenerProperties(Dns dns, RateLimit rateLimit, int defaultTtlDays) {
 
-    /** {@code app.dns}: resolver mode and the live lookup timeout (A-015). */
-    public record Dns(ResolverMode resolverMode, Duration lookupTimeout) {
+    /** {@code app.dns}: resolver mode, the live lookup timeout (A-015) and the fixed-local table location. */
+    public record Dns(ResolverMode resolverMode, Duration lookupTimeout, Path fixedLocalTable) {
     }
 
     /** {@code app.rate-limit}: per-IP limits for creation (A-008a) and redirect (A-008b). */

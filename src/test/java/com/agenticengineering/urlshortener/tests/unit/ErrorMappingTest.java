@@ -81,6 +81,20 @@ class ErrorMappingTest {
     }
 
     @Test
+    void springRoutingErrorsKeepTheirStatusInsteadOfBecoming500() throws Exception {
+        ResponseEntity<Map<String, Object>> notFound = handler.handleFramework(
+                new org.springframework.web.servlet.resource.NoResourceFoundException(org.springframework.http.HttpMethod.GET,
+                        "api/v1/nope"), requestWithId("req-404b"));
+        ResponseEntity<Map<String, Object>> notAllowed = handler.handleFramework(
+                new org.springframework.web.HttpRequestMethodNotSupportedException("DELETE"), requestWithId("req-405"));
+
+        assertThat(notFound.getStatusCode().value()).isEqualTo(404);
+        assertThat(notFound.getBody()).containsEntry("code", "NOT_FOUND").containsKey("request_id");
+        assertThat(notAllowed.getStatusCode().value()).isEqualTo(405);
+        assertThat(notAllowed.getBody()).containsEntry("code", "METHOD_NOT_ALLOWED");
+    }
+
+    @Test
     void requestIdIsGeneratedWhenTheRequestCarriesNone() {
         ResponseEntity<Map<String, Object>> response = handler.handle(
                 new InvalidShortCodeException("x"), new MockHttpServletRequest());

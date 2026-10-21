@@ -3,6 +3,7 @@ app:
     # fixed-local: table at config/dns/fixed-local-resolver.yml, no network (demonstration default); live: real DNS
     resolver-mode: fixed-local
     lookup-timeout: 3s                # A-015
+    fixed-local-table: config/dns/fixed-local-resolver.yml   # used in fixed-local mode (T036)
   rate-limit:
     creation-per-ip:                  # A-008a
       requests-per-minute: 60

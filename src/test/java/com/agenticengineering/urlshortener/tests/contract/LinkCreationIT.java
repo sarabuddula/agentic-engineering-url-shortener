@@ -66,10 +66,15 @@ class LinkCreationIT {
     @Test
     void replayReturnsTheSameLinkWith200() {
         Response first = create("key-replay-01", "{\"target_url\":\"https://example.com/a\"}", true);
-        Response replay = create("key-replay-01", "{\"target_url\":\" https://example.com/a \"}", true);
+        Response replay = create("key-replay-01", "{\"target_url\":\"https://example.com/a\"}", true);
+        // surrounding whitespace is outside the contract's uri format, so this request bypasses the filter; the server
+        // still normalizes it (FR-013) and treats it as the same payload
+        Response untrimmedReplay = create("key-replay-01", "{\"target_url\":\" https://example.com/a \"}", false);
 
         assertThat(replay.statusCode()).isEqualTo(200);
         assertThat(replay.jsonPath().getMap("$")).isEqualTo(first.jsonPath().getMap("$"));
+        assertThat(untrimmedReplay.statusCode()).isEqualTo(200);
+        assertThat(untrimmedReplay.jsonPath().getMap("$")).isEqualTo(first.jsonPath().getMap("$"));
         assertThat(linkCount()).isEqualTo(1);
     }
 
