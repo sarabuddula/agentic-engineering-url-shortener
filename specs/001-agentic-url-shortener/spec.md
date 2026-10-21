@@ -53,6 +53,25 @@ Scenario identifiers: US-nnn (user stories), SCN-A/B/C (demonstration scenarios)
 
 **Identifier policy.** FR-017 to FR-019 are not assigned. Identifiers are stable and are never reused or renumbered.
 
+### Amendment Appendix C - Scope-control change (2026-10-21, C-005, C-006; fourth governed change; approved requirement text above is unchanged)
+
+**Decision.** Human decision by the candidate on 2026-10-21 ("go with that"; "confirm adjusted cut"): defer hardening beyond the assignment, keep every never-cut item (plan section 14), and add real test-suite execution in N09 (T128). The ID-level list is `docs/scope-control.md`; the task changes are in the tasks.md Amendment Log. Reason: the C-006 timebox is exceeded (planning 2026-10-18 to 2026-10-20); this is disclosed in the final engineering summary.
+
+**Requirement parts deferred.** Each item below is an open limitation. It does not change the requirement text; it is reported at release readiness and needs individual approval at G6 (T093) for a READY WITH ACCEPTED LIMITATIONS outcome (FR-037(c)). None of them involves a non-waivable principle; whether that holds is for the human candidate to confirm at T093.
+
+| ID | Requirement | Deferred part | What remains implemented and tested | Compensating control |
+|---|---|---|---|---|
+| L-SC-01 | FR-047, A-008c, A-008d | Per-key control-plane rate limit; per-IP failed-authentication limit and block; Bucket4j capacity-pressure test | Per-IP creation and redirect limits (A-008a/b) with 429, retry hint, no code allocated, audited | Control-plane keys are role-scoped, hashed and demo-only (D-004); local single-user demonstration |
+| L-SC-02 | FR-008 | Dedicated concurrent-resolution test | Concurrent creation and concurrent duplicate submission tests | Resolution is a read plus an append-only analytics insert; analytics totals are checked in scenario evidence |
+| L-SC-03 | FR-029, A-017 | Staged revision, HELD downstream nodes, replan cap of 2 | Upstream change triggers re-validation by content hash, invalidation, and human-approved replan acceptance (approver differs from requester) | Every replan needs human acceptance, so no replan runs unbounded without a human |
+| L-SC-04 | FR-024(c), A-016 | Rework cycles and the rework cap of 2 | A rejection ends the path in governed termination (TERMINATED, audited), which FR-024(c) permits ("bounded rework or governed termination") | None needed; behaviour stays within FR-024(c) |
+| L-SC-05 | FR-007, ADR-006 amendment (replay after expiry) | Test of idempotent replay after the link has expired | Idempotent replay of active links; concurrent retries leave exactly one link | Flagged for T124, where ADR-006 is re-accepted: the human decides whether the replay-after-expiry wording stays as a design with no test evidence |
+| L-SC-06 | FR-045 | Full control-plane role-matrix tests | 401 without key, 403 for wrong role, 403 self-approval (T059-T061) | Approval endpoints are the only state-changing control-plane path and are tested |
+
+**Requirements still fully met by reduced tasks.** FR-010 through the Actuator default DataSource health indicator (custom check T043 deferred; plan tier 1). FR-022 through H2 file mode (PostgreSQL portability seam deferred; already in the backlog). FR-031 end-to-end latency per run (p95 deferred). NFR-001 input rejection matrix (T046 reduced; log secrecy covered by T022).
+
+**Addition.** T128: N09 testing invokes a real test suite (whitelisted operation TS, plan section 3) and records actual outcomes as LIVE TEST_RUN evidence. No requirement text changes; it strengthens evidence for FR-020, FR-030 and C-004. Its test-run timeout (proposed 180 s) is outside the A-013 per-operation bound of 10 s and is a proposal confirmed at T124.
+
 ## Clarifications
 
 ### Session 2026-10-18
