@@ -5,7 +5,7 @@
 
 ## ADR-001: Language and Runtime — Java 21 LTS
 
-**Status**: Accepted (human candidate, 2026-10-18)
+**Status**: Accepted (human candidate, 2026-10-18); pool wording amendment re-accepted 2026-10-21 (T124, specs/001-agentic-url-shortener/approvals/2026-10-21-t014-t124.md)
 
 **Context**: Single-process prototype delivered in a 2-3 day timebox (C-006); orchestration and domain logic in one statically typed codebase; typed workflow states and audit invariants are load-bearing.
 
@@ -142,7 +142,7 @@
 
 ## ADR-006: Short-Code Generation, Collision Handling, and Request Idempotency
 
-**Status**: Accepted (human candidate, 2026-10-18; includes the approved spec-delta 409 conflict response, the approved 200-replay/201-new distinction, and the approved reserved-route-word exclusion)
+**Status**: Accepted (human candidate, 2026-10-18; includes the approved spec-delta 409 conflict response, the approved 200-replay/201-new distinction, and the approved reserved-route-word exclusion) Amendments (Idempotency-Key header, replay after expiry returns 200, base-62) re-accepted 2026-10-21 (T124, specs/001-agentic-url-shortener/approvals/2026-10-21-t014-t124.md).
 
 **Context**: FR-016 uniqueness under 100 concurrent creations (PVT-003); FR-004 never-reassign; FR-007 idempotent retries of one logical request (AMB-2: independent requests to the same URL create separate links); short codes are permanent public identifiers.
 
@@ -153,7 +153,7 @@
 - Sequential counter + base-62 — pros: zero collisions; cons: guessable codes, counter is a hot row under PVT-003; risks: contention.
 - Hash-derived from target — pros: deterministic; cons: same-URL requests would collide (violates AMB-2), code length blows up on long URLs; risks: violates FR-007 independence.
 
-**Decision**: Base-62 alphabet (adopted by human decision 2026-10-19; amendment re-acceptance recorded at T124), minimum length 4, random generation; uniqueness enforced by a DB unique constraint; on collision the generation is retried with a fresh code (bounded); the short-code generator never emits the reserved top-level route words `api` and `actuator` (a colliding generation is rejected and regenerated; the minimum length of 4 already excludes `api`, and the exclusion additionally protects the `actuator` route). Idempotency: the client supplies a stable `Idempotency-Key` header; the key is bound to the normalized payload; same key + same payload returns the existing link (HTTP 200); same key + different payload returns 409 with no overwrite (approved spec delta); no key or malformed key is rejected (400, no code allocated); independent requests to the same URL each create new links.
+**Decision**: Base-62 alphabet (adopted by human decision 2026-10-19; re-accepted 2026-10-21 at T124), minimum length 4, random generation; uniqueness enforced by a DB unique constraint; on collision the generation is retried with a fresh code (bounded); the short-code generator never emits the reserved top-level route words `api` and `actuator` (a colliding generation is rejected and regenerated; the minimum length of 4 already excludes `api`, and the exclusion additionally protects the `actuator` route). Idempotency: the client supplies a stable `Idempotency-Key` header; the key is bound to the normalized payload; same key + same payload returns the existing link (HTTP 200); same key + different payload returns 409 with no overwrite (approved spec delta); no key or malformed key is rejected (400, no code allocated); independent requests to the same URL each create new links.
 
 **Rationale**: DB-constraint uniqueness makes the PVT-003 race provable rather than best-effort; random codes avoid enumeration; reserved-word exclusion guarantees no short code can collide with a first-level route.
 
