@@ -52,6 +52,10 @@ The validator brings in `swagger-request-validator-core` 2.44.8 and `io.rest-ass
 
 Licensing items for the policy checks (T057, T107), recorded without a decision: `org.hibernate.orm:hibernate-core` (GNU Library General Public License v2.1 or later); `com.sun.mail:mailapi` (CDDL/GPLv2+CE); `ch.qos.logback` logback-classic and logback-core (EPL-2.0 or LGPL-2.1-only); eight `com.github.java-json-tools` artifacts (Apache-2.0 or LGPL-3.0+).
 
+## T005 secret scanner (2026-10-20)
+
+gitleaks 8.30.1 (MIT), installed with Homebrew on 2026-10-20 at the human candidate's request; `gitleaks version` printed `8.30.1`. Not a Maven dependency. Config: `.gitleaks.toml` (default rules plus one documented exclusion for the `key_hash: <64 hex>` lines of the gitignored `.demo-keys.yml`). Scans run 2026-10-20: `gitleaks git --config .gitleaks.toml --redact` exit 0 and `gitleaks dir . --config .gitleaks.toml --redact` exit 0, both "no leaks found". Without the exclusion, the working-directory scan reported 4 generic-api-key findings, all `key_hash` lines in `.demo-keys.yml`. A check with a temporary copy of that file showed a raw-key line in it is still reported.
+
 ## T007 dependency:tree output (2026-10-20)
 
 `mvn dependency:tree` run 2026-10-20 (JDK 21.0.12.1, Maven 3.9.16), exit 0. Lines for the test starter and its main test libraries, as printed:

@@ -1,0 +1,18 @@
+# Secret scan configuration (T005, SEC-03, NFR-001). gitleaks 8.30.1.
+# Run: gitleaks git --config .gitleaks.toml --redact   (committed history)
+#      gitleaks dir . --config .gitleaks.toml --redact (working directory)
+title = "url-shortener secret scan"
+
+[extend]
+useDefault = true
+
+# Documented exclusion (T005): .demo-keys.yml is the gitignored file written by
+# scripts/generate-demo-keys.sh. Its key_hash lines are SHA-256 hashes of demo-only role
+# keys (A-009, D-004), not secrets, and trigger generic-api-key. Only lines that are
+# exactly "key_hash: <64 hex>" are excluded; any other content is still scanned.
+# No path condition: with paths + condition = "AND", gitleaks 8.30.1 excluded the whole
+# file (a raw-key line was missed in a check on 2026-10-20), so matching is by content only.
+[[allowlists]]
+description = "Demo key file: SHA-256 key_hash lines only"
+regexTarget = "line"
+regexes = ['''^\s*key_hash: [0-9a-f]{64}\s*$''']
