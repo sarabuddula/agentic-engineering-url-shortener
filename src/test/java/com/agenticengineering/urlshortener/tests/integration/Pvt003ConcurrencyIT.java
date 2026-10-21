@@ -64,11 +64,12 @@ class Pvt003ConcurrencyIT {
 
         Set<String> codes = new HashSet<>();
         for (int i = 0; i < 100; i++) {
-            IdempotencyService.Outcome outcome = outcomes.get(i);
+            int n = i;
+            IdempotencyService.Outcome outcome = outcomes.get(n);
             assertThat(outcome.created()).isTrue();
             codes.add(outcome.link().code().value());
             assertThat(links.resolve(outcome.link().code().value())).isInstanceOfSatisfying(Resolution.Redirect.class,
-                    redirect -> assertThat(redirect.target().value()).isEqualTo("https://example.com/p/" + i));
+                    redirect -> assertThat(redirect.target().value()).isEqualTo("https://example.com/p/" + n));
         }
         assertThat(codes).hasSize(100);
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM SHORT_LINK", Integer.class)).isEqualTo(100);
