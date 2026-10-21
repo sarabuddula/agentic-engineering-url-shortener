@@ -54,7 +54,9 @@ class WalkingSkeletonIT {
         int port = freePort();
         Path log = Files.createTempFile("walking-skeleton", ".log");
         String javaBin = Paths.get(System.getProperty("java.home"), "bin", "java").toString();
-        Process process = new ProcessBuilder(List.of(javaBin, "-jar", jar.toString(), "--server.port=" + port))
+        Path dataDir = Files.createTempDirectory("walking-skeleton-data");
+        Process process = new ProcessBuilder(List.of(javaBin, "-jar", jar.toString(), "--server.port=" + port,
+                "--app.data-dir=" + dataDir))
                 .redirectErrorStream(true)
                 .redirectOutput(log.toFile())
                 .start();

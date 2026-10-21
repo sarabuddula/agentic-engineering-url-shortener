@@ -1,0 +1,4 @@
+# Test-only overrides (T026). Each Spring test context gets its own H2 file directory under target/, so tests run
+# in file mode like the application but never share data or write to ./data. H2 requires the explicit ./ prefix.
+app:
+  data-dir: ./target/test-data/${random.uuid}

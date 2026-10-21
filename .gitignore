@@ -4,3 +4,5 @@ __pycache__/
 target/
 .demo-keys.yml
 .demo-keys.yml.tmp
+# H2 file database (T026, app.data-dir default)
+data/

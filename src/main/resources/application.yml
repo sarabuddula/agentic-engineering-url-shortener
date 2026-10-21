@@ -20,7 +20,14 @@ app:
   rework-cap: 2                       # A-016
   replan-cap: 2                       # A-017
   sync-wait-approval-windows: 2       # A-018
+  data-dir: ./data                    # H2 file location (T026); gitignored
 spring:
+  datasource:
+    # T026, ADR-003: one H2 file database for both planes; state survives restarts (FR-022, PVT-006)
+    url: jdbc:h2:file:${app.data-dir}/url-shortener
+  sql:
+    init:
+      mode: always                    # Boot only auto-runs schema.sql for in-memory databases; the script is re-run safe
   jpa:
     hibernate:
       ddl-auto: none                  # schema.sql is authoritative (T018, ADR-003); Hibernate never alters tables
