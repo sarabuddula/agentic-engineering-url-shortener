@@ -13,8 +13,11 @@ public record ShortenerProperties(Dns dns, RateLimit rateLimit, int defaultTtlDa
     public record Dns(ResolverMode resolverMode, Duration lookupTimeout, Path fixedLocalTable) {
     }
 
-    /** {@code app.rate-limit}: per-IP limits for creation (A-008a) and redirect (A-008b). */
-    public record RateLimit(Limit creationPerIp, Limit redirectPerIp) {
+    /**
+     * {@code app.rate-limit}: per-IP limits for creation (A-008a) and redirect (A-008b), and the ceiling on tracked
+     * clients per limit (plan section 8 bounded map).
+     */
+    public record RateLimit(Limit creationPerIp, Limit redirectPerIp, int maxTrackedClients) {
     }
 
     public record Limit(int requestsPerMinute, int burst) {

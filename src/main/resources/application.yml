@@ -5,6 +5,7 @@ app:
     lookup-timeout: 3s                # A-015
     fixed-local-table: config/dns/fixed-local-resolver.yml   # used in fixed-local mode (T036)
   rate-limit:
+    max-tracked-clients: 10000        # bounded bucket map per limit (plan section 8; implementation choice, T041)
     creation-per-ip:                  # A-008a
       requests-per-minute: 60
       burst: 100
