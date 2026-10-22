@@ -42,7 +42,7 @@ public final class DocumentationStageExecutor implements StageExecutor {
             c.path("files").forEach(f -> files.add(f.asText()));
         }
         Map<String, Object> doc = new LinkedHashMap<>();
-        artifacts.latest(runId, "DESIGN").ifPresent(d -> doc.put("design", d.id() + "@" + d.version() + "#" + d.contentHash()));
+        artifacts.readIfPresent(runId, "DESIGN", "N10").ifPresent(d -> doc.put("design", d.id() + "@" + d.version() + "#" + d.contentHash()));
         doc.put("commits", commits);
         doc.put("changed_files", files);
         doc.put("documentation_files", files.stream().filter(f -> f.endsWith(".md") || f.endsWith(".yaml") || f.endsWith(".yml")).toList());

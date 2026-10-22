@@ -20,7 +20,7 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 /**
  * T089 option B (human decision 2026-10-22, approvals/2026-10-22-t089-design-revisions.md): POST
  * /runs/{runId}/design-revisions (ENGINEER) records the next DESIGN version with the revision note, audited; a stage
- * that read the earlier version makes the revision a live replan trigger. Requirements: FR-029, SC-003.
+ * that read the earlier version makes the revision a live replan trigger. Requirements: FR-029.
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class DesignRevisionApiIT {
@@ -58,7 +58,7 @@ class DesignRevisionApiIT {
         ArtifactStore.Artifact latest = artifacts.latest(runId, "DESIGN").orElseThrow();
         assertThat(latest.provenance()).isEqualTo("AI_ASSISTED_HUMAN_REVIEWED");
         assertThat(latest.content()).contains("\"tasks\"").contains("record that the status endpoint is not rate-limited");
-        assertThat(store.history(runId)).anyMatch(e -> e.action().equals("DESIGN_REVISED") && e.reason().contains("demo-engineer"));
+        assertThat(store.history(runId)).anyMatch(e -> e.action().equals("DESIGN_REVISED") && e.reason().contains("test-engineer"));
 
         assertThat(given().header("X-API-Key", DemoKeyFixtures.rawKey("ENGINEER")).post("/api/v1/orchestrator/runs/" + runId + "/replan")
                 .statusCode()).isEqualTo(202);

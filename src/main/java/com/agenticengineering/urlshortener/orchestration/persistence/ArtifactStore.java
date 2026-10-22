@@ -105,6 +105,11 @@ public class ArtifactStore {
         return artifact;
     }
 
+    /** {@link #read} when the run has an artifact of the type; otherwise nothing is recorded. */
+    public Optional<Artifact> readIfPresent(String runId, String type, String node) {
+        return latest(runId, type).isPresent() ? Optional.of(read(runId, type, node)) : Optional.empty();
+    }
+
     /** Every version of the type for the run, oldest first. */
     public List<Artifact> all(String runId, String type) {
         return jdbc.query("SELECT * FROM ARTIFACT WHERE RUN_ID = ? AND TYPE = ? ORDER BY VERSION",

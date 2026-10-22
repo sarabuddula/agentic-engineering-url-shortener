@@ -18,7 +18,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 /**
  * T089 option B (human decision 2026-10-22, approvals/2026-10-22-t089-design-revisions.md): the production stages that
  * consume the design record what they read (NODE_INPUT), so a later design revision is detected by a replan - N07 (G2
- * gate), N08 (each implementation task) and N10 (documentation). Requirements: FR-029, SC-003.
+ * gate), N08 (each implementation task) and N10 (documentation). Requirements: FR-029.
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 class DesignReadRecordingTest {

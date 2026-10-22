@@ -4,6 +4,7 @@ import com.agenticengineering.urlshortener.orchestration.approval.ApprovalExpire
 import com.agenticengineering.urlshortener.orchestration.approval.SelfApprovalDeniedException;
 import com.agenticengineering.urlshortener.orchestration.engine.ResumeConflictException;
 import com.agenticengineering.urlshortener.orchestration.replan.ReplanConflictException;
+import com.agenticengineering.urlshortener.orchestration.stages.DesignRevisions;
 import com.agenticengineering.urlshortener.shared.api.ErrorResponse;
 import com.agenticengineering.urlshortener.shared.api.RequestAttributes;
 import jakarta.servlet.http.HttpServletRequest;
@@ -38,6 +39,11 @@ public class ControlPlaneExceptionHandler {
     @ExceptionHandler(ReplanConflictException.class)
     ResponseEntity<Map<String, Object>> replanConflict(ReplanConflictException e, HttpServletRequest request) {
         return respond(HttpStatus.CONFLICT, "REPLAN_CONFLICT", "Replan not possible: " + e.getMessage(), request);
+    }
+
+    @ExceptionHandler(DesignRevisions.DesignNotFoundException.class)
+    ResponseEntity<Map<String, Object>> designNotFound(DesignRevisions.DesignNotFoundException e, HttpServletRequest request) {
+        return respond(HttpStatus.CONFLICT, "DESIGN_NOT_FOUND", "No design to revise: " + e.getMessage(), request);
     }
 
     @ExceptionHandler(ApprovalExpiredException.class)

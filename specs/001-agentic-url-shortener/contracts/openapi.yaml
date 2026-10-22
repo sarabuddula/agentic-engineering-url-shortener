@@ -425,6 +425,45 @@ paths:
         '202':
           description: Replan event recorded; affected downstream artifacts, evidence and approvals re-validated by content hash and invalidated where changed; acceptance pending human approval by an APPROVER other than the requester (staged revision and HELD nodes deferred, L-SC-03)
 
+  /api/v1/orchestrator/runs/{runId}/design-revisions:
+    post:
+      summary: Record a revised design (T089 option B, added 2026-10-22 by human decision, C-005 additive)
+      description: 'Records the next DESIGN version: the previous design plus the revision note (AI_ASSISTED_HUMAN_REVIEWED), audited as DESIGN_REVISED. Stages that read the earlier version (N07, N08, N10) make it a replan trigger for POST /replan (FR-029).'
+      security: [ { ApiKeyAuth: [] } ]
+      x-required-roles: [ENGINEER]
+      parameters:
+        - { name: runId, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/DesignRevisionRequest' }
+            examples:
+              note:
+                value: { revision_note: "record that the status endpoint is not rate-limited (G3 deferred)" }
+      responses:
+        '201':
+          description: Next DESIGN version recorded
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DesignRevisionCreated' }
+              examples:
+                created:
+                  value: { artifact_type: "DESIGN", version: 2, content_hash: "9f2c41d0b7a1e3c5f6a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0" }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409':
+          description: The run has no design to revise
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+              examples:
+                none:
+                  value: { code: "DESIGN_NOT_FOUND", message: "No design to revise: run run-42e1 has no design to revise", request_id: "req-9a2b" }
+        '429': { $ref: '#/components/responses/RateLimited' }
+
   /api/v1/orchestrator/runs/{runId}/release-readiness:
     get:
       summary: Release-readiness recommendation and human decision record (FR-037)
@@ -682,6 +721,20 @@ components:
         policy_check_id: { type: string, description: 'A check of the run''s policy version, e.g. DEP-01' }
         reason: { type: string }
         scope: { type: string }
+
+    DesignRevisionRequest:
+      type: object
+      required: [revision_note]
+      properties:
+        revision_note: { type: string, minLength: 1 }
+
+    DesignRevisionCreated:
+      type: object
+      required: [artifact_type, version, content_hash]
+      properties:
+        artifact_type: { type: string, enum: [DESIGN] }
+        version: { type: integer, minimum: 2 }
+        content_hash: { type: string, pattern: '^[0-9a-f]{64}$' }
 
     PolicyExceptionCreated:
       type: object

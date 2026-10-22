@@ -36,6 +36,7 @@ public final class ImplementationTaskExecutor implements TaskExecutor {
 
     @Override
     public StageResult execute(String runId, String taskKey) throws Exception {
+        artifacts.readIfPresent(runId, "DESIGN", "N08"); // the task implements this design version (replan trigger, T089)
         String marker = "[run " + runId + " task " + taskKey + "]";
         String log = Workspace.git(workspace, "log", "--format=%H", "--fixed-strings", "--grep=" + marker);
         if (log == null) {
