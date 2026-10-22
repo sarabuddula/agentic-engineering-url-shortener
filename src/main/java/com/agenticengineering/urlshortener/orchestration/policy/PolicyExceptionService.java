@@ -22,7 +22,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 /**
  * T063 policy exceptions (FR-033, Constitution VI). A request records the exception without authority and opens a G5
- * approval linked through APPROVAL.AUTHORIZED_ARTIFACTS ("POLICY_EXCEPTION:id"; the schema has no dedicated column).
+ * approval referenced by POLICY_EXCEPTION.APPROVAL_ID (fifth governed change, 2026-10-21).
  * Only the approval path, through ApprovalService's role and self-approval rules, fills in the approving authority,
  * compensating control, approved_at and expiry. Validity (approved and unexpired) is judged at N12.
  */
@@ -60,13 +60,17 @@ public class PolicyExceptionService {
         if (blank(checkId) || blank(reason) || blank(scope)) {
             throw new InvalidRequestException("check, reason and scope are required for a policy exception");
         }
-        PolicySet.v20261018().check(checkId); // unknown checks are rejected
+        try {
+            PolicySet.v20261018().check(checkId);
+        } catch (IllegalArgumentException e) {
+            throw new InvalidRequestException("policy_check_id " + checkId + " is not a check of POL-2026-10-18-v1");
+        }
         return tx.execute(status -> {
             jdbc.update("INSERT INTO POLICY_EXCEPTION (RUN_ID, CHECK_ID, REASON, SCOPE) VALUES (?, ?, ?, ?)", runId, checkId, reason, scope);
             long id = jdbc.queryForObject("SELECT MAX(ID) FROM POLICY_EXCEPTION WHERE RUN_ID = ?", Long.class, runId);
             ApprovalService.Approval approval = approvals.request(runId, ApprovalKind.POLICY_EXCEPTION, "N12", requesterKeyId,
                     "policy exception " + id + " for " + checkId + ": " + reason);
-            jdbc.update("UPDATE APPROVAL SET AUTHORIZED_ARTIFACTS = ? WHERE ID = ?", link(id), approval.id());
+            jdbc.update("UPDATE POLICY_EXCEPTION SET APPROVAL_ID = ? WHERE ID = ?", approval.id(), id);
             audit.append(runId, new AuditEntry(AuditEntry.ActorType.HUMAN, "POLICY_EXCEPTION_REQUESTED", clock.now(), "G5", "PENDING",
                     "exception " + id + " for " + checkId + " requested by " + requesterKeyId + "; scope " + scope));
             return find(runId, id);
@@ -101,6 +105,16 @@ public class PolicyExceptionService {
         });
     }
 
+    /** The exception a G5 approval decides, for approvals entered through the approvals endpoint. */
+    public PolicyException forApproval(String runId, long approvalId) {
+        List<PolicyException> rows = jdbc.query("SELECT * FROM POLICY_EXCEPTION WHERE RUN_ID = ? AND APPROVAL_ID = ?", this::map, runId,
+                approvalId);
+        if (rows.isEmpty()) {
+            throw new InvalidRequestException("approval " + approvalId + " does not decide a recorded policy exception");
+        }
+        return rows.get(0);
+    }
+
     public PolicyException find(String runId, long exceptionId) {
         List<PolicyException> rows = jdbc.query("SELECT * FROM POLICY_EXCEPTION WHERE RUN_ID = ? AND ID = ?", this::map, runId, exceptionId);
         if (rows.isEmpty()) {
@@ -117,14 +131,9 @@ public class PolicyExceptionService {
 
     private PolicyException map(ResultSet rs, int row) throws SQLException {
         long id = rs.getLong("ID");
-        Long approvalId = jdbc.queryForObject("SELECT MAX(ID) FROM APPROVAL WHERE AUTHORIZED_ARTIFACTS = ?", Long.class, link(id));
         return new PolicyException(id, rs.getString("RUN_ID"), rs.getString("CHECK_ID"), rs.getString("REASON"), rs.getString("SCOPE"),
                 rs.getString("APPROVING_AUTHORITY_KEY_ID"), rs.getString("COMPENSATING_CONTROL"), instant(rs.getTimestamp("APPROVED_AT")),
-                instant(rs.getTimestamp("EXPIRES_AT")), approvalId == null ? 0L : approvalId);
-    }
-
-    private static String link(long exceptionId) {
-        return "POLICY_EXCEPTION:" + exceptionId;
+                instant(rs.getTimestamp("EXPIRES_AT")), rs.getLong("APPROVAL_ID"));
     }
 
     private static Instant instant(Timestamp timestamp) {

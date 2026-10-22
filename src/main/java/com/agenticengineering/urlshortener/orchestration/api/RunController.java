@@ -94,7 +94,9 @@ public class RunController {
                 Map<String, Object> item = new LinkedHashMap<>();
                 item.put("approval_id", String.valueOf(a.id()));
                 item.put("kind", a.kind().name());
-                item.put("gate", a.gate());
+                if (a.gate() != null) {
+                    item.put("gate", a.gate());
+                }
                 item.put("reason", a.reason());
                 item.put("requested_at", a.requestedAt().toString());
                 item.put("expires_at", a.expiresAt().toString());

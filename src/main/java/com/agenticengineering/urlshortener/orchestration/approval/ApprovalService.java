@@ -62,11 +62,11 @@ public class ApprovalService {
     public Approval request(String runId, ApprovalKind kind, String node, String requesterKeyId, String reason) {
         return tx.execute(status -> {
             Instant now = clock.now();
-            jdbc.update("INSERT INTO APPROVAL (RUN_ID, GATE, REQUESTER_KEY_ID, DECISION, SCOPE, TIMEOUT_AT, REASON, EVIDENCE_CLASS)"
-                    + " VALUES (?, ?, ?, 'PENDING', ?, ?, ?, 'HUMAN')", runId, kind.gate(), requesterKeyId, "node=" + node,
+            jdbc.update("INSERT INTO APPROVAL (RUN_ID, KIND, GATE, REQUESTER_KEY_ID, DECISION, SCOPE, TIMEOUT_AT, REASON, EVIDENCE_CLASS)"
+                    + " VALUES (?, ?, ?, ?, 'PENDING', ?, ?, ?, 'HUMAN')", runId, kind.name(), kind.gate(), requesterKeyId, "node=" + node,
                     Timestamp.from(now.plus(window)), reason);
             long id = jdbc.queryForObject("SELECT MAX(ID) FROM APPROVAL WHERE RUN_ID = ?", Long.class, runId);
-            audit.append(runId, new AuditEntry(AuditEntry.ActorType.SYSTEM, "APPROVAL_REQUESTED", now, kind.gate(), "PENDING",
+            audit.append(runId, new AuditEntry(AuditEntry.ActorType.SYSTEM, "APPROVAL_REQUESTED", now, kind.label(), "PENDING",
                     kind + " for " + node + " requested by " + requesterKeyId + "; approval " + id));
             return find(runId, id);
         });
@@ -97,17 +97,17 @@ public class ApprovalService {
             throw new ApprovalExpiredException(approvalId);
         }
         if (actor != AuditEntry.ActorType.HUMAN) {
-            audit.append(runId, new AuditEntry(actor, "AGENT_APPROVAL_DENIED", now, approval.gate(), "DENIED",
+            audit.append(runId, new AuditEntry(actor, "AGENT_APPROVAL_DENIED", now, approval.kind().label(), "DENIED",
                     "only a human may decide approval " + approvalId + "; attempt by " + approverKeyId));
             throw new SelfApprovalDeniedException("agent approval is not allowed");
         }
         if (approverRole != approval.kind().requiredRole()) {
-            audit.append(runId, new AuditEntry(actor, "APPROVAL_ROLE_DENIED", now, approval.gate(), "DENIED",
+            audit.append(runId, new AuditEntry(actor, "APPROVAL_ROLE_DENIED", now, approval.kind().label(), "DENIED",
                     "key " + approverKeyId + " with role " + approverRole + " cannot decide " + approval.kind()));
             throw new ForbiddenException("role " + approval.kind().requiredRole() + " required for " + approval.kind());
         }
         if (approverKeyId.equals(approval.requesterKeyId())) {
-            audit.append(runId, new AuditEntry(actor, "SELF_APPROVAL_DENIED", now, approval.gate(), "DENIED",
+            audit.append(runId, new AuditEntry(actor, "SELF_APPROVAL_DENIED", now, approval.kind().label(), "DENIED",
                     "key " + approverKeyId + " requested approval " + approvalId + " and cannot decide it (FR-046)"));
             throw new SelfApprovalDeniedException("approver key identity must differ from the requester's");
         }
@@ -119,7 +119,7 @@ public class ApprovalService {
             if (updated != 1) {
                 throw new IllegalStateException("approval " + approvalId + " changed concurrently");
             }
-            audit.append(runId, new AuditEntry(actor, "APPROVAL_DECIDED", now, approval.gate(), decision.name(),
+            audit.append(runId, new AuditEntry(actor, "APPROVAL_DECIDED", now, approval.kind().label(), decision.name(),
                     approval.kind() + " approval " + approvalId + " by " + approverKeyId + ": " + reason));
         });
         return find(runId, approvalId);
@@ -139,7 +139,7 @@ public class ApprovalService {
             Approval approval = find(runId, id);
             if (approval.status() == Decision.PENDING && !now.isBefore(approval.timeoutAt())) {
                 Instant second = approval.timeoutAt().plus(window);
-                String gate = approval.gate();
+                String gate = approval.kind().label();
                 tx.executeWithoutResult(status -> {
                     jdbc.update("UPDATE APPROVAL SET DECISION = 'ESCALATED', SECOND_WINDOW_TIMEOUT_AT = ? WHERE ID = ? AND DECISION = 'PENDING'",
                             Timestamp.from(second), id);
@@ -152,7 +152,7 @@ public class ApprovalService {
                 Approval current = approval;
                 tx.executeWithoutResult(status -> {
                     jdbc.update("UPDATE APPROVAL SET REASON = ? WHERE ID = ?", EXPIRED_MARK, id);
-                    audit.append(runId, new AuditEntry(AuditEntry.ActorType.SYSTEM, "APPROVAL_EXPIRED", now, current.gate(),
+                    audit.append(runId, new AuditEntry(AuditEntry.ActorType.SYSTEM, "APPROVAL_EXPIRED", now, current.kind().label(),
                             "EXPIRED", "second window elapsed without a decision; " + current.node() + " path to be safe-stopped"));
                 });
                 expired.add(find(runId, id));
@@ -161,10 +161,15 @@ public class ApprovalService {
         return expired;
     }
 
+    /** KIND is authoritative; rows written before it existed carry only GATE. */
+    private static ApprovalKind kind(String kind, String gate) {
+        return kind != null ? ApprovalKind.valueOf(kind) : ApprovalKind.ofGate(gate);
+    }
+
     public Approval find(String runId, long approvalId) {
         List<Approval> rows = jdbc.query("SELECT * FROM APPROVAL WHERE ID = ? AND RUN_ID = ?", (rs, i) -> {
             String scope = rs.getString("SCOPE");
-            return new Approval(rs.getLong("ID"), rs.getString("RUN_ID"), ApprovalKind.ofGate(rs.getString("GATE")),
+            return new Approval(rs.getLong("ID"), rs.getString("RUN_ID"), kind(rs.getString("KIND"), rs.getString("GATE")),
                     rs.getString("GATE"), scope != null && scope.startsWith("node=") ? scope.substring(5) : null,
                     rs.getString("REQUESTER_KEY_ID"), rs.getString("APPROVER_KEY_ID"), Decision.valueOf(rs.getString("DECISION")),
                     instant(rs.getObject("TIMEOUT_AT", OffsetDateTime.class)),
