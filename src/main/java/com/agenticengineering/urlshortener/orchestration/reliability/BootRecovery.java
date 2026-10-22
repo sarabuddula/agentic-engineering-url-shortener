@@ -8,8 +8,7 @@ import com.agenticengineering.urlshortener.orchestration.persistence.WorkflowSto
 import com.agenticengineering.urlshortener.shared.port.TimeSource;
 import java.util.List;
 import java.util.Map;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.event.EventListener;
+import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
@@ -18,10 +17,11 @@ import org.springframework.stereotype.Component;
  * AWAITING_APPROVAL is safe-stopped with cause BOOT_RECOVERY (audited): nodes that were executing are safe-stopped,
  * pending approvals stay pending (never auto-approved), and resumption needs an authorized POST /resume. PENDING
  * operations are reconciled by effect verification: an applied effect is marked verified and completed (never
- * re-executed); a missing one stays pending; an unverifiable one is reported.
+ * re-executed); a missing one stays pending; an unverifiable one is reported. It runs once every singleton exists and
+ * before the web server starts, so no request ever sees an interrupted run as RUNNING.
  */
 @Component
-public class BootRecovery {
+public class BootRecovery implements SmartInitializingSingleton {
 
     private final JdbcTemplate jdbc;
     private final WorkflowStore store;
@@ -40,7 +40,11 @@ public class BootRecovery {
         this.clock = clock;
     }
 
-    @EventListener(ApplicationReadyEvent.class)
+    @Override
+    public void afterSingletonsInstantiated() {
+        recover();
+    }
+
     public void recover() {
         for (String runId : jdbc.queryForList("SELECT ID FROM WORKFLOW_RUN WHERE STATUS IN ('RUNNING', 'AWAITING_APPROVAL') ORDER BY ID",
                 String.class)) {
