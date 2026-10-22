@@ -83,3 +83,14 @@ gitleaks 8.30.1 (MIT), installed with Homebrew on 2026-10-20 at the human candid
 ## T033 short-code implementation choices (2026-10-21, within ADR-006)
 
 ADR-006 fixes the base-62 alphabet, the minimum length of 4, random generation, uniqueness by the database constraint and a bounded regeneration on collision, without numbers. Implementation choices, to be confirmed at the T050 checkpoint: generated length 8 (the length of the contract example `aB3xK9mQ`; 62^8 is about 2.2e14 codes); at most 3 regenerations after the first attempt, reusing the approved retry bound of PVT-004; exhaustion raises ShortCodeCollisionException and stores nothing (mapped to the generic 500 INTERNAL_ERROR); reserved route words `api` and `actuator` compared without case; java.security.SecureRandom as the random source.
+
+## DEP-02 remediation overrides (2026-10-22, human decision recorded in the DEP-02 attestation)
+
+The DEP-02 review at 90e394a (OSV.dev, no NVD key) found 17 advisories on 5 runtime dependencies. `pom.xml` overrides
+three Spring Boot 3.5.16 managed versions (commit 6bb24f0): `jackson-bom.version` 2.21.4 -> 2.21.8, `tomcat.version`
+10.1.55 -> 10.1.61 (the advised 10.1.58 was never published to Maven Central) and `log4j2.version` 2.24.3 -> 2.25.5, the
+latest patch of each line on that date; `docs/compliance/licenses.xml` regenerated (version changes only). Re-check: 15
+of 17 advisories cleared; the remaining two on spring-webmvc 6.2.19 (GHSA-j9f9-w8pj-32f8, GHSA-pc63-qcmh-9cmg) are fixed
+only in Spring Framework 7 and concern SSE fragment rendering and XsltView, which the application does not use -
+disclosed in `docs/attestations/DEP-02.md` (re-review at b28f515).
+

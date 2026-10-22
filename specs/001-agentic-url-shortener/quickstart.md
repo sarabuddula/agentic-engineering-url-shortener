@@ -1,10 +1,11 @@
 # Quickstart: Agentic Software Engineering System — URL Shortener
 
-**Feature Branch**: `001-agentic-url-shortener` | **Date**: 2026-10-18 | **Status**: Reviewed at Human Gate 4 (2026-10-18); maintained during implementation (jar name and configuration table updated 2026-10-20)
+**Feature Branch**: `001-agentic-url-shortener` | **Date**: 2026-10-18 | **Status**: Reviewed at Human Gate 4 (2026-10-18); maintained during implementation (jar name and configuration table updated 2026-10-20; documentation currency pass T095, 2026-10-22)
 
 ## Prerequisites
 
 - Java 21 (LTS), Maven 3.9+, git
+- On the PATH of the shell that starts the service: `mvn` (N09 test execution and the N12 evidence suite run Maven against the workspace) and `gitleaks` 8.x (N12 secret scan, SEC-03). Start the service from the repository root: stages read the workspace from the working directory (`app.workspace-root`, default `.`).
 - Network access is needed twice, both one-time: (1) the first `mvn` build downloads dependencies from Maven Central; (2) the first DEP-02 vulnerability scan caches the NVD feed (OWASP DependencyCheck). After that, builds, tests, and the demonstration run fully offline — the service uses the fixed-local resolver at runtime (see below).
 
 ## Setup
@@ -48,9 +49,13 @@ Behavior: a target hostname present in the table resolves to the listed address 
 | `app.default-ttl-days` | 1 (24 hours) | A-006, amended 2026-10-22 (SCN-B; was 7) |
 | `app.approval-timeout-minutes` | 5 | PVT-005 (escalation re-issue, equal second window) |
 | `app.dns.lookup-timeout` | 3s | A-015; bounds `live` DNS lookups |
-| `app.rework-cap` | 2 | A-016; rework cycles per rejected gate before governed termination |
-| `app.replan-cap` | 2 | A-017; accepted replans per run |
-| `app.sync-wait-approval-windows` | 2 | A-018; approval windows a synchronization point waits for a stopped path |
+| `app.rework-cap` | 2 | A-016 - deferred (L-SC-04): configured but not used; a rejection ends the path in governed termination |
+| `app.replan-cap` | 2 | A-017 - deferred (L-SC-03): configured but not enforced; every replan needs human acceptance |
+| `app.sync-wait-approval-windows` | 2 | A-018 - deferred 2026-10-22 (governed scope cut): configured but not used; no gate sits on a parallel path in the production graph |
+| `app.orchestration.retry.base-delay-ms` | 1000 | FP-1 backoff base (1 s, 2 s, 4 s); at most 3 retries, 60 s bound |
+| `app.test-execution.*` | `working-dir: .`, `maven-command: mvn`, `default-pattern: *Test`, `timeout-seconds: 180` | N09 real test execution (T128); one retry on timeout |
+| `app.policy.evidence-suite.enabled`, `app.policy.secret-scan.enabled` | `true` | N12 evidence: test classes per check and the gitleaks scan; switched off only in the test configuration (the build never runs Maven or gitleaks on itself) |
+| `app.fault-injection.halt-after-effect` | empty | Demonstration only (PVT-006): halts the JVM right after an effect of the named operation type, before its completion record |
 
 ## Build and test
 
@@ -60,7 +65,7 @@ mvn clean verify
 
 `mvn verify` executes every test category (Surefire `*Test`, Failsafe `*IT`): domain unit, API contract (validated against `specs/001-agentic-url-shortener/contracts/openapi.yaml`), persistence, integration, orchestration transition, approval/rejection, retry/timeout, fallback, rollback/compensation, safe-stop/resumption, replanning, concurrency (PVT-003), performance (PVT-001/002), security, e2e scenarios, and release-readiness checks. ArchUnit layer rules fail the build on forbidden dependencies.
 
-Offline note: DEP-02 uses the NVD data cached during the first online run; with no network and no cache, the check degrades to attestation and the degradation is recorded (plan §8).
+Offline note: DEP-02 uses the NVD data cached during the first online run; with no network and no cache, the check degrades to attestation and the degradation is recorded (plan §8). Current state: no NVD key, so DEP-02 is satisfied by the signed attestation `docs/attestations/DEP-02.md` (OSV.dev review) - see `docs/compliance/dep-02-degradation.md`.
 
 ## Run
 
@@ -85,7 +90,7 @@ curl -s localhost:8080/api/v1/links/$SHORT_CODE/status   # {"short_code":…,"st
 # Status lookup (SCN-A): ACTIVE | EXPIRED | UNKNOWN; read-only (no redirect, no redirect event, not rate-limited);
 # an unknown code answers 200 with "status":"UNKNOWN" and no expires_at
 
-# 2. Start a workflow run (engineer key)
+# 2. Start a workflow run (engineer key). The run starts on its own and proceeds to its first gate.
 curl -X POST localhost:8080/api/v1/orchestrator/runs -H "X-API-Key: $ENGINEER_KEY" \
   -H 'Content-Type: application/json' \
   -d '{"requirement_text":"Analytics summary endpoint returning redirect counts by outcome for a link"}'
@@ -96,6 +101,10 @@ curl -X POST localhost:8080/api/v1/orchestrator/runs/<runId>/approvals/<approval
   -H "X-API-Key: $APPROVER_KEY" -H 'Content-Type: application/json' \
   -d '{"decision":"APPROVE","reason":"ADRs reviewed"}'
 
+# N08 implementation: each task succeeds only when the workspace holds a commit whose message contains
+# "[run <runId> task <key>]"; otherwise the run safe-stops (cause FAILURE) - commit, then resume as the engineer:
+curl -X POST localhost:8080/api/v1/orchestrator/runs/<runId>/resume -H "X-API-Key: $ENGINEER_KEY"
+
 # 4. Inspect lineage and verify the audit chain (reviewer key)
 curl localhost:8080/api/v1/orchestrator/runs/<runId>/history -H "X-API-Key: $REVIEWER_KEY"
 curl localhost:8080/api/v1/orchestrator/runs/<runId>/verify -H "X-API-Key: $REVIEWER_KEY"
@@ -105,17 +114,20 @@ curl localhost:8080/api/v1/orchestrator/runs/<runId>/verify -H "X-API-Key: $REVI
 
 ```bash
 # While a run is executing:
-kill -9 $(pgrep -f urlshortener)      # hard interruption
-java -jar target/url-shortener-*.jar   # restart
-curl -X POST localhost:8080/api/v1/orchestrator/runs/<runId>/resume -H "X-API-Key: $ENGINEER_KEY"
+kill -9 $(pgrep -f url-shortener)     # hard interruption
+java -jar target/url-shortener-*.jar   # restart: boot recovery safe-stops the run (cause BOOT_RECOVERY)
+# BOOT_RECOVERY is a governed stop: an APPROVER other than the run's requester resumes it (ENGINEER gets 403)
+curl -X POST localhost:8080/api/v1/orchestrator/runs/<runId>/resume -H "X-API-Key: $APPROVER_KEY"
 ```
 
-The run resumes from durable state; operation outcomes without completion records are reconciled (or the run safe-stops) — no duplicate side effects, including the after-effect/before-completion-record case.
+On restart, operation outcomes without completion records are reconciled by effect verification, the run safe-stops with cause BOOT_RECOVERY, and nothing resumes on its own; after the authorized resumption the run continues from durable state with no duplicate side effects, including the after-effect/before-completion-record case (KillRestartIT; executed live in run-4738769c, docs/evidence/t089-single-run.md).
 
 ## Reviewer steps (US-005, SC-006)
 
 1. `git clone` the repository; run `mvn clean verify` — all suites must pass.
 2. Start the service and replay the demonstration walkthrough above (reviewer key).
 3. For each demonstration run: read `/history`, run `/verify` (chain integrity), read `/release-readiness` (policy outcomes + decision), read `/api/v1/metrics/demo` (labeled DEMONSTRATION).
-4. Reconstruct the SCN-A-variant run end-to-end from repository artifacts and persisted records only — states, decisions, approvals, retries, failures, replanning, terminal outcome.
-5. The traceability matrix is generated from the mapping manifest joined with the persisted tables; both directions (requirement → evidence, evidence → requirement) must be clean (CHG-03).
+4. Reconstruct the SCN-A-variant run end-to-end from repository artifacts and persisted records only — states, decisions, approvals, retries, failures, replanning, terminal outcome: `python3 scripts/reconstruct-run.py docs/evidence/runs/run-4738769c-4517-4597-b0b9-ee5796670220.json` recomputes the audit hash chain from the committed export and rebuilds the run (no service or database needed).
+5. The traceability matrix is generated from the mapping manifest joined with the persisted tables; both directions (requirement → evidence, evidence → requirement) must be clean (CHG-03): `scripts/trace-manifest.sh check` (exit 0 when clean) and `scripts/trace-manifest.sh matrix` (writes `traceability/matrix.md`).
+
+Executed record of these steps: `docs/evidence/t092-reviewer-walkthrough.md`.
