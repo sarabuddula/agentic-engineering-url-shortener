@@ -1,5 +1,6 @@
 package com.agenticengineering.urlshortener.orchestration.engine;
 
+import com.agenticengineering.urlshortener.orchestration.approval.ApprovalService;
 import com.agenticengineering.urlshortener.orchestration.persistence.TaskStore;
 import com.agenticengineering.urlshortener.orchestration.persistence.WorkflowStore;
 import com.agenticengineering.urlshortener.shared.port.IdGenerator;
@@ -27,14 +28,16 @@ public class OrchestrationEngine {
     private final ExecutorService stagePool;
     private final ExecutorService taskPool;
     private final IdGenerator ids;
+    private final ApprovalService approvals;
 
     public OrchestrationEngine(WorkflowStore store, TaskStore tasks, @Qualifier("orchestrationStagePool") ExecutorService stagePool,
-            @Qualifier("orchestrationTaskPool") ExecutorService taskPool, IdGenerator ids) {
+            @Qualifier("orchestrationTaskPool") ExecutorService taskPool, IdGenerator ids, ApprovalService approvals) {
         this.store = store;
         this.tasks = tasks;
         this.stagePool = stagePool;
         this.taskPool = taskPool;
         this.ids = ids;
+        this.approvals = approvals;
     }
 
     public String createRun(String requirementRef, String policyVersion) {
@@ -47,7 +50,69 @@ public class OrchestrationEngine {
         return runId;
     }
 
+    /** Runs the graph from the run's persisted state until it completes, waits at a gate, or stops. */
     public RunOutcome execute(String runId, Map<String, StageExecutor> executors, TaskExecutor taskExecutor) {
+        return drive(runId, executors, taskExecutor);
+    }
+
+    /**
+     * Resumes a run that waits at a gate: decided gates are settled first (approved: node succeeds; rejected: governed
+     * termination; still pending: GATE_BLOCKED audit and nothing moves), then the graph continues.
+     */
+    public RunOutcome resume(String runId, Map<String, StageExecutor> executors, TaskExecutor taskExecutor) {
+        RunStatus runStatus = store.runStatus(runId);
+        if (runStatus.isTerminal() || runStatus == RunStatus.SAFE_STOPPED) {
+            return new RunOutcome(runStatus, "run is " + runStatus);
+        }
+        boolean progressed = false;
+        for (Map.Entry<String, NodeStatus> node : store.nodeStatuses(runId).entrySet()) {
+            if (node.getValue() != NodeStatus.AWAITING_APPROVAL) {
+                continue;
+            }
+            ApprovalService.Approval approval = approvals.latestForNode(runId, node.getKey());
+            if (approval.status() == ApprovalService.Decision.APPROVED) {
+                store.transitionNode(runId, node.getKey(), NodeStatus.AWAITING_APPROVAL, NodeStatus.RUNNING,
+                        "approval " + approval.id() + " approved by " + approval.approverKeyId());
+                store.transitionNode(runId, node.getKey(), NodeStatus.RUNNING, NodeStatus.SUCCEEDED,
+                        approval.gate() + " passed with recorded approval " + approval.id());
+                progressed = true;
+            } else if (approval.status() == ApprovalService.Decision.REJECTED) {
+                String reason = "approval " + approval.id() + " rejected at " + node.getKey() + " by " + approval.approverKeyId()
+                        + ": " + approval.reason();
+                store.transitionNode(runId, node.getKey(), NodeStatus.AWAITING_APPROVAL, NodeStatus.FAILED, reason);
+                store.transitionRun(runId, runStatus, RunStatus.TERMINATED,
+                        "governed termination after " + reason + " (rework cycles deferred, L-SC-04)");
+                return new RunOutcome(RunStatus.TERMINATED, reason);
+            } else {
+                store.auditGateBlocked(runId, node.getKey(), "approval " + approval.id() + " (" + approval.gate()
+                        + ") undecided; progression blocked");
+            }
+        }
+        if (!progressed) {
+            return new RunOutcome(runStatus, "waiting for a human decision");
+        }
+        store.transitionRun(runId, runStatus, RunStatus.RUNNING, "resumed after a recorded human decision");
+        return drive(runId, executors, taskExecutor);
+    }
+
+    /** Expires approvals whose escalation window elapsed and safe-stops the waiting node and the run (PVT-005). */
+    public void handleTimeouts() {
+        for (ApprovalService.Approval expired : approvals.checkTimeouts()) {
+            String runId = expired.runId();
+            if (store.nodeStatuses(runId).get(expired.node()) == NodeStatus.AWAITING_APPROVAL) {
+                store.transitionNode(runId, expired.node(), NodeStatus.AWAITING_APPROVAL, NodeStatus.SAFE_STOPPED,
+                        "approval " + expired.id() + " expired after escalation (FP-4)");
+            }
+            RunStatus runStatus = store.runStatus(runId);
+            if (runStatus == RunStatus.AWAITING_APPROVAL || runStatus == RunStatus.SUSPENDED_CLARIFICATION
+                    || runStatus == RunStatus.RUNNING) {
+                store.transitionRun(runId, runStatus, RunStatus.SAFE_STOPPED, "approval " + expired.id() + " (" + expired.gate()
+                        + ") expired without a decision; silence is never approval");
+            }
+        }
+    }
+
+    private RunOutcome drive(String runId, Map<String, StageExecutor> executors, TaskExecutor taskExecutor) {
         Map<String, StageTask> stageTasks = new HashMap<>();
         for (String node : SdlcWorkflow.graph().nodes()) {
             if (node.equals(SdlcWorkflow.IMPLEMENTATION_NODE)) {
@@ -61,20 +126,26 @@ public class OrchestrationEngine {
             }
         }
         GraphScheduler.RunResult result = new GraphScheduler(stagePool,
-                (node, from, to, reason) -> store.transitionNode(runId, node, from, to, reason)).execute(SdlcWorkflow.graph(), stageTasks);
+                (node, from, to, reason) -> store.transitionNode(runId, node, from, to, reason))
+                .execute(SdlcWorkflow.graph(), stageTasks, store.nodeStatuses(runId));
         if (result.succeeded()) {
             store.transitionRun(runId, RunStatus.RUNNING, RunStatus.COMPLETED, "all stages succeeded or not applicable");
             return new RunOutcome(RunStatus.COMPLETED, "all stages succeeded or not applicable");
         }
-        StringBuilder reason = new StringBuilder();
-        for (String failed : result.failedNodes()) {
-            String cause = result.reasons().getOrDefault(failed, "failed");
-            store.transitionNode(runId, failed, NodeStatus.FAILED, NodeStatus.SAFE_STOPPED,
-                    "FP-4 safe-stop: permanent failure on a mandatory path (" + cause + ")");
-            reason.append(reason.isEmpty() ? "" : "; ").append(failed).append(": ").append(cause);
+        if (!result.failedNodes().isEmpty()) {
+            StringBuilder reason = new StringBuilder();
+            for (String failed : result.failedNodes()) {
+                String cause = result.reasons().getOrDefault(failed, "failed");
+                store.transitionNode(runId, failed, NodeStatus.FAILED, NodeStatus.SAFE_STOPPED,
+                        "FP-4 safe-stop: permanent failure on a mandatory path (" + cause + ")");
+                reason.append(reason.isEmpty() ? "" : "; ").append(failed).append(": ").append(cause);
+            }
+            store.transitionRun(runId, RunStatus.RUNNING, RunStatus.SAFE_STOPPED, "safe-stop after " + reason);
+            return new RunOutcome(RunStatus.SAFE_STOPPED, reason.toString());
         }
-        store.transitionRun(runId, RunStatus.RUNNING, RunStatus.SAFE_STOPPED, "safe-stop after " + reason);
-        return new RunOutcome(RunStatus.SAFE_STOPPED, reason.toString());
+        RunStatus waiting = result.awaitingNodes().contains("N03") ? RunStatus.SUSPENDED_CLARIFICATION : RunStatus.AWAITING_APPROVAL;
+        store.transitionRun(runId, RunStatus.RUNNING, waiting, "waiting for a human decision at " + result.awaitingNodes());
+        return new RunOutcome(waiting, "waiting at " + result.awaitingNodes());
     }
 
     /** N08: run the decomposed tasks as a nested graph; N08 succeeds only if every task succeeded. */

@@ -24,7 +24,7 @@ public class GraphScheduler {
 
     /** Final state of one execution. */
     public record RunResult(Map<String, NodeStatus> statuses, Map<String, Instant> started, Map<String, Instant> ended,
-            Map<String, String> reasons, List<String> failedNodes, List<String> unreachedNodes) {
+            Map<String, String> reasons, List<String> failedNodes, List<String> unreachedNodes, List<String> awaitingNodes) {
 
         public Instant startedAt(String node) {
             return started.get(node);
@@ -38,8 +38,9 @@ public class GraphScheduler {
             return statuses.get(node) == NodeStatus.NOT_APPLICABLE ? reasons.get(node) : null;
         }
 
+        /** Every node finished: no failure, nothing waiting for a decision, nothing left pending. */
         public boolean succeeded() {
-            return failedNodes.isEmpty() && unreachedNodes.isEmpty();
+            return failedNodes.isEmpty() && unreachedNodes.isEmpty() && awaitingNodes.isEmpty();
         }
     }
 
@@ -55,8 +56,16 @@ public class GraphScheduler {
     }
 
     public RunResult execute(StageGraph graph, Map<String, StageTask> tasks) {
+        return execute(graph, tasks, Map.of());
+    }
+
+    /**
+     * Continues from the given node states (persisted state of a resumed run); nodes not listed start PENDING. Nodes
+     * already in a final or waiting state are not dispatched again.
+     */
+    public RunResult execute(StageGraph graph, Map<String, StageTask> tasks, Map<String, NodeStatus> initial) {
         Map<String, NodeStatus> status = new LinkedHashMap<>();
-        graph.nodes().forEach(n -> status.put(n, NodeStatus.PENDING));
+        graph.nodes().forEach(n -> status.put(n, initial.getOrDefault(n, NodeStatus.PENDING)));
         Map<String, Set<String>> selections = new HashMap<>();
         Map<String, Instant> started = new HashMap<>();
         Map<String, Instant> ended = new HashMap<>();
@@ -106,6 +115,8 @@ public class GraphScheduler {
             if (done.result().outcome() == StageResult.Outcome.SUCCEEDED) {
                 selections.put(done.node(), done.result().selectedBranches());
                 transition(status, reasons, done.node(), NodeStatus.SUCCEEDED, null);
+            } else if (done.result().outcome() == StageResult.Outcome.AWAITING_APPROVAL) {
+                transition(status, reasons, done.node(), NodeStatus.AWAITING_APPROVAL, done.result().reason());
             } else {
                 transition(status, reasons, done.node(), NodeStatus.FAILED, done.result().reason());
                 failed.add(done.node());
@@ -113,8 +124,10 @@ public class GraphScheduler {
         }
         List<String> unreached = status.entrySet().stream().filter(e -> e.getValue() == NodeStatus.PENDING)
                 .map(Map.Entry::getKey).toList();
+        List<String> awaiting = status.entrySet().stream().filter(e -> e.getValue() == NodeStatus.AWAITING_APPROVAL)
+                .map(Map.Entry::getKey).toList();
         return new RunResult(Map.copyOf(status), Map.copyOf(started), Map.copyOf(ended), Map.copyOf(reasons), List.copyOf(failed),
-                unreached);
+                unreached, awaiting);
     }
 
     private enum Readiness { WAITING, READY, NOT_APPLICABLE }

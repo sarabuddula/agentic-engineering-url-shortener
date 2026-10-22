@@ -134,6 +134,17 @@ public class WorkflowStore {
         return rows.stream().findFirst();
     }
 
+    /** The run creator's key ID from requirement_ref "api:<key id>"; "system" for runs created without a key. */
+    public String requesterKeyId(String runId) {
+        String ref = jdbc.queryForObject("SELECT REQUIREMENT_REF FROM WORKFLOW_RUN WHERE ID = ?", String.class, runId);
+        return ref != null && ref.startsWith("api:") ? ref.substring(4) : "system";
+    }
+
+    /** Audits a progression attempt that a pending gate blocked (SC-004). */
+    public void auditGateBlocked(String runId, String node, String reason) {
+        audit.append(runId, new AuditEntry(AuditEntry.ActorType.SYSTEM, "GATE_BLOCKED", clock.now(), node, "PENDING", reason));
+    }
+
     public RunStatus runStatus(String runId) {
         return RunStatus.valueOf(jdbc.queryForObject("SELECT STATUS FROM WORKFLOW_RUN WHERE ID = ?", String.class, runId));
     }

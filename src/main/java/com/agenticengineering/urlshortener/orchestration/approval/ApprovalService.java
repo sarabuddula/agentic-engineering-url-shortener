@@ -173,6 +173,15 @@ public class ApprovalService {
         return rows.get(0);
     }
 
+    /** The most recent approval requested for a node of a run (the one a waiting gate node depends on). */
+    public Approval latestForNode(String runId, String node) {
+        Long id = jdbc.queryForObject("SELECT MAX(ID) FROM APPROVAL WHERE RUN_ID = ? AND SCOPE = ?", Long.class, runId, "node=" + node);
+        if (id == null) {
+            throw new IllegalStateException("no approval requested for " + node + " on " + runId);
+        }
+        return find(runId, id);
+    }
+
     /** Open approvals of a run (PENDING or ESCALATED, not expired), for the run detail. */
     public List<Approval> pending(String runId) {
         List<Approval> open = new ArrayList<>();
