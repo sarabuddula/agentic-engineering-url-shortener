@@ -5,6 +5,7 @@ import com.agenticengineering.urlshortener.orchestration.approval.ApprovalServic
 import com.agenticengineering.urlshortener.orchestration.audit.AuditChain;
 import com.agenticengineering.urlshortener.orchestration.audit.AuditEntry;
 import com.agenticengineering.urlshortener.orchestration.audit.ChainVerification;
+import com.agenticengineering.urlshortener.orchestration.lineage.DecisionLineage;
 import com.agenticengineering.urlshortener.orchestration.persistence.ReleaseDecisionStore;
 import com.agenticengineering.urlshortener.orchestration.persistence.TaskStore;
 import com.agenticengineering.urlshortener.orchestration.reliability.FailureRecorder;
@@ -48,13 +49,14 @@ public class OrchestrationEngine {
     private final ReplanningService replanning;
     private final FailureRecorder failureRecorder;
     private final CompletionGate completionGate;
+    private final DecisionLineage lineage;
     private final RetryPolicy retryPolicy;
 
     public OrchestrationEngine(WorkflowStore store, TaskStore tasks, @Qualifier("orchestrationStagePool") ExecutorService stagePool,
             @Qualifier("orchestrationTaskPool") ExecutorService taskPool, IdGenerator ids, ApprovalService approvals,
             ReleaseDecisionStore releases, AuditChain chain, TimeSource clock, ReplanningService replanning,
             FailureRecorder failureRecorder, @Value("${app.orchestration.retry.base-delay-ms:1000}") long retryBaseDelayMs,
-            CompletionGate completionGate) {
+            CompletionGate completionGate, DecisionLineage lineage) {
         this.store = store;
         this.tasks = tasks;
         this.stagePool = stagePool;
@@ -67,6 +69,7 @@ public class OrchestrationEngine {
         this.replanning = replanning;
         this.failureRecorder = failureRecorder;
         this.completionGate = completionGate;
+        this.lineage = lineage;
         this.retryPolicy = new RetryPolicy(3, Duration.ofMillis(retryBaseDelayMs), Duration.ofSeconds(60));
     }
 
@@ -102,6 +105,30 @@ public class OrchestrationEngine {
         return verifiedIfTerminal(runId, settleAndContinue(runId, runStatus, executors, taskExecutor));
     }
 
+    /** T118: the human decision at a gate node, with what it rejected and the artifact versions it was taken on. */
+    private void recordGateDecision(String runId, String node, ApprovalService.Approval approval) {
+        boolean approved = approval.status() == ApprovalService.Decision.APPROVED;
+        String rationale = approval.reason();
+        List<String> rejected;
+        switch (approval.kind()) {
+            case CLARIFICATION -> rejected = approved
+                    ? List.of("implement the ambiguous requirement as written (unsafe, FR-035)")
+                    : List.of("proceed with the proposed clarification");
+            case RELEASE_AUTHORIZATION -> {
+                var release = releases.find(runId);
+                rationale = release.map(r -> "recommendation " + r.recommendation()
+                        + (r.blockingReasons().isEmpty() ? "" : "; blocking: " + String.join("; ", r.blockingReasons())) + "; ").orElse("")
+                        + approval.reason();
+                rejected = List.of(approved ? "withhold the release" : "authorize the release");
+            }
+            default -> rejected = approved ? List.of("start implementation without an approved design (FR-024)")
+                    : List.of("approve the design as proposed");
+        }
+        lineage.record(runId, approval.kind().name(), AuditEntry.ActorType.HUMAN, approval.kind() + " at " + node + " "
+                + approval.status() + " by " + approval.approverKeyId() + " (approval " + approval.id() + ")", rationale, rejected,
+                lineage.currentArtifacts(runId));
+    }
+
     /**
      * T086 (FR-048, ADR-005): after a run turns terminal, re-verify the whole chain, terminal appends included, and append
      * the result as the run's last event before the outcome is reported. The verification event itself is covered by
@@ -133,6 +160,9 @@ public class OrchestrationEngine {
                 // FR-037: the human G7 decision is the release decision; the system only recommended
                 releases.recordDecision(runId, approval.status() == ApprovalService.Decision.APPROVED, approval.approverKeyId(),
                         approval.decidedAt(), "approval:" + approval.id());
+            }
+            if (approval.status() == ApprovalService.Decision.APPROVED || approval.status() == ApprovalService.Decision.REJECTED) {
+                recordGateDecision(runId, node.getKey(), approval);
             }
             if (approval.status() == ApprovalService.Decision.APPROVED) {
                 store.transitionNode(runId, node.getKey(), NodeStatus.AWAITING_APPROVAL, NodeStatus.RUNNING,

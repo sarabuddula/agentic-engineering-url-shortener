@@ -2,6 +2,7 @@ package com.agenticengineering.urlshortener.orchestration.reliability;
 
 import com.agenticengineering.urlshortener.orchestration.audit.AuditChain;
 import com.agenticengineering.urlshortener.orchestration.audit.AuditEntry;
+import com.agenticengineering.urlshortener.orchestration.lineage.DecisionLineage;
 import com.agenticengineering.urlshortener.shared.port.TimeSource;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -29,8 +30,10 @@ public class CompensationService {
     private final AuditChain audit;
     private final JdbcTemplate jdbc;
     private final TimeSource clock;
+    private final DecisionLineage lineage;
 
-    public CompensationService(AuditChain audit, JdbcTemplate jdbc, TimeSource clock) {
+    public CompensationService(AuditChain audit, JdbcTemplate jdbc, TimeSource clock, DecisionLineage lineage) {
+        this.lineage = lineage;
         this.audit = audit;
         this.jdbc = jdbc;
         this.clock = clock;
@@ -56,11 +59,10 @@ public class CompensationService {
             audit.append(runId, new AuditEntry(AuditEntry.ActorType.SYSTEM, "COMPENSATION_APPLIED", clock.now(), node, "FP-3",
                     "commit " + commit + " compensated by revert commit " + compensating + " after: " + cause
                             + " (compensation, not rollback: committed code is irreversible)"));
-            jdbc.update("INSERT INTO DECISION_LINEAGE (RUN_ID, DECISION, RATIONALE, REJECTED_ALTERNATIVES, ARTIFACT_VERSION_REFS)"
-                    + " VALUES (?, ?, ?, ?, ?)", runId, "compensate " + node + " commit " + commit + " with revert commit " + compensating,
-                    "FP-3 after: " + cause + "; a revert is a new forward commit, so the original stays in history",
-                    "rollback (rewriting or resetting history): rejected, committed code is irreversible (FR-027, FR-049)",
-                    "commit:" + commit + ", commit:" + compensating);
+            lineage.record(runId, "COMPENSATION", AuditEntry.ActorType.SYSTEM, "compensate " + node + " commit " + commit
+                    + " with revert commit " + compensating, "FP-3 after: " + cause + "; a revert is a new forward commit, so the original"
+                    + " stays in history", List.of("rollback (rewriting or resetting history): rejected, committed code is irreversible"
+                    + " (FR-027, FR-049)"), List.of("commit:" + commit, "commit:" + compensating));
             return new Compensation(commit, compensating);
         } catch (IOException e) {
             failed(runId, node, "git unavailable: " + e.getMessage());

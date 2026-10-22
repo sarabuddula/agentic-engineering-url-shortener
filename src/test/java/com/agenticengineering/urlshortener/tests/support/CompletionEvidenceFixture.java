@@ -36,7 +36,8 @@ public class CompletionEvidenceFixture {
             requirements.saveIngested(runId, "FIXTURE requirement: link status lookup", RequirementStore.Provenance.CONFIRMED);
         }
         if (!omitted.contains(CompletionGate.Condition.DECISIONS_RECORDED)) {
-            jdbc.update("INSERT INTO DECISION_LINEAGE (RUN_ID, DECISION, RATIONALE) VALUES (?, 'FIXTURE decision', 'FIXTURE rationale')", runId);
+            jdbc.update("INSERT INTO DECISION_LINEAGE (RUN_ID, DECISION, RATIONALE) VALUES (?, 'FIXTURE DESIGN_APPROVAL decision',"
+                    + " 'FIXTURE rationale')", runId);
         }
         if (!omitted.contains(CompletionGate.Condition.ACCEPTANCE_CRITERIA_MET)) {
             jdbc.update("INSERT INTO TEST_OUTCOME (RUN_ID, SUITE, TEST_ID, REQUIREMENT_REFS, STATUS, EXECUTED_AT, EVIDENCE_REF)"

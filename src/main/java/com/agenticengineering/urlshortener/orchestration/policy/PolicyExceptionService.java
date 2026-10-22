@@ -4,6 +4,7 @@ import com.agenticengineering.urlshortener.orchestration.approval.ApprovalKind;
 import com.agenticengineering.urlshortener.orchestration.approval.ApprovalService;
 import com.agenticengineering.urlshortener.orchestration.audit.AuditChain;
 import com.agenticengineering.urlshortener.orchestration.audit.AuditEntry;
+import com.agenticengineering.urlshortener.orchestration.lineage.DecisionLineage;
 import com.agenticengineering.urlshortener.orchestration.security.KeyIdentity;
 import com.agenticengineering.urlshortener.shared.api.InvalidRequestException;
 import com.agenticengineering.urlshortener.shared.api.ResourceNotFoundException;
@@ -46,9 +47,11 @@ public class PolicyExceptionService {
     private final AuditChain audit;
     private final TimeSource clock;
     private final TransactionTemplate tx;
+    private final DecisionLineage lineage;
 
     public PolicyExceptionService(JdbcTemplate jdbc, ApprovalService approvals, AuditChain audit, TimeSource clock,
-            PlatformTransactionManager transactions) {
+            PlatformTransactionManager transactions, DecisionLineage lineage) {
+        this.lineage = lineage;
         this.jdbc = jdbc;
         this.approvals = approvals;
         this.audit = audit;
@@ -101,6 +104,10 @@ public class PolicyExceptionService {
                     Timestamp.from(decided.decidedAt()), Timestamp.from(expiresAt), exceptionId);
             audit.append(runId, new AuditEntry(AuditEntry.ActorType.HUMAN, "POLICY_EXCEPTION_APPROVED", now, "G5", "APPROVED",
                     "exception " + exceptionId + " for " + exception.checkId() + " approved by " + approverKeyId + " until " + expiresAt));
+            lineage.record(runId, "POLICY_EXCEPTION", AuditEntry.ActorType.HUMAN, "POLICY_EXCEPTION " + exceptionId + " for "
+                    + exception.checkId() + " APPROVED by " + approverKeyId + " until " + expiresAt, "reason: " + exception.reason()
+                    + "; scope: " + exception.scope() + "; compensating control: " + compensatingControl,
+                    List.of("leave " + exception.checkId() + " failing, so the run is NOT READY"), lineage.currentArtifacts(runId));
             return find(runId, exceptionId);
         });
     }

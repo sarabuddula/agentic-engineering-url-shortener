@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
  * by the run's own records:
  * <ol>
  * <li>requirements identified: a REQUIREMENT_ARTIFACT row;</li>
- * <li>decisions recorded: at least one DECISION_LINEAGE row;</li>
+ * <li>decisions recorded: the design decision (G2, N07) in DECISION_LINEAGE; the release decision alone does not count;</li>
  * <li>acceptance criteria met: test outcomes linked to requirements exist and all passed;</li>
  * <li>tests executed: test outcomes exist and none failed;</li>
  * <li>security and reliability checked: SEC-01..SEC-03 passed (latest evaluation) and no unrecovered failure;</li>
@@ -42,7 +42,8 @@ public class CompletionGate {
     public List<Condition> unmet(String runId) {
         List<Condition> unmet = new ArrayList<>();
         check(unmet, Condition.REQUIREMENTS_IDENTIFIED, count("SELECT COUNT(*) FROM REQUIREMENT_ARTIFACT WHERE RUN_ID = ?", runId) > 0);
-        check(unmet, Condition.DECISIONS_RECORDED, count("SELECT COUNT(*) FROM DECISION_LINEAGE WHERE RUN_ID = ?", runId) > 0);
+        check(unmet, Condition.DECISIONS_RECORDED,
+                count("SELECT COUNT(*) FROM DECISION_LINEAGE WHERE RUN_ID = ? AND DECISION LIKE '%DESIGN_APPROVAL%'", runId) > 0);
         String linked = "REQUIREMENT_REFS IS NOT NULL AND REQUIREMENT_REFS <> ''";
         check(unmet, Condition.ACCEPTANCE_CRITERIA_MET,
                 count("SELECT COUNT(*) FROM TEST_OUTCOME WHERE RUN_ID = ? AND " + linked, runId) > 0

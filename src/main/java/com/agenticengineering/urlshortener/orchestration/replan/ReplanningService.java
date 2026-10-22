@@ -6,6 +6,7 @@ import com.agenticengineering.urlshortener.orchestration.audit.AuditChain;
 import com.agenticengineering.urlshortener.orchestration.audit.AuditEntry;
 import com.agenticengineering.urlshortener.orchestration.engine.SdlcWorkflow;
 import com.agenticengineering.urlshortener.orchestration.engine.StageGraph;
+import com.agenticengineering.urlshortener.orchestration.lineage.DecisionLineage;
 import com.agenticengineering.urlshortener.orchestration.persistence.WorkflowStore;
 import com.agenticengineering.urlshortener.shared.port.TimeSource;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -43,9 +44,11 @@ public class ReplanningService {
     private final TimeSource clock;
     private final TransactionTemplate tx;
     private final ObjectMapper json = new ObjectMapper();
+    private final DecisionLineage lineage;
 
     public ReplanningService(JdbcTemplate jdbc, WorkflowStore store, ApprovalService approvals, AuditChain audit, TimeSource clock,
-            PlatformTransactionManager transactions) {
+            PlatformTransactionManager transactions, DecisionLineage lineage) {
+        this.lineage = lineage;
         this.jdbc = jdbc;
         this.store = store;
         this.approvals = approvals;
@@ -148,12 +151,19 @@ public class ReplanningService {
                 audit.append(runId, new AuditEntry(AuditEntry.ActorType.HUMAN, "REPLAN_ACCEPTED", clock.now(), "REPLAN", "ACCEPTED",
                         "replan " + id + " accepted by " + approval.approverKeyId() + " (approval " + approval.id() + "); revision "
                                 + revision + " active; redoing " + affected));
+                lineage.record(runId, "REPLAN", AuditEntry.ActorType.HUMAN, "replan " + id + " ACCEPTED by " + approval.approverKeyId()
+                        + ": revision " + revision + " redoes " + affected, approval.reason(),
+                        List.of("keep revision " + (revision - 1) + " with inputs that no longer match their latest versions"),
+                        lineage.currentArtifacts(runId));
             });
             return true;
         }
         if (approval.status() == ApprovalService.Decision.REJECTED) {
             close(runId, id, "REJECTED", "REPLAN_REJECTED", "replan " + id + " rejected by " + approval.approverKeyId()
                     + "; the current revision stays in force");
+            lineage.record(runId, "REPLAN", AuditEntry.ActorType.HUMAN, "replan " + id + " REJECTED by " + approval.approverKeyId()
+                    + "; the current revision stays in force", approval.reason(),
+                    List.of("accept the staged revision redoing " + event.get().get("AFFECTED_DOWNSTREAM")), lineage.currentArtifacts(runId));
         }
         return false;
     }
