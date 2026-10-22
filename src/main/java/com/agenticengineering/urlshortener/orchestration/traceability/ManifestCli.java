@@ -6,7 +6,8 @@ import java.nio.file.Path;
 /**
  * Command line for the mapping manifest (run by scripts/trace-manifest.sh): {@code generate} rewrites
  * {feature}/traceability/mapping-manifest.yml from the repository (keeping evidence entries); {@code check} prints the
- * orphan report and exits 1 when it is not clean.
+ * orphan report and exits 1 when it is not clean; {@code matrix} also writes the traceability matrix
+ * {feature}/traceability/matrix.md (T090).
  */
 public final class ManifestCli {
 
@@ -33,6 +34,11 @@ public final class ManifestCli {
         ManifestChecker.Report report = new ManifestChecker(root, commits).check(MappingManifest.fromYaml(Files.readString(file)));
         System.out.println(report.describe());
         System.out.println(report.clean() ? "traceability: CLEAN" : "traceability: ORPHANS FOUND");
+        if (command.equals("matrix")) {
+            Path matrix = file.resolveSibling("matrix.md");
+            Files.writeString(matrix, TraceabilityMatrix.render(MappingManifest.fromYaml(Files.readString(file)), report, root));
+            System.out.println("wrote " + root.relativize(matrix));
+        }
         if (command.equals("check") && !report.clean()) {
             System.exit(1);
         }

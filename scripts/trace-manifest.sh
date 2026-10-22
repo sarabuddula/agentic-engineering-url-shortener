@@ -2,6 +2,7 @@
 # Mapping manifest generator and checker (T105, plan section 13).
 #
 # Usage: scripts/trace-manifest.sh generate   rewrite specs/001-agentic-url-shortener/traceability/mapping-manifest.yml
+#        scripts/trace-manifest.sh matrix     check, then write specs/001-agentic-url-shortener/traceability/matrix.md (T090)
 #        scripts/trace-manifest.sh check      print the orphan report; exit 1 when not clean
 #
 # generate keeps evidence entries already in the manifest. Commits recorded are the last commit touching each file,

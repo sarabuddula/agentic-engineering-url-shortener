@@ -25,6 +25,11 @@ class TraceabilityMatrixTest {
     @TempDir
     Path root;
 
+    /** Fixture IDs are built at run time so the manifest generator does not read this test as citing them. */
+    private static String id(String family, String number) {
+        return family + "-" + number;
+    }
+
     @Test
     void bothDirectionsTheRunsAndTheOrphanStatusAreRendered() throws IOException {
         Files.createDirectories(root.resolve("docs/evidence/runs"));
@@ -35,23 +40,23 @@ class TraceabilityMatrixTest {
                  "history": [{"actor_type": "HUMAN", "action": "APPROVAL_DECIDED"}, {"actor_type": "SYSTEM", "action": "RUN_CREATED"}]}
                 """);
         Map<String, MappingManifest.Entry> requirements = new LinkedHashMap<>();
-        requirements.put("FR-001", new MappingManifest.Entry(List.of("ADR-002"), List.of("T027"),
+        requirements.put(id("FR", "001"), new MappingManifest.Entry(List.of("ADR-002"), List.of("T027"),
                 List.of(new MappingManifest.FileRef("src/test/java/x/CreateTest.java", "a".repeat(40))), List.of(), List.of()));
-        requirements.put("NFR-001", new MappingManifest.Entry(List.of(), List.of("T027"),
+        requirements.put(id("NFR", "001"), new MappingManifest.Entry(List.of(), List.of("T027"),
                 List.of(new MappingManifest.FileRef("src/test/java/x/CreateTest.java", "a".repeat(40))), List.of(), List.of()));
-        requirements.put("PVT-001", new MappingManifest.Entry(List.of(), List.of("T045"), List.of(), List.of(),
+        requirements.put(id("PVT", "001"), new MappingManifest.Entry(List.of(), List.of("T045"), List.of(), List.of(),
                 List.of(new MappingManifest.EvidenceRef("docs/evidence/runs/run-1.json", "b".repeat(64)))));
-        requirements.put("US-001", new MappingManifest.Entry(List.of(), List.of(), List.of(), List.of(), List.of()));
+        requirements.put(id("US", "001"), new MappingManifest.Entry(List.of(), List.of(), List.of(), List.of(), List.of()));
         MappingManifest manifest = new MappingManifest("specs/001-feature", requirements);
-        ManifestChecker.Report report = new ManifestChecker.Report(List.of("US-001"), List.of(), List.of(), List.of(), List.of(), List.of());
+        ManifestChecker.Report report = new ManifestChecker.Report(List.of(id("US", "001")), List.of(), List.of(), List.of(), List.of(), List.of());
 
         String matrix = TraceabilityMatrix.render(manifest, report, root);
 
-        assertThat(matrix).contains("ORPHANS FOUND").contains("US-001");
+        assertThat(matrix).contains("ORPHANS FOUND").contains(id("US", "001"));
         assertThat(matrix).contains("## FR").contains("## NFR").contains("## PVT").contains("## US");
-        assertThat(matrix).contains("| FR-001 | T027 | ADR-002 | CreateTest |");
-        assertThat(matrix).contains("| `src/test/java/x/CreateTest.java` | FR-001, NFR-001 |");
-        assertThat(matrix).contains("| `docs/evidence/runs/run-1.json` | PVT-001 |");
-        assertThat(matrix).contains("| run-1 | COMPLETED | LIVE | READY | intact (3 events) | 1 PASS, 0 FAIL, 0 EXCEPTION_REQUESTED, 1 NOT_APPLICABLE | 1 | PVT-001 |");
+        assertThat(matrix).contains("| " + id("FR", "001") + " | T027 | ADR-002 | CreateTest |");
+        assertThat(matrix).contains("| `src/test/java/x/CreateTest.java` | " + id("FR", "001") + ", " + id("NFR", "001") + " |");
+        assertThat(matrix).contains("| `docs/evidence/runs/run-1.json` | " + id("PVT", "001") + " |");
+        assertThat(matrix).contains("| run-1 | COMPLETED | LIVE | READY | intact (3 events) | 1 PASS, 0 FAIL, 0 EXCEPTION_REQUESTED, 1 NOT_APPLICABLE | 1 | " + id("PVT", "001") + " |");
     }
 }
