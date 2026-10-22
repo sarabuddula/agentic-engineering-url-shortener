@@ -1,0 +1,30 @@
+run run-4738769c-4517-4597-b0b9-ee5796670220: 132 events, sequence 1..132 contiguous=True
+recomputed head ab1ddb62d705a138...  exported /verify head ab1ddb62d705a138...  match=True  exported verified=True event_count=132
+revisions activated: ['REVISION_1']
+approvals:
+  APPROVAL_DECIDED APPROVED: REPLAN_ACCEPTANCE approval 17 by demo-approver: replan accepted: redo N07-N14 against DESIGN v2 (rate-limit li
+  APPROVAL_DECIDED APPROVED: DESIGN_APPROVAL approval 18 by demo-approver: design v2 approved for REPLAY of the status lookup; rate-limit l
+  APPROVAL_ESCALATED ESCALATED: first window elapsed; re-issued once until 2026-10-22T21:39:09.996376Z
+  APPROVAL_ESCALATED ESCALATED: first window elapsed; re-issued once until 2026-10-22T21:41:49.978906Z
+  APPROVAL_EXPIRED EXPIRED: second window elapsed without a decision; N07 path to be safe-stopped
+  APPROVAL_EXPIRED EXPIRED: second window elapsed without a decision; N13 path to be safe-stopped
+  APPROVAL_DECIDED APPROVED: RELEASE_AUTHORIZATION approval 20 by demo-release-owner: release authorized: T089 REPLAY of the status lookup;
+decisions:
+  REPLAN: replan 1 ACCEPTED by demo-approver: revision 1 redoes [N07, N08, N09, N10, N11, N12, N13, N14]
+  DESIGN_APPROVAL: DESIGN_APPROVAL at N07 APPROVED by demo-approver (approval 18) [evidence HUMAN]
+  RELEASE_AUTHORIZATION: RELEASE_AUTHORIZATION at N13 APPROVED by demo-release-owner (approval 20) [evidence HUMAN]
+  SUMMARY: engineering summary generated (FR-038)
+replanning:
+  REPLAN_REQUESTED: replan 1 by demo-engineer: changed inputs at [N07]; affected N07,N08,N09,N10,N11,N12,N13,N14; 1 approval(s) in
+  REPLAN_ACCEPTED: replan 1 accepted by demo-approver (approval 17); revision 1 active; redoing [N07, N08, N09, N10, N11, N12, N1
+interruptions and recovery:
+  OPERATION_RECONCILED APPLIED: operation aw:787dfc290ba75608:ad6f2818280fc894f792d7d496a4f0f3b533eeba (ARTIFACT_WRITE): effect foun
+  BOOT_RECOVERY SAFE_STOPPED: run found RUNNING at startup; safe-stopped, pending approvals kept, resume requires an authorized PO
+  RUN_RESUMED RESUMED: safe-stop cause BOOT_RECOVERY addressed; resumed by demo-approver (APPROVER)
+  RUN_RESUMED RESUMED: safe-stop cause FAILURE addressed; resumed by demo-engineer (ENGINEER)
+  RUN_RESUMED RESUMED: safe-stop cause APPROVAL_TIMEOUT addressed; resumed by demo-approver (APPROVER)
+retries: none
+failures: ['N06: interrupted by a JVM stop', 'N08: tasks failed: t1']
+node states after the last revision: {'N07': 'SUCCEEDED', 'N08': 'SUCCEEDED', 'N09': 'SUCCEEDED', 'N10': 'SUCCEEDED', 'N11': 'SUCCEEDED', 'N12': 'SUCCEEDED', 'N13': 'SUCCEEDED', 'N14': 'SUCCEEDED'}
+terminal transition: RUNNING->COMPLETED; exported status COMPLETED, terminal outcome READY, execution class REPLAY
+last event: CHAIN_VERIFIED INTACT
