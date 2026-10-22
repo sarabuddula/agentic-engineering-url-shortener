@@ -151,7 +151,7 @@ requirements:
     - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/TestExecutionIT.java
       commit: 1b4eb446bf825e5f2690331e36bc54a8d19bdebd
     - path: src/test/java/com/agenticengineering/urlshortener/tests/unit/MappingManifestTest.java
-      commit: e71ab7dce07764314478379c76b8f2cb5a6cce9e
+      commit: f26257bb87a8c0258b2f4d8bd898054efae1c568
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
       commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
@@ -186,7 +186,7 @@ requirements:
     - path: src/test/java/com/agenticengineering/urlshortener/tests/unit/ErrorMappingTest.java
       commit: 4cfe283bddac646baaddb6a126854870493c079e
     - path: src/test/java/com/agenticengineering/urlshortener/tests/unit/MappingManifestTest.java
-      commit: e71ab7dce07764314478379c76b8f2cb5a6cce9e
+      commit: f26257bb87a8c0258b2f4d8bd898054efae1c568
     - path: src/test/java/com/agenticengineering/urlshortener/tests/unit/SharedValueObjectsTest.java
       commit: 341c2f41d196abf0b06b9d271e0f577eb3e6de20
     docs:
@@ -723,7 +723,9 @@ requirements:
     - path: src/test/java/com/agenticengineering/urlshortener/tests/unit/AuditApiSurfaceTest.java
       commit: c8dc3d19db4d2d585b3a7d21ed9ba5b448cac370
     - path: src/test/java/com/agenticengineering/urlshortener/tests/unit/MappingManifestTest.java
-      commit: e71ab7dce07764314478379c76b8f2cb5a6cce9e
+      commit: f26257bb87a8c0258b2f4d8bd898054efae1c568
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/unit/TraceabilityMatrixTest.java
+      commit: 83a1b852852c2a7577534c11bcd06df92d268287
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
       commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
@@ -1110,7 +1112,7 @@ requirements:
     - path: src/test/java/com/agenticengineering/urlshortener/tests/security/UrlRejectionMatrixIT.java
       commit: ec7bcb141589498950f724d591f58562ad4f2635
     - path: src/test/java/com/agenticengineering/urlshortener/tests/unit/MappingManifestTest.java
-      commit: e71ab7dce07764314478379c76b8f2cb5a6cce9e
+      commit: f26257bb87a8c0258b2f4d8bd898054efae1c568
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
       commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
@@ -1246,6 +1248,8 @@ requirements:
     tests:
     - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/SdlcWorkflowTest.java
       commit: 960799d9ed5cb182da6ed6cc55f7332f3f4d58a1
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/unit/TraceabilityMatrixTest.java
+      commit: 83a1b852852c2a7577534c11bcd06df92d268287
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
       commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
@@ -1381,7 +1385,7 @@ requirements:
     - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/PerformanceIT.java
       commit: 5a0f98435dafaf2735c52d13073aaef9cb8af952
     - path: src/test/java/com/agenticengineering/urlshortener/tests/unit/MappingManifestTest.java
-      commit: e71ab7dce07764314478379c76b8f2cb5a6cce9e
+      commit: f26257bb87a8c0258b2f4d8bd898054efae1c568
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
       commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
