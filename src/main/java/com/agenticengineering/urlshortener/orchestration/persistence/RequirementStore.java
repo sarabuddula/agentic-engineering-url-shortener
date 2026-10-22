@@ -31,6 +31,20 @@ public class RequirementStore {
                 "VERSION 1", "requirement stored (" + normalizedContent.length() + " characters, provenance " + provenance + ")"));
     }
 
+    /** Stores the N02 quality report (JSON) on the latest requirement version. */
+    public void saveQualityReport(String runId, String reportJson) {
+        jdbc.update("UPDATE REQUIREMENT_ARTIFACT SET QUALITY_REPORT = ? WHERE RUN_ID = ? AND VERSION ="
+                + " (SELECT MAX(VERSION) FROM REQUIREMENT_ARTIFACT WHERE RUN_ID = ?)", reportJson, runId, runId);
+    }
+
+    public boolean exists(String runId) {
+        return jdbc.queryForObject("SELECT COUNT(*) FROM REQUIREMENT_ARTIFACT WHERE RUN_ID = ?", Integer.class, runId) > 0;
+    }
+
+    public String requirementRef(String runId) {
+        return jdbc.queryForObject("SELECT REQUIREMENT_REF FROM WORKFLOW_RUN WHERE ID = ?", String.class, runId);
+    }
+
     public String content(String runId) {
         return jdbc.queryForObject("SELECT CONTENT FROM REQUIREMENT_ARTIFACT WHERE RUN_ID = ? ORDER BY VERSION DESC LIMIT 1",
                 String.class, runId);

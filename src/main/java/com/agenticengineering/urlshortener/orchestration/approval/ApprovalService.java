@@ -34,7 +34,12 @@ public class ApprovalService {
     /** An APPROVAL row; node is the stage that waits on it (stored as SCOPE "node=Nxx"). */
     public record Approval(long id, String runId, ApprovalKind kind, String gate, String node, String requesterKeyId,
             String approverKeyId, Decision status, Instant timeoutAt, Instant secondWindowTimeoutAt, Instant decidedAt,
-            String reason, boolean expired) {
+            String reason, boolean expired, Instant requestedAt) {
+
+        /** End of the window currently open: the second window once escalated. */
+        public Instant expiresAt() {
+            return status == Decision.ESCALATED && secondWindowTimeoutAt != null ? secondWindowTimeoutAt : timeoutAt;
+        }
     }
 
     static final String EXPIRED_MARK = "EXPIRED: no decision within two approval windows";
@@ -165,7 +170,9 @@ public class ApprovalService {
                     instant(rs.getObject("TIMEOUT_AT", OffsetDateTime.class)),
                     instant(rs.getObject("SECOND_WINDOW_TIMEOUT_AT", OffsetDateTime.class)),
                     instant(rs.getObject("DECIDED_AT", OffsetDateTime.class)), rs.getString("REASON"),
-                    EXPIRED_MARK.equals(rs.getString("REASON")));
+                    EXPIRED_MARK.equals(rs.getString("REASON")),
+                    // the schema keeps no request time; the request opened the first window
+                    instant(rs.getObject("TIMEOUT_AT", OffsetDateTime.class)).minus(window));
         }, approvalId, runId);
         if (rows.isEmpty()) {
             throw new ResourceNotFoundException("APPROVAL_NOT_FOUND", "No such approval on this run");

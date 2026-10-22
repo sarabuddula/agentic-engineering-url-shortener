@@ -66,7 +66,7 @@ class ApprovalApiIT {
         Response decided = decide("APPROVER", approval.id(), "{\"decision\":\"APPROVE\",\"reason\":\"ADRs reviewed\"}", true);
 
         assertThat(decided.statusCode()).isEqualTo(200);
-        assertThat(decided.jsonPath().getString("decision")).isEqualTo("APPROVED");
+        assertThat(approvals.find(runId, approval.id()).status()).isEqualTo(ApprovalService.Decision.APPROVED);
         assertThat(approvals.pending(runId)).isEmpty();
         assertThat(jdbc.queryForObject("SELECT EVIDENCE_CLASS FROM APPROVAL WHERE ID = ?", String.class, approval.id())).isEqualTo("HUMAN");
     }
@@ -78,7 +78,7 @@ class ApprovalApiIT {
         Response decided = decide("APPROVER", approval.id(), "{\"decision\":\"REJECT\",\"reason\":\"design does not satisfy FR-012\"}", true);
 
         assertThat(decided.statusCode()).isEqualTo(200);
-        assertThat(decided.jsonPath().getString("decision")).isEqualTo("REJECTED");
+        assertThat(approvals.find(runId, approval.id()).status()).isEqualTo(ApprovalService.Decision.REJECTED);
     }
 
     @Test

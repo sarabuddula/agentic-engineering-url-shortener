@@ -1,5 +1,6 @@
 package com.agenticengineering.urlshortener.orchestration.api;
 
+import com.agenticengineering.urlshortener.orchestration.approval.ApprovalService;
 import com.agenticengineering.urlshortener.orchestration.engine.OrchestrationEngine;
 import com.agenticengineering.urlshortener.orchestration.persistence.WorkflowStore;
 import com.agenticengineering.urlshortener.orchestration.policy.PolicySet;
@@ -36,12 +37,15 @@ public class RunController {
     private final WorkflowStore store;
     private final RequirementIngestion ingestion;
     private final Roles roles;
+    private final ApprovalService approvals;
 
-    public RunController(OrchestrationEngine engine, WorkflowStore store, RequirementIngestion ingestion, Roles roles) {
+    public RunController(OrchestrationEngine engine, WorkflowStore store, RequirementIngestion ingestion, Roles roles,
+            ApprovalService approvals) {
         this.engine = engine;
         this.store = store;
         this.ingestion = ingestion;
         this.roles = roles;
+        this.approvals = approvals;
     }
 
     public record RunRequest(@JsonProperty("requirement_text") String requirementText,
@@ -63,7 +67,7 @@ public class RunController {
         }
         String runId = engine.createRun("api:" + keyId, POLICY_VERSION, executionClass);
         ingestion.ingest(runId, text);
-        return ResponseEntity.status(HttpStatus.CREATED).body(body(store.runDetail(runId).orElseThrow(), false));
+        return ResponseEntity.status(HttpStatus.CREATED).body(body(store.runDetail(runId).orElseThrow(), List.of(), false));
     }
 
     @GetMapping(path = "/api/v1/orchestrator/runs/{runId}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -72,10 +76,10 @@ public class RunController {
                 KeyIdentity.Role.REVIEWER);
         WorkflowStore.RunDetail detail = store.runDetail(runId)
                 .orElseThrow(() -> new ResourceNotFoundException("RUN_NOT_FOUND", "No such run"));
-        return body(detail, true);
+        return body(detail, approvals.pending(runId), true);
     }
 
-    private static Map<String, Object> body(WorkflowStore.RunDetail detail, boolean full) {
+    private static Map<String, Object> body(WorkflowStore.RunDetail detail, List<ApprovalService.Approval> pending, boolean full) {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("run_id", detail.runId());
         body.put("status", detail.status().name());
@@ -86,7 +90,16 @@ public class RunController {
             if (detail.terminalOutcome() != null) {
                 body.put("terminal_outcome", detail.terminalOutcome());
             }
-            body.put("pending_approvals", List.of()); // approval requests arrive with T059-T061
+            body.put("pending_approvals", pending.stream().map(a -> {
+                Map<String, Object> item = new LinkedHashMap<>();
+                item.put("approval_id", String.valueOf(a.id()));
+                item.put("kind", a.kind().name());
+                item.put("gate", a.gate());
+                item.put("reason", a.reason());
+                item.put("requested_at", a.requestedAt().toString());
+                item.put("expires_at", a.expiresAt().toString());
+                return item;
+            }).toList());
         }
         return body;
     }
