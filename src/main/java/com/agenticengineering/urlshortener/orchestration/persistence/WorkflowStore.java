@@ -106,6 +106,14 @@ public class WorkflowStore {
         });
     }
 
+    /** Safe-stops the run with a recorded cause (SAFE_STOP_CAUSE), for example COMPLETION_GATE or BOOT_RECOVERY. */
+    public void safeStopRun(String runId, RunStatus from, String cause, String reason) {
+        tx.executeWithoutResult(status -> {
+            transitionRun(runId, from, RunStatus.SAFE_STOPPED, reason);
+            jdbc.update("UPDATE WORKFLOW_RUN SET SAFE_STOP_CAUSE = ? WHERE ID = ?", cause, runId);
+        });
+    }
+
     /** Records the run's terminal outcome (for example NOT_READY or READY) together with the terminal transition. */
     public void finishRun(String runId, RunStatus from, RunStatus to, String terminalOutcome, String reason) {
         tx.executeWithoutResult(status -> {

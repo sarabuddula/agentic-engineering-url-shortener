@@ -9,6 +9,7 @@ import com.agenticengineering.urlshortener.orchestration.engine.RunStatus;
 import com.agenticengineering.urlshortener.orchestration.persistence.WorkflowStore;
 import com.agenticengineering.urlshortener.orchestration.policy.Evidence;
 import com.agenticengineering.urlshortener.orchestration.security.KeyIdentity;
+import com.agenticengineering.urlshortener.tests.support.CompletionEvidenceFixture;
 import com.agenticengineering.urlshortener.tests.support.PolicyRunFixture;
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -25,11 +26,14 @@ import org.springframework.jdbc.core.JdbcTemplate;
  * RELEASE_OWNER, settled into RELEASE_DECISION (approver, time, evidence reference) and the run's terminal outcome.
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
-@Import(PolicyRunFixture.class)
+@Import({PolicyRunFixture.class, CompletionEvidenceFixture.class})
 class ReleaseReadinessTest {
 
     @Autowired
     private PolicyRunFixture fixture;
+
+    @Autowired
+    private CompletionEvidenceFixture completionEvidence;
 
     @Autowired
     private ApprovalService approvals;
@@ -47,6 +51,7 @@ class ReleaseReadinessTest {
 
         assertThat(decision(runId)).containsEntry("RECOMMENDATION", "READY").containsEntry("DECISION", "PENDING");
         assertThat(store.runStatus(runId)).isEqualTo(RunStatus.AWAITING_APPROVAL);
+        completionEvidence.recordAll(runId); // FR-044 (T101): labelled fixture evidence so the run may complete
 
         long approvalId = fixture.decideRelease(runId, evidence, true);
 

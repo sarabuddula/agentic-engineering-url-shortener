@@ -16,6 +16,7 @@ import com.agenticengineering.urlshortener.shared.port.TimeSource;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -46,12 +47,14 @@ public class OrchestrationEngine {
     private final TimeSource clock;
     private final ReplanningService replanning;
     private final FailureRecorder failureRecorder;
+    private final CompletionGate completionGate;
     private final RetryPolicy retryPolicy;
 
     public OrchestrationEngine(WorkflowStore store, TaskStore tasks, @Qualifier("orchestrationStagePool") ExecutorService stagePool,
             @Qualifier("orchestrationTaskPool") ExecutorService taskPool, IdGenerator ids, ApprovalService approvals,
             ReleaseDecisionStore releases, AuditChain chain, TimeSource clock, ReplanningService replanning,
-            FailureRecorder failureRecorder, @Value("${app.orchestration.retry.base-delay-ms:1000}") long retryBaseDelayMs) {
+            FailureRecorder failureRecorder, @Value("${app.orchestration.retry.base-delay-ms:1000}") long retryBaseDelayMs,
+            CompletionGate completionGate) {
         this.store = store;
         this.tasks = tasks;
         this.stagePool = stagePool;
@@ -63,6 +66,7 @@ public class OrchestrationEngine {
         this.clock = clock;
         this.replanning = replanning;
         this.failureRecorder = failureRecorder;
+        this.completionGate = completionGate;
         this.retryPolicy = new RetryPolicy(3, Duration.ofMillis(retryBaseDelayMs), Duration.ofSeconds(60));
     }
 
@@ -243,6 +247,14 @@ public class OrchestrationEngine {
                 store.finishRun(runId, RunStatus.RUNNING, RunStatus.TERMINATED, "NOT_READY",
                         "graph finished with a NOT READY determination; release authorization was blocked (FR-033)");
                 return new RunOutcome(RunStatus.TERMINATED, "NOT_READY");
+            }
+            List<CompletionGate.Condition> unmet = completionGate.unmet(runId);
+            if (!unmet.isEmpty()) {
+                // FR-044: no completion declaration without every Constitution XI condition evidenced; resumable once it is
+                String reason = "completion gate: no evidence for " + unmet;
+                chain.append(runId, new AuditEntry(AuditEntry.ActorType.SYSTEM, "COMPLETION_BLOCKED", clock.now(), runId, "BLOCKED", reason));
+                store.safeStopRun(runId, RunStatus.RUNNING, "COMPLETION_GATE", reason);
+                return new RunOutcome(RunStatus.SAFE_STOPPED, reason);
             }
             var decided = releases.find(runId).filter(d -> "APPROVED".equals(d.decision()));
             if (decided.isPresent()) {

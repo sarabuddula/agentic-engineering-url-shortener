@@ -6,6 +6,7 @@ import com.agenticengineering.urlshortener.orchestration.audit.AuditChain;
 import com.agenticengineering.urlshortener.orchestration.engine.RunStatus;
 import com.agenticengineering.urlshortener.orchestration.persistence.WorkflowStore;
 import com.agenticengineering.urlshortener.orchestration.policy.Evidence;
+import com.agenticengineering.urlshortener.tests.support.CompletionEvidenceFixture;
 import com.agenticengineering.urlshortener.tests.support.PolicyRunFixture;
 import java.util.List;
 import java.util.Map;
@@ -20,11 +21,14 @@ import org.springframework.jdbc.core.JdbcTemplate;
  * and appends the result as the run's last event before reporting the outcome (FR-048, ADR-005).
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
-@Import(PolicyRunFixture.class)
+@Import({PolicyRunFixture.class, CompletionEvidenceFixture.class})
 class TerminalVerificationTest {
 
     @Autowired
     private PolicyRunFixture fixture;
+
+    @Autowired
+    private CompletionEvidenceFixture completionEvidence;
 
     @Autowired
     private WorkflowStore store;
@@ -39,6 +43,7 @@ class TerminalVerificationTest {
     void aCompletedRunEndsWithAChainVerifiedEvent() {
         Map<String, Evidence> evidence = PolicyRunFixture.goodEvidence();
         String runId = fixture.runThroughPolicy(evidence);
+        completionEvidence.recordAll(runId); // FR-044 (T101): labelled fixture evidence so the run may complete
         fixture.decideRelease(runId, evidence, true);
 
         assertThat(store.runStatus(runId)).isEqualTo(RunStatus.COMPLETED);
@@ -62,7 +67,8 @@ class TerminalVerificationTest {
         String runId = fixture.runThroughPolicy(evidence);
         jdbc.update("UPDATE AUDIT_EVENT SET REASON = 'rewritten' WHERE RUN_ID = ? AND SEQ = 2", runId);
 
-        fixture.decideRelease(runId, evidence, true);
+        // a rejected release ends the run (TERMINATED); a tampered chain could never pass the completion gate (T101)
+        fixture.decideRelease(runId, evidence, false);
 
         WorkflowStore.HistoryEntry last = last(runId);
         assertThat(last.action()).isEqualTo("CHAIN_VERIFICATION_FAILED");

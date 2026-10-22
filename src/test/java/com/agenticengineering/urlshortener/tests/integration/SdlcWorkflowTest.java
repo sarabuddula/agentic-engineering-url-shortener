@@ -74,7 +74,9 @@ class SdlcWorkflowTest {
             return StageResult.succeeded();
         });
 
-        assertThat(outcome.runStatus()).isEqualTo(RunStatus.COMPLETED);
+        // FR-044 (T101): every node succeeds, but the fixture run has no completion evidence, so it stops at the gate
+        assertThat(outcome.runStatus()).isEqualTo(RunStatus.SAFE_STOPPED);
+        assertThat(outcome.reason()).contains("completion gate");
         Map<String, NodeStatus> nodes = store.nodeStatuses(runId);
         assertThat(nodes).containsEntry("N03", NodeStatus.NOT_APPLICABLE).containsEntry("N04", NodeStatus.NOT_APPLICABLE);
         nodes.forEach((node, status) -> {

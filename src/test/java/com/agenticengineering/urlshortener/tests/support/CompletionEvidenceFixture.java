@@ -41,6 +41,10 @@ public class CompletionEvidenceFixture {
         if (!omitted.contains(CompletionGate.Condition.ACCEPTANCE_CRITERIA_MET)) {
             jdbc.update("INSERT INTO TEST_OUTCOME (RUN_ID, SUITE, TEST_ID, REQUIREMENT_REFS, STATUS, EXECUTED_AT, EVIDENCE_REF)"
                     + " VALUES (?, 'FIXTURE', 'acceptance', 'FR-001', 'PASSED', ?, 'fixture')", runId, now);
+        } else {
+            // tests ran and passed, but none is linked to an acceptance criterion
+            jdbc.update("INSERT INTO TEST_OUTCOME (RUN_ID, SUITE, TEST_ID, STATUS, EXECUTED_AT) VALUES (?, 'FIXTURE', 'unit', 'PASSED', ?)",
+                    runId, now);
         }
         if (omitted.contains(CompletionGate.Condition.TESTS_EXECUTED)) {
             jdbc.update("INSERT INTO TEST_OUTCOME (RUN_ID, SUITE, TEST_ID, STATUS, EXECUTED_AT) VALUES (?, 'FIXTURE', 'unit', 'FAILED', ?)",

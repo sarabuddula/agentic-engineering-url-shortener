@@ -49,7 +49,10 @@ class ReliabilityEngineTest {
 
         String runId = run(executors);
 
-        assertThat(store.runStatus(runId)).isEqualTo(RunStatus.COMPLETED);
+        assertThat(store.nodeStatuses(runId)).containsEntry("N06", NodeStatus.SUCCEEDED).containsEntry("N14", NodeStatus.SUCCEEDED);
+        // FR-044 (T101): the graph finished, but the fixture run has no completion evidence, so it stops at the gate
+        assertThat(store.runStatus(runId)).isEqualTo(RunStatus.SAFE_STOPPED);
+        assertThat(store.history(runId)).anyMatch(e -> e.action().equals("COMPLETION_BLOCKED"));
         assertThat(store.history(runId)).anyMatch(e -> "N06".equals(e.affected()) && e.result().equals("FAILED->RETRY_WAITING"));
         assertThat(jdbc.queryForMap("SELECT RECOVERED, RECOVERY_MECHANISM FROM FAILURE_EVENT WHERE RUN_ID = ?", runId))
                 .containsEntry("RECOVERED", true).containsEntry("RECOVERY_MECHANISM", "FP-1");
@@ -63,7 +66,10 @@ class ReliabilityEngineTest {
 
         String runId = run(executors);
 
-        assertThat(store.runStatus(runId)).isEqualTo(RunStatus.COMPLETED);
+        assertThat(store.nodeStatuses(runId)).containsEntry("N06", NodeStatus.SUCCEEDED).containsEntry("N14", NodeStatus.SUCCEEDED);
+        // FR-044 (T101): the graph finished, but the fixture run has no completion evidence, so it stops at the gate
+        assertThat(store.runStatus(runId)).isEqualTo(RunStatus.SAFE_STOPPED);
+        assertThat(store.history(runId)).anyMatch(e -> e.action().equals("COMPLETION_BLOCKED"));
         assertThat(jdbc.queryForMap("SELECT RECOVERED, RECOVERY_MECHANISM FROM FAILURE_EVENT WHERE RUN_ID = ?", runId))
                 .containsEntry("RECOVERED", true).containsEntry("RECOVERY_MECHANISM", "FP-2");
     }

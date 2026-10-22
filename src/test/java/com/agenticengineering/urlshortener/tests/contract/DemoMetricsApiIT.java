@@ -3,7 +3,12 @@ package com.agenticengineering.urlshortener.tests.contract;
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.agenticengineering.urlshortener.orchestration.approval.ApprovalKind;
+import com.agenticengineering.urlshortener.orchestration.approval.ApprovalService;
+import com.agenticengineering.urlshortener.orchestration.audit.AuditEntry;
+import com.agenticengineering.urlshortener.orchestration.engine.GateExecutor;
 import com.agenticengineering.urlshortener.orchestration.engine.OrchestrationEngine;
+import com.agenticengineering.urlshortener.orchestration.security.KeyIdentity;
 import com.agenticengineering.urlshortener.orchestration.engine.SdlcWorkflow;
 import com.agenticengineering.urlshortener.orchestration.engine.StageExecutor;
 import com.agenticengineering.urlshortener.orchestration.engine.StageResult;
@@ -45,6 +50,12 @@ class DemoMetricsApiIT {
     @Autowired
     private TaskStore tasks;
 
+    @Autowired
+    private ApprovalService approvals;
+
+    @Autowired
+    private GateExecutor.Factory gates;
+
     @BeforeEach
     void setUp() {
         RestAssured.port = port;
@@ -58,6 +69,11 @@ class DemoMetricsApiIT {
         executors.put("N06", ctx -> calls.incrementAndGet() < 2 ? StageResult.failed("transient: storage timeout") : StageResult.succeeded());
         String runId = engine.createRun("api:test-engineer", "POL-2026-10-18-v1");
         engine.execute(runId, executors, task -> StageResult.succeeded());
+        // end the run (release rejected at G7) so it has a terminal transition for the end-to-end latency
+        ApprovalService.Approval release = approvals.pending(runId).get(0);
+        approvals.decide(runId, release.id(), "test-release-owner", KeyIdentity.Role.RELEASE_OWNER, AuditEntry.ActorType.HUMAN, false,
+                "rejected", ApprovalService.EvidenceClass.SIMULATED);
+        engine.resume(runId, executors, task -> StageResult.succeeded());
 
         Response after = metrics("REVIEWER");
 
@@ -95,7 +111,8 @@ class DemoMetricsApiIT {
             }
             return StageResult.succeeded();
         });
-        executors.put("N12", ctx -> StageResult.succeeded(Set.of()));
+        executors.put("N12", ctx -> StageResult.succeeded(Set.of("N13")));
+        executors.put("N13", gates.gate(ApprovalKind.RELEASE_AUTHORIZATION));
         executors.remove("N08");
         return executors;
     }

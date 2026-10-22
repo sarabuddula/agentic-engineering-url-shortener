@@ -17,6 +17,7 @@ import com.agenticengineering.urlshortener.orchestration.engine.TaskSpec;
 import com.agenticengineering.urlshortener.orchestration.persistence.TaskStore;
 import com.agenticengineering.urlshortener.orchestration.persistence.WorkflowStore;
 import com.agenticengineering.urlshortener.orchestration.security.KeyIdentity;
+import com.agenticengineering.urlshortener.tests.support.CompletionEvidenceFixture;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +25,7 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 /**
@@ -31,6 +33,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
  * (FR-024, FR-025, FR-028, SC-004). Gate nodes use the real GateExecutor; the other stages are labelled fixtures.
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
+@Import(CompletionEvidenceFixture.class)
 class GateIntegrationTest {
 
     private static final TaskExecutor TASKS = task -> StageResult.succeeded();
@@ -52,6 +55,9 @@ class GateIntegrationTest {
 
     @Autowired
     private JdbcTemplate jdbc;
+
+    @Autowired
+    private CompletionEvidenceFixture completionEvidence;
 
     @Test
     void theDesignGatePausesTheRunAndBlocksImplementation() {
@@ -82,6 +88,7 @@ class GateIntegrationTest {
     @Test
     void approvalsAtBothGatesCompleteTheRun() {
         String runId = engine.createRun("api:test-engineer", "POL-2026-10-18-v1");
+        completionEvidence.recordAll(runId); // FR-044 (T101): labelled fixture evidence so the run may complete
         engine.execute(runId, executors(Set.of()), TASKS);
         decide(runId, "test-approver", KeyIdentity.Role.APPROVER, true);
 
