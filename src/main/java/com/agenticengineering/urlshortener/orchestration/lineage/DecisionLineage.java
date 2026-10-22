@@ -60,6 +60,11 @@ public class DecisionLineage {
                 lines(rs.getString("ARTIFACT_VERSION_REFS"))), runId);
     }
 
+    /** The evidence class (HUMAN or SIMULATED) of the approval behind a decision (T127). */
+    public String evidenceClassOf(String runId, long approvalId) {
+        return jdbc.queryForObject("SELECT EVIDENCE_CLASS FROM APPROVAL WHERE RUN_ID = ? AND ID = ?", String.class, runId, approvalId);
+    }
+
     public java.util.Optional<Decision> find(String runId, long id) {
         return forRun(runId).stream().filter(d -> d.id() == id).findFirst();
     }

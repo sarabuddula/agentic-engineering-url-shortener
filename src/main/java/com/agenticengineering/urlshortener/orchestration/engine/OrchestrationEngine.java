@@ -186,7 +186,8 @@ public class OrchestrationEngine {
                     : List.of("approve the design as proposed");
         }
         lineage.record(runId, approval.kind().name(), AuditEntry.ActorType.HUMAN, approval.kind() + " at " + node + " "
-                + approval.status() + " by " + approval.approverKeyId() + " (approval " + approval.id() + ")", rationale, rejected,
+                + approval.status() + " by " + approval.approverKeyId() + " (approval " + approval.id() + ") [evidence "
+                + lineage.evidenceClassOf(runId, approval.id()) + "]", rationale, rejected,
                 lineage.currentArtifacts(runId));
     }
 

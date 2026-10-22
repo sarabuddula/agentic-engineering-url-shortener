@@ -120,7 +120,7 @@ public class ApprovalService {
                 throw new IllegalStateException("approval " + approvalId + " changed concurrently");
             }
             audit.append(runId, new AuditEntry(actor, "APPROVAL_DECIDED", now, approval.kind().label(), decision.name(),
-                    approval.kind() + " approval " + approvalId + " by " + approverKeyId + ": " + reason));
+                    approval.kind() + " approval " + approvalId + " by " + approverKeyId + ": " + reason + " [evidence " + evidenceClass + "]"));
         });
         return find(runId, approvalId);
     }

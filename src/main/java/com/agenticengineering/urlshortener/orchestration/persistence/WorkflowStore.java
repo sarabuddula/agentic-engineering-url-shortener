@@ -76,7 +76,7 @@ public class WorkflowStore {
             }
             audit.append(runId, new AuditEntry(AuditEntry.ActorType.SYSTEM, "RUN_CREATED", now, runId, "CREATED",
                     "run created with " + graph.nodes().size() + " nodes and " + graph.edges().size() + " edges; policy "
-                            + policyVersion));
+                            + policyVersion + "; execution class " + executionClass));
         });
     }
 
