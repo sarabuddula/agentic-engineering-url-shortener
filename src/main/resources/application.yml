@@ -17,6 +17,10 @@ app:
     failed-auth-per-ip:               # A-008d, D-004 - deferred 2026-10-21 (L-SC-01): bound, not enforced
       failures-per-minute: 10
       block-duration: 5m
+  persistence-retry:                  # FR-009, T102; A-013 bounds
+    max-retries: 3
+    initial-backoff: 1s               # then 2 s, 4 s
+    jitter: 0.2
   default-ttl-days: 7                 # A-006
   approval-timeout-minutes: 5         # PVT-005
   rework-cap: 2                       # A-016

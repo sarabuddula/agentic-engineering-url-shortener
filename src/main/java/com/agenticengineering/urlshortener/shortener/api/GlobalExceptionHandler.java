@@ -5,6 +5,7 @@ import com.agenticengineering.urlshortener.shared.value.InvalidShortCodeExceptio
 import com.agenticengineering.urlshortener.shared.value.InvalidTargetUrlException;
 import com.agenticengineering.urlshortener.shortener.domain.InvalidExpirationException;
 import com.agenticengineering.urlshortener.shortener.domain.RequestIdentityConflictException;
+import com.agenticengineering.urlshortener.shortener.domain.StorageUnavailableException;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -64,6 +65,13 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, Object>> handle(RequestIdentityConflictException e, HttpServletRequest request) {
         return respond(HttpStatus.CONFLICT,
                 error("REQUEST_IDENTITY_CONFLICT", "Idempotency key already bound to a different payload", request));
+    }
+
+    /** Storage still failing after the bounded retries: the defined 503 (FR-009, contract ServiceUnavailable). */
+    @ExceptionHandler(StorageUnavailableException.class)
+    public ResponseEntity<Map<String, Object>> handle(StorageUnavailableException e, HttpServletRequest request) {
+        return respond(HttpStatus.SERVICE_UNAVAILABLE,
+                error("SERVICE_UNAVAILABLE", "The service is temporarily unavailable; retry later", request));
     }
 
     /**
