@@ -106,8 +106,9 @@ class ResumeTest {
         assertThat(failures.get(0).recovered()).isTrue();
         assertThat(failures.get(0).mechanism()).isEqualTo(RecoveryMechanism.FP_4_SAFE_STOP);
         assertThat(failures.get(0).recoveryStartAt()).isNotNull();
-        assertThat(failures.get(0).governanceWait()).isEqualTo(
-                Duration.between(failures.get(0).failureDetectedAt(), failures.get(0).recoveryStartAt()));
+        // GOVERNANCE_WAIT_MS stores whole milliseconds
+        assertThat(failures.get(0).governanceWait().toMillis()).isEqualTo(
+                Duration.between(failures.get(0).failureDetectedAt(), failures.get(0).recoveryStartAt()).toMillis());
     }
 
     @Test

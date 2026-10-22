@@ -12,6 +12,7 @@ import com.agenticengineering.urlshortener.orchestration.lineage.DecisionLineage
 import com.agenticengineering.urlshortener.orchestration.persistence.ReleaseDecisionStore;
 import com.agenticengineering.urlshortener.orchestration.persistence.TaskStore;
 import com.agenticengineering.urlshortener.orchestration.reliability.FailureRecorder;
+import com.agenticengineering.urlshortener.orchestration.reliability.FailureEvent;
 import com.agenticengineering.urlshortener.orchestration.reliability.RecoveryMechanism;
 import com.agenticengineering.urlshortener.orchestration.replan.ReplanningService;
 import com.agenticengineering.urlshortener.orchestration.persistence.WorkflowStore;
@@ -288,14 +289,35 @@ public class OrchestrationEngine {
 
         private final String runId;
         private final Map<String, Long> open = new HashMap<>();
+        /** Failures left open by an earlier drive of this run (safe-stop, then an authorized resumption). */
+        private final Map<String, Long> resumed = new HashMap<>();
 
         FailureTracking(String runId) {
             this.runId = runId;
+            Map<Long, String> nodesById = new HashMap<>();
+            for (String node : SdlcWorkflow.graph().nodes()) {
+                nodesById.put(store.nodeId(runId, node), node);
+            }
+            for (FailureEvent event : failureRecorder.forRun(runId)) {
+                String node = nodesById.get(event.nodeId());
+                if (!event.recovered() && !event.mttrExcluded() && node != null) {
+                    open.put(node, event.id());
+                    if (event.recoveryStartAt() == null) {
+                        resumed.put(node, event.id());
+                    }
+                }
+            }
         }
 
         void onTransition(String node, NodeStatus to, String reason) {
             Instant now = clock.now();
-            if (to == NodeStatus.FAILED && !open.containsKey(node)) {
+            if (to == NodeStatus.RUNNING && resumed.containsKey(node)) {
+                // recovery of a safe-stopped failure starts when the resumed run dispatches the node again (FP-4); the
+                // time spent waiting for the human resumption is governance wait, not engine recovery time
+                long id = resumed.remove(node);
+                failureRecorder.recoveryStarted(id, now, RecoveryMechanism.FP_4_SAFE_STOP);
+                failureRecorder.addGovernanceWait(id, Duration.between(failureRecorder.find(id).failureDetectedAt(), now));
+            } else if (to == NodeStatus.FAILED && !open.containsKey(node)) {
                 open.put(node, failureRecorder.detected(runId, store.nodeId(runId, node), now));
             } else if (to == NodeStatus.RETRY_WAITING && open.containsKey(node)) {
                 RecoveryMechanism mechanism = reason != null && reason.startsWith("FP-2") ? RecoveryMechanism.FP_2_FALLBACK : RecoveryMechanism.FP_1_RETRY;
