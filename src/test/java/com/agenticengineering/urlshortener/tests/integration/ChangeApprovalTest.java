@@ -77,6 +77,9 @@ class ChangeApprovalTest {
         assertThat(store.nodeStatuses(runId)).containsEntry("N04", NodeStatus.SUCCEEDED).containsEntry("N05", NodeStatus.SUCCEEDED)
                 .containsEntry("N07", NodeStatus.AWAITING_APPROVAL);
         assertThat(lineage.forRun(runId)).anyMatch(d -> d.decision().contains("CHANGE_APPROVAL") && d.decision().contains("APPROVED"));
+        // an approval kind without a gate number is named by its kind (SCN-B history showed "null passed")
+        assertThat(store.history(runId)).anyMatch(e -> e.reason().startsWith("CHANGE_APPROVAL passed with recorded approval"))
+                .noneMatch(e -> e.reason().startsWith("null "));
     }
 
     @Test
