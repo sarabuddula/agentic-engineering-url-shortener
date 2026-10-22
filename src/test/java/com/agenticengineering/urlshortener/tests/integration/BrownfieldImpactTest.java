@@ -61,7 +61,8 @@ class BrownfieldImpactTest {
     void aChangeRequestProducesAHashedImpactArtifact() throws Exception {
         String runId = start(ScenarioFixtures.scnB());
 
-        assertThat(store.nodeStatuses(runId)).containsEntry("N04", NodeStatus.SUCCEEDED);
+        // SCN-B changes the approved A-006 default, so N04 waits on a CHANGE_APPROVAL after recording the impact (T119)
+        assertThat(store.nodeStatuses(runId)).containsEntry("N04", NodeStatus.AWAITING_APPROVAL);
         ArtifactStore.Artifact impact = artifacts.latest(runId, "IMPACT_ANALYSIS").orElseThrow();
         assertThat(impact.provenance()).isEqualTo("DETERMINISTIC");
         assertThat(impact.contentHash()).isEqualTo(sha256(impact.content()));
@@ -82,10 +83,8 @@ class BrownfieldImpactTest {
     @Test
     void impactIdentificationPrecedesImplementationInTheLineage() {
         String runId = start(ScenarioFixtures.scnB());
-        ApprovalService.Approval design = approvals.pending(runId).get(0);
-        approvals.decide(runId, design.id(), "test-approver", KeyIdentity.Role.APPROVER, AuditEntry.ActorType.HUMAN, true,
-                "design approved", ApprovalService.EvidenceClass.SIMULATED);
-        engine.resume(runId, executors(), task -> StageResult.succeeded());
+        approveAndResume(runId, "change approved"); // CHANGE_APPROVAL at N04 (T119)
+        approveAndResume(runId, "design approved"); // DESIGN_APPROVAL at N07
 
         List<WorkflowStore.HistoryEntry> history = store.history(runId);
         long recorded = history.stream().filter(e -> e.action().equals("ARTIFACT_RECORDED") && e.reason().contains("IMPACT_ANALYSIS"))
@@ -112,6 +111,13 @@ class BrownfieldImpactTest {
         assertThat(store.runStatus(runId)).isEqualTo(RunStatus.SAFE_STOPPED);
         assertThat(store.history(runId)).anyMatch(e -> "N04".equals(e.affected()) && e.reason().contains("impact could not be identified"));
         assertThat(artifacts.latest(runId, "IMPACT_ANALYSIS")).isEmpty();
+    }
+
+    private void approveAndResume(String runId, String reason) {
+        ApprovalService.Approval pending = approvals.pending(runId).get(0);
+        approvals.decide(runId, pending.id(), "test-approver", KeyIdentity.Role.APPROVER, AuditEntry.ActorType.HUMAN, true, reason,
+                ApprovalService.EvidenceClass.SIMULATED);
+        engine.resume(runId, executors(), task -> StageResult.succeeded());
     }
 
     private String start(String requirement) {

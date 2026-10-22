@@ -28,7 +28,9 @@ import java.util.stream.Stream;
  */
 public final class ImpactAnalyzer {
 
-    public record Seed(String concept, String trigger, List<String> anchors,
+    /** {@code approvedRequirement}: the approved requirement or assumption the concept belongs to (C-005), or null. */
+    public record Seed(String concept, @com.fasterxml.jackson.annotation.JsonProperty("approved_requirement") String approvedRequirement,
+            String trigger, List<String> anchors,
             @com.fasterxml.jackson.annotation.JsonProperty("regression_risks") List<String> regressionRisks, List<String> rollout,
             List<String> rollback) {
     }
@@ -98,6 +100,9 @@ public final class ImpactAnalyzer {
         Map<String, Object> report = new LinkedHashMap<>();
         report.put("requirement", requirement);
         report.put("concept", seed.get().concept());
+        if (seed.get().approvedRequirement() != null) {
+            report.put("approved_requirement", seed.get().approvedRequirement());
+        }
         report.put("analyzer", "static-scan-v1 (seeds: src/main/resources/impact/seeds.json)");
         report.put("anchors", seed.get().anchors());
         report.put("components", List.copyOf(components));

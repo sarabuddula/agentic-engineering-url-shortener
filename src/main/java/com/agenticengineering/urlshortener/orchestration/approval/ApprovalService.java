@@ -193,7 +193,7 @@ public class ApprovalService {
      */
     private boolean superseded(Approval approval) {
         boolean gate = approval.kind() == ApprovalKind.CLARIFICATION || approval.kind() == ApprovalKind.DESIGN_APPROVAL
-                || approval.kind() == ApprovalKind.RELEASE_AUTHORIZATION;
+                || approval.kind() == ApprovalKind.CHANGE_APPROVAL || approval.kind() == ApprovalKind.RELEASE_AUTHORIZATION;
         return gate && approval.node() != null && latestForNode(approval.runId(), approval.node()).id() != approval.id();
     }
 

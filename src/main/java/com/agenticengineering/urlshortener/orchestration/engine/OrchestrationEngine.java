@@ -114,6 +114,9 @@ public class OrchestrationEngine {
             case CLARIFICATION -> rejected = approved
                     ? List.of("implement the ambiguous requirement as written (unsafe, FR-035)")
                     : List.of("proceed with the proposed clarification");
+            case CHANGE_APPROVAL -> rejected = approved
+                    ? List.of("keep the approved requirement unchanged")
+                    : List.of("apply the requested change to the approved requirement");
             case RELEASE_AUTHORIZATION -> {
                 var release = releases.find(runId);
                 rationale = release.map(r -> "recommendation " + r.recommendation()
