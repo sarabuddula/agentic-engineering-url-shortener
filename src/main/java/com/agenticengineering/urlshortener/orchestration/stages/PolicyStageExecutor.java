@@ -22,10 +22,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 /**
- * N12 policy evaluation (T062; FR-032, FR-033, FR-037; Constitution VI). Records every check, and on a mandatory
+ * N12 policy evaluation and release recommendation (T062, T080; FR-032, FR-033, FR-037; Constitution VI). Records every check, and on a mandatory
  * failure, or a failing check whose exception is unapproved or expired (T063), persists NOT_READY with the blocking reasons, audits RELEASE_AUTHORIZATION_BLOCKED (negative-path evidence for
  * CMP-02) and does not select N13: release authorization is never offered. N14 still runs, reporting only.
  */
@@ -38,10 +39,11 @@ public final class PolicyStageExecutor implements StageExecutor {
     private final AuditChain audit;
     private final TimeSource clock;
     private final PolicyExceptionService exceptions;
+    private final JdbcTemplate jdbc;
     private final PolicyEvaluator evaluator = new PolicyEvaluator(PolicySet.v20261018());
 
     private PolicyStageExecutor(PolicyEvidenceProvider evidence, PolicyStore policies, ReleaseDecisionStore releases,
-            WorkflowStore store, AuditChain audit, TimeSource clock, PolicyExceptionService exceptions) {
+            WorkflowStore store, AuditChain audit, TimeSource clock, PolicyExceptionService exceptions, JdbcTemplate jdbc) {
         this.evidence = evidence;
         this.policies = policies;
         this.releases = releases;
@@ -49,6 +51,7 @@ public final class PolicyStageExecutor implements StageExecutor {
         this.audit = audit;
         this.clock = clock;
         this.exceptions = exceptions;
+        this.jdbc = jdbc;
     }
 
     @Override
@@ -81,6 +84,11 @@ public final class PolicyStageExecutor implements StageExecutor {
             }
         }
         if (blockers.isEmpty()) {
+            boolean limitations = jdbc.queryForObject("SELECT COUNT(*) FROM ACCEPTED_LIMITATION WHERE RUN_ID = ?", Integer.class, runId) > 0;
+            String recommendation = limitations ? "READY_WITH_ACCEPTED_LIMITATIONS" : "READY";
+            releases.recordRecommendation(runId, recommendation, List.of(), store.requesterKeyId(runId));
+            audit.append(runId, new AuditEntry(AuditEntry.ActorType.SYSTEM, "RELEASE_RECOMMENDED", now, "N12", recommendation,
+                    "no blocking policy check; the decision is human-owned (G7)"));
             return StageResult.succeeded(Set.of("N13"));
         }
         releases.recordRecommendation(runId, "NOT_READY", reasons, store.requesterKeyId(runId));
@@ -99,19 +107,21 @@ public final class PolicyStageExecutor implements StageExecutor {
         private final AuditChain audit;
         private final TimeSource clock;
         private final PolicyExceptionService exceptions;
+        private final JdbcTemplate jdbc;
 
         public Factory(PolicyStore policies, ReleaseDecisionStore releases, WorkflowStore store, AuditChain audit, TimeSource clock,
-                PolicyExceptionService exceptions) {
+                PolicyExceptionService exceptions, JdbcTemplate jdbc) {
             this.policies = policies;
             this.releases = releases;
             this.store = store;
             this.audit = audit;
             this.clock = clock;
             this.exceptions = exceptions;
+            this.jdbc = jdbc;
         }
 
         public PolicyStageExecutor withEvidence(PolicyEvidenceProvider evidence) {
-            return new PolicyStageExecutor(evidence, policies, releases, store, audit, clock, exceptions);
+            return new PolicyStageExecutor(evidence, policies, releases, store, audit, clock, exceptions, jdbc);
         }
     }
 }

@@ -7,6 +7,7 @@ import com.agenticengineering.urlshortener.orchestration.policy.PolicyResult;
 import com.agenticengineering.urlshortener.shared.port.TimeSource;
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.List;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -30,6 +31,13 @@ public class PolicyStore {
         this.audit = audit;
         this.clock = clock;
         this.tx = new TransactionTemplate(transactions);
+    }
+
+    /** The latest outcome per check for the run, in evaluation order. */
+    public List<Map.Entry<String, String>> latestOutcomes(String runId) {
+        return jdbc.query("SELECT CHECK_ID, OUTCOME FROM POLICY_EVALUATION WHERE ID IN"
+                + " (SELECT MAX(ID) FROM POLICY_EVALUATION WHERE RUN_ID = ? GROUP BY CHECK_ID) ORDER BY ID",
+                (rs, row) -> Map.entry(rs.getString("CHECK_ID"), rs.getString("OUTCOME")), runId);
     }
 
     public void record(String runId, PolicyResult result) {

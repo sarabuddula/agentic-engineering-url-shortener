@@ -1,5 +1,6 @@
 package com.agenticengineering.urlshortener.orchestration.engine;
 
+import com.agenticengineering.urlshortener.orchestration.approval.ApprovalKind;
 import com.agenticengineering.urlshortener.orchestration.approval.ApprovalService;
 import com.agenticengineering.urlshortener.orchestration.persistence.ReleaseDecisionStore;
 import com.agenticengineering.urlshortener.orchestration.persistence.TaskStore;
@@ -74,6 +75,12 @@ public class OrchestrationEngine {
                 continue;
             }
             ApprovalService.Approval approval = approvals.latestForNode(runId, node.getKey());
+            if (approval.kind() == ApprovalKind.RELEASE_AUTHORIZATION && approval.status() != ApprovalService.Decision.PENDING
+                    && approval.status() != ApprovalService.Decision.ESCALATED) {
+                // FR-037: the human G7 decision is the release decision; the system only recommended
+                releases.recordDecision(runId, approval.status() == ApprovalService.Decision.APPROVED, approval.approverKeyId(),
+                        approval.decidedAt(), "approval:" + approval.id());
+            }
             if (approval.status() == ApprovalService.Decision.APPROVED) {
                 store.transitionNode(runId, node.getKey(), NodeStatus.AWAITING_APPROVAL, NodeStatus.RUNNING,
                         "approval " + approval.id() + " approved by " + approval.approverKeyId());
@@ -84,8 +91,12 @@ public class OrchestrationEngine {
                 String reason = "approval " + approval.id() + " rejected at " + node.getKey() + " by " + approval.approverKeyId()
                         + ": " + approval.reason();
                 store.transitionNode(runId, node.getKey(), NodeStatus.AWAITING_APPROVAL, NodeStatus.FAILED, reason);
-                store.transitionRun(runId, runStatus, RunStatus.TERMINATED,
-                        "governed termination after " + reason + " (rework cycles deferred, L-SC-04)");
+                String governed = "governed termination after " + reason + " (rework cycles deferred, L-SC-04)";
+                if (approval.kind() == ApprovalKind.RELEASE_AUTHORIZATION) {
+                    store.finishRun(runId, runStatus, RunStatus.TERMINATED, "RELEASE_REJECTED", governed);
+                } else {
+                    store.transitionRun(runId, runStatus, RunStatus.TERMINATED, governed);
+                }
                 return new RunOutcome(RunStatus.TERMINATED, reason);
             } else {
                 store.auditGateBlocked(runId, node.getKey(), "approval " + approval.id() + " (" + approval.gate()
@@ -138,7 +149,13 @@ public class OrchestrationEngine {
                         "graph finished with a NOT READY determination; release authorization was blocked (FR-033)");
                 return new RunOutcome(RunStatus.TERMINATED, "NOT_READY");
             }
-            store.transitionRun(runId, RunStatus.RUNNING, RunStatus.COMPLETED, "all stages succeeded or not applicable");
+            var decided = releases.find(runId).filter(d -> "APPROVED".equals(d.decision()));
+            if (decided.isPresent()) {
+                store.finishRun(runId, RunStatus.RUNNING, RunStatus.COMPLETED, decided.get().recommendation(),
+                        "all stages succeeded; release authorized by " + decided.get().approverKeyId());
+            } else {
+                store.transitionRun(runId, RunStatus.RUNNING, RunStatus.COMPLETED, "all stages succeeded or not applicable");
+            }
             return new RunOutcome(RunStatus.COMPLETED, "all stages succeeded or not applicable");
         }
         if (!result.failedNodes().isEmpty()) {
