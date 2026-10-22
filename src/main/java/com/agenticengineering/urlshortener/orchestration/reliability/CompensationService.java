@@ -12,6 +12,9 @@ import java.util.List;
 import java.util.regex.Pattern;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.support.TransactionTemplate;
 
 /**
  * FP-3 compensation (T077; FR-027, FR-049; data-model "Rollback vs compensation"). Committed code is irreversible: a
@@ -31,9 +34,13 @@ public class CompensationService {
     private final JdbcTemplate jdbc;
     private final TimeSource clock;
     private final DecisionLineage lineage;
+    private final TransactionTemplate independent;
 
-    public CompensationService(AuditChain audit, JdbcTemplate jdbc, TimeSource clock, DecisionLineage lineage) {
+    public CompensationService(AuditChain audit, JdbcTemplate jdbc, TimeSource clock, DecisionLineage lineage,
+            PlatformTransactionManager transactions) {
         this.lineage = lineage;
+        this.independent = new TransactionTemplate(transactions);
+        this.independent.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
         this.audit = audit;
         this.jdbc = jdbc;
         this.clock = clock;
@@ -56,13 +63,7 @@ public class CompensationService {
                 throw new IllegalStateException("revert of " + commit + " failed");
             }
             String compensating = git(repository, "rev-parse", "HEAD").output();
-            audit.append(runId, new AuditEntry(AuditEntry.ActorType.SYSTEM, "COMPENSATION_APPLIED", clock.now(), node, "FP-3",
-                    "commit " + commit + " compensated by revert commit " + compensating + " after: " + cause
-                            + " (compensation, not rollback: committed code is irreversible)"));
-            lineage.record(runId, "COMPENSATION", AuditEntry.ActorType.SYSTEM, "compensate " + node + " commit " + commit
-                    + " with revert commit " + compensating, "FP-3 after: " + cause + "; a revert is a new forward commit, so the original"
-                    + " stays in history", List.of("rollback (rewriting or resetting history): rejected, committed code is irreversible"
-                    + " (FR-027, FR-049)"), List.of("commit:" + commit, "commit:" + compensating));
+            independent.executeWithoutResult(s -> recordCompensation(runId, node, commit, compensating, cause));
             return new Compensation(commit, compensating);
         } catch (IOException e) {
             failed(runId, node, "git unavailable: " + e.getMessage());
@@ -73,16 +74,28 @@ public class CompensationService {
         }
     }
 
+    /** The revert commit exists in the repository: its record commits on its own transaction (T123). */
+    private void recordCompensation(String runId, String node, String commit, String compensating, String cause) {
+        audit.append(runId, new AuditEntry(AuditEntry.ActorType.SYSTEM, "COMPENSATION_APPLIED", clock.now(), node, "FP-3",
+                "commit " + commit + " compensated by revert commit " + compensating + " after: " + cause
+                        + " (compensation, not rollback: committed code is irreversible)"));
+        lineage.record(runId, "COMPENSATION", AuditEntry.ActorType.SYSTEM, "compensate " + node + " commit " + commit
+                + " with revert commit " + compensating, "FP-3 after: " + cause + "; a revert is a new forward commit, so the original"
+                + " stays in history", List.of("rollback (rewriting or resetting history): rejected, committed code is irreversible"
+                + " (FR-027, FR-049)"), List.of("commit:" + commit, "commit:" + compensating));
+    }
+
     /** Rollback is only for reversible operations (uncommitted transaction rows); any other request is refused. */
     public void rollback(String runId, String node, String operation) {
-        audit.append(runId, new AuditEntry(AuditEntry.ActorType.SYSTEM, "ROLLBACK_REJECTED", clock.now(), node, "REJECTED",
-                "rollback of " + operation + " refused: the operation is irreversible; compensation applies (FR-049)"));
+        independent.executeWithoutResult(s -> audit.append(runId, new AuditEntry(AuditEntry.ActorType.SYSTEM, "ROLLBACK_REJECTED",
+                clock.now(), node, "REJECTED", "rollback of " + operation + " refused: the operation is irreversible; compensation applies (FR-049)")));
         throw new IrreversibleOperationException(operation + " is irreversible; use compensation");
     }
 
     private void failed(String runId, String node, String reason) {
         String bounded = reason.length() > 900 ? reason.substring(0, 900) + "..." : reason; // AUDIT_EVENT.REASON is 1024 chars
-        audit.append(runId, new AuditEntry(AuditEntry.ActorType.SYSTEM, "COMPENSATION_FAILED", clock.now(), node, "FAILED", bounded));
+        independent.executeWithoutResult(s -> audit.append(runId, new AuditEntry(AuditEntry.ActorType.SYSTEM, "COMPENSATION_FAILED",
+                clock.now(), node, "FAILED", bounded)));
     }
 
     private record Result(int exitCode, String output) {

@@ -9,6 +9,9 @@ import java.util.Map;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.support.TransactionTemplate;
 
 /**
  * Shared failure recording for MTTR (T048; FR-031, plan section 7). Every failure path records detection, the
@@ -19,12 +22,20 @@ import org.springframework.stereotype.Component;
 public class FailureRecorder {
 
     private final JdbcTemplate jdbc;
+    private final TransactionTemplate independent;
 
-    public FailureRecorder(JdbcTemplate jdbc) {
+    public FailureRecorder(JdbcTemplate jdbc, PlatformTransactionManager transactions) {
         this.jdbc = jdbc;
+        // T123: failure records commit on their own, so a rolled-back operation never erases them
+        this.independent = new TransactionTemplate(transactions);
+        this.independent.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
     }
 
     public long detected(String runId, long nodeId, Instant at) {
+        return independent.execute(status -> insertDetected(runId, nodeId, at));
+    }
+
+    private long insertDetected(String runId, long nodeId, Instant at) {
         GeneratedKeyHolder key = new GeneratedKeyHolder();
         jdbc.update(connection -> {
             var statement = connection.prepareStatement("INSERT INTO FAILURE_EVENT (RUN_ID, NODE_ID, FAILURE_DETECTED_AT,"
@@ -42,13 +53,14 @@ public class FailureRecorder {
         if (at.isBefore(event.failureDetectedAt())) {
             throw new IllegalArgumentException("recovery cannot start before the failure was detected");
         }
-        jdbc.update("UPDATE FAILURE_EVENT SET RECOVERY_START_AT = ?, RECOVERY_MECHANISM = ? WHERE ID = ?",
-                ts(at), mechanism.code(), id);
+        independent.executeWithoutResult(s -> jdbc.update("UPDATE FAILURE_EVENT SET RECOVERY_START_AT = ?, RECOVERY_MECHANISM = ? WHERE ID = ?",
+                ts(at), mechanism.code(), id));
     }
 
     /** The recovery moved to another mechanism (FP-1 retries exhausted, FP-2 fallback); the recovery start is kept. */
     public void switchMechanism(long id, RecoveryMechanism mechanism) {
-        jdbc.update("UPDATE FAILURE_EVENT SET RECOVERY_MECHANISM = ? WHERE ID = ? AND RECOVERY_START_AT IS NOT NULL", mechanism.code(), id);
+        independent.executeWithoutResult(s -> jdbc.update("UPDATE FAILURE_EVENT SET RECOVERY_MECHANISM = ? WHERE ID = ?"
+                + " AND RECOVERY_START_AT IS NOT NULL", mechanism.code(), id));
     }
 
     public void recovered(long id, Instant at) {
@@ -59,21 +71,24 @@ public class FailureRecorder {
         if (at.isBefore(event.recoveryStartAt())) {
             throw new IllegalArgumentException("recovery cannot complete before it started");
         }
-        jdbc.update("UPDATE FAILURE_EVENT SET RECOVERY_COMPLETE_AT = ?, RECOVERED = TRUE WHERE ID = ?", ts(at), id);
+        independent.executeWithoutResult(s -> jdbc.update("UPDATE FAILURE_EVENT SET RECOVERY_COMPLETE_AT = ?, RECOVERED = TRUE WHERE ID = ?",
+                ts(at), id));
     }
 
     public void addGovernanceWait(long id, Duration wait) {
         if (wait.isNegative()) {
             throw new IllegalArgumentException("governance wait cannot be negative");
         }
-        jdbc.update("UPDATE FAILURE_EVENT SET GOVERNANCE_WAIT_MS = GOVERNANCE_WAIT_MS + ? WHERE ID = ?", wait.toMillis(), id);
+        independent.executeWithoutResult(s -> jdbc.update("UPDATE FAILURE_EVENT SET GOVERNANCE_WAIT_MS = GOVERNANCE_WAIT_MS + ? WHERE ID = ?",
+                wait.toMillis(), id));
     }
 
     public void excludeFromMttr(long id, String reason) {
         if (reason == null || reason.isBlank()) {
             throw new IllegalArgumentException("an MTTR exclusion needs a reason");
         }
-        jdbc.update("UPDATE FAILURE_EVENT SET MTTR_EXCLUDED = TRUE, MTTR_EXCLUSION_REASON = ? WHERE ID = ?", reason, id);
+        independent.executeWithoutResult(s -> jdbc.update("UPDATE FAILURE_EVENT SET MTTR_EXCLUDED = TRUE, MTTR_EXCLUSION_REASON = ? WHERE ID = ?",
+                reason, id));
     }
 
     /** Every failure event of a run, in detection order (input to MttrCalculator). */

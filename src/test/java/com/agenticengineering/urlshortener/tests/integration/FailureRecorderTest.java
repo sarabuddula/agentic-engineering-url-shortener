@@ -9,19 +9,25 @@ import com.agenticengineering.urlshortener.orchestration.reliability.RecoveryMec
 import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.Instant;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * T048: MTTR capture foundation (FR-031, plan section 7, data-model FAILURE_EVENT). Captures detection, recovery start
  * and completion, mechanism, recovered flag, governance wait (reported separately) and MTTR exclusion with reason.
+ * Not transactional (T123): the recorder commits in its own transaction, so the seeded run must be committed; rows are
+ * removed after each test.
  */
 @JdbcTest
 @Import(FailureRecorder.class)
+@Transactional(propagation = Propagation.NOT_SUPPORTED)
 class FailureRecorderTest {
 
     private static final Instant DETECTED = Instant.parse("2026-10-21T12:00:00Z");
@@ -42,6 +48,13 @@ class FailureRecorderTest {
         jdbc.update("INSERT INTO STAGE_NODE (RUN_ID, NODE_KEY, STATUS, ATTEMPT_COUNT, RUN_REVISION, VERSION)"
                 + " VALUES ('run-1', 'N09', 'RUNNING', 1, 0, 0)");
         nodeId = jdbc.queryForObject("SELECT ID FROM STAGE_NODE WHERE NODE_KEY = 'N09'", Long.class);
+    }
+
+    @AfterEach
+    void removeRun() {
+        jdbc.update("DELETE FROM FAILURE_EVENT WHERE RUN_ID = 'run-1'");
+        jdbc.update("DELETE FROM STAGE_NODE WHERE RUN_ID = 'run-1'");
+        jdbc.update("DELETE FROM WORKFLOW_RUN WHERE ID = 'run-1'");
     }
 
     @Test
