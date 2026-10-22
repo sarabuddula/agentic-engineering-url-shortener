@@ -125,9 +125,8 @@ class AppPlaneContractIT {
         assertThat(validatedGet("/api/v1/analytics/summary").statusCode()).isEqualTo(200);
         assertThat(given().filter(CONTRACT.restAssuredFilter()).queryParam("code", "ctrc0001").get("/api/v1/analytics/summary")
                 .statusCode()).isEqualTo(200);
-        // Open contract item (recorded for the T050 checkpoint): without an Accept header Actuator answers with
-        // application/vnd.spring-boot.actuator.v3+json, which the contract does not list; a client asking for JSON
-        // receives application/json, which conforms.
+        // both media types are in the contract since 2026-10-22: Actuator's default (no Accept header) and JSON
+        assertThat(validatedGet("/actuator/health").statusCode()).isEqualTo(200);
         assertThat(given().filter(CONTRACT.restAssuredFilter()).accept(ContentType.JSON).get("/actuator/health").statusCode())
                 .isEqualTo(200);
     }

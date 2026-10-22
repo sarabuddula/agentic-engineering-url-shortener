@@ -14,6 +14,9 @@ info:
     example shows the Actuator DataSource component `db` (custom storage check deferred, T043); control-plane 429
     responses are reserved because the per-key limit A-008c is deferred (L-SC-01). Description and example changes
     only; no schema field is added or removed.
+    Amended 2026-10-22 (T050 checkpoint, human decision, approvals/2026-10-22-t050-checkpoint.md): 503
+    SERVICE_UNAVAILABLE added to POST /api/v1/links and GET /{code} (FR-009, T102); /actuator/health also lists
+    application/vnd.spring-boot.actuator.v3+json (Actuator's default without an Accept header). Additive only.
 servers:
   - url: http://localhost:8080
     description: Local single-process prototype (ADR-004)
@@ -87,6 +90,7 @@ paths:
                 conflict:
                   value: { code: "REQUEST_IDENTITY_CONFLICT", message: "Idempotency key already bound to a different payload", request_id: "req-7f3a2b" }
         '429': { $ref: '#/components/responses/RateLimited' }
+        '503': { $ref: '#/components/responses/ServiceUnavailable' }
 
   /{code}:
     get:
@@ -113,6 +117,7 @@ paths:
                 expired:
                   value: { code: "LINK_EXPIRED", message: "This short link has expired", request_id: "req-9d1c" }
         '429': { $ref: '#/components/responses/RateLimited' }
+        '503': { $ref: '#/components/responses/ServiceUnavailable' }
 
   /api/v1/analytics/summary:
     get:
@@ -160,10 +165,14 @@ paths:
               examples:
                 up:
                   value: { status: "UP", components: { db: { status: "UP" } } }
+            application/vnd.spring-boot.actuator.v3+json:
+              schema: { $ref: '#/components/schemas/HealthStatus' }
         '503':
           description: Service or a critical dependency is down
           content:
             application/json:
+              schema: { $ref: '#/components/schemas/HealthStatus' }
+            application/vnd.spring-boot.actuator.v3+json:
               schema: { $ref: '#/components/schemas/HealthStatus' }
 
   # ----------------------------- control plane (role-scoped keys, FR-045) ----
@@ -450,6 +459,14 @@ components:
       content:
         application/json:
           schema: { $ref: '#/components/schemas/Error' }
+    ServiceUnavailable:
+      description: 'Persistence still failing after bounded retries (FR-009, PVT-004); no short code allocated and no redirect issued'
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+          examples:
+            unavailable:
+              value: { code: "SERVICE_UNAVAILABLE", message: "The service is temporarily unavailable; retry later", request_id: "req-503a" }
     RateLimited:
       description: 'Over an A-008 limit; 429 with retry hint; no short code allocated; audited (FR-047). Emitted for link creation and redirect (A-008a/b). On control-plane operations this response is reserved: the per-key limit A-008c is deferred (L-SC-01, 2026-10-21)'
       headers:
