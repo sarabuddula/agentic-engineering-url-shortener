@@ -81,6 +81,9 @@ SHORT_CODE=$(curl -s -X POST localhost:8080/api/v1/links \
   -H 'Idempotency-Key: demo-key-001' -H 'Content-Type: application/json' \
   -d '{"target_url":"https://example.com/long/path"}' | jq -r .short_code)
 curl -i localhost:8080/$SHORT_CODE              # 302 to the target
+curl -s localhost:8080/api/v1/links/$SHORT_CODE/status   # {"short_code":…,"status":"ACTIVE","expires_at":…}
+# Status lookup (SCN-A): ACTIVE | EXPIRED | UNKNOWN; read-only (no redirect, no redirect event, not rate-limited);
+# an unknown code answers 200 with "status":"UNKNOWN" and no expires_at
 
 # 2. Start a workflow run (engineer key)
 curl -X POST localhost:8080/api/v1/orchestrator/runs -H "X-API-Key: $ENGINEER_KEY" \
