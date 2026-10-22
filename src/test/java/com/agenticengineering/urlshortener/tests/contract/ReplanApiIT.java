@@ -3,6 +3,7 @@ package com.agenticengineering.urlshortener.tests.contract;
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.agenticengineering.urlshortener.orchestration.persistence.WorkflowStore;
 import com.agenticengineering.urlshortener.tests.support.DemoKeyFixtures;
 import com.agenticengineering.urlshortener.tests.support.ReplanFixture;
 import io.restassured.RestAssured;
@@ -16,7 +17,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
 
-/** T071 (API side): POST /runs/{runId}/replan (FR-029): ENGINEER only; 202 when staged; 409 when nothing to replan. */
+/**
+ * T071 (API side): POST /runs/{runId}/replan (FR-029): ENGINEER only; 202 when staged; 409 without a body (as the contract
+ * defines it) when nothing can be replanned, the refusal audited.
+ */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(ReplanFixture.class)
 class ReplanApiIT {
@@ -28,6 +32,9 @@ class ReplanApiIT {
 
     @Autowired
     private ReplanFixture fixture;
+
+    @Autowired
+    private WorkflowStore store;
 
     @BeforeEach
     void setUp() {
@@ -54,7 +61,8 @@ class ReplanApiIT {
 
         Response nothing = replan(runId, "ENGINEER");
         assertThat(nothing.statusCode()).isEqualTo(409);
-        assertThat(nothing.jsonPath().getString("code")).isEqualTo("REPLAN_CONFLICT");
+        assertThat(nothing.asString()).as("the contract's 409 for /replan has no body").isEmpty();
+        assertThat(store.history(runId)).anyMatch(e -> e.action().equals("REPLAN_REFUSED") && e.reason().contains("no upstream change"));
         assertThat(given().header("X-API-Key", DemoKeyFixtures.rawKey("APPROVER")).post("/api/v1/orchestrator/runs/" + runId + "/replan")
                 .statusCode()).isEqualTo(403);
         assertThat(replan("run-does-not-exist", "ENGINEER").statusCode()).isEqualTo(404);

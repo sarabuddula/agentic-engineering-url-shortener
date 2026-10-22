@@ -72,6 +72,19 @@ public class ArtifactStore {
         });
     }
 
+    /**
+     * Returns the latest version of the type and records that the node (in the run's current revision) read it, with the
+     * content hash at read (NODE_INPUT, role INPUT): what a replan re-validates against.
+     */
+    public Artifact read(String runId, String type, String node) {
+        Artifact artifact = latest(runId, type).orElseThrow(() -> new IllegalStateException("no " + type + " artifact in run " + runId));
+        jdbc.update("MERGE INTO NODE_INPUT (NODE_ID, ARTIFACT_ID, ARTIFACT_VERSION, CONTENT_HASH_AT_READ, ROLE, RECORDED_AT)"
+                + " KEY (NODE_ID, ARTIFACT_ID, ARTIFACT_VERSION) SELECT n.ID, ?, ?, ?, 'INPUT', ? FROM STAGE_NODE n JOIN WORKFLOW_RUN r"
+                + " ON r.ID = n.RUN_ID AND r.RUN_REVISION = n.RUN_REVISION WHERE n.RUN_ID = ? AND n.NODE_KEY = ?", artifact.id(),
+                artifact.version(), artifact.contentHash(), Timestamp.from(clock.now()), runId, node);
+        return artifact;
+    }
+
     public Optional<Artifact> latest(String runId, String type) {
         List<Artifact> rows = jdbc.query("SELECT * FROM ARTIFACT WHERE RUN_ID = ? AND TYPE = ? ORDER BY VERSION DESC LIMIT 1",
                 (rs, i) -> new Artifact(rs.getLong("ID"), rs.getString("RUN_ID"), rs.getString("TYPE"), rs.getInt("VERSION"),

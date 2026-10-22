@@ -186,6 +186,17 @@ public class ApprovalService {
     }
 
     /** The most recent approval requested for a node of a run (the one a waiting gate node depends on). */
+    /**
+     * A gate approval is superseded when the gate node requested a newer one (the node re-ran in a revision activated by
+     * an accepted replan); only the newest request can move the node. Exception and limitation approvals are never
+     * superseded: a node may hold several.
+     */
+    private boolean superseded(Approval approval) {
+        boolean gate = approval.kind() == ApprovalKind.CLARIFICATION || approval.kind() == ApprovalKind.DESIGN_APPROVAL
+                || approval.kind() == ApprovalKind.RELEASE_AUTHORIZATION;
+        return gate && approval.node() != null && latestForNode(approval.runId(), approval.node()).id() != approval.id();
+    }
+
     public Approval latestForNode(String runId, String node) {
         Long id = jdbc.queryForObject("SELECT MAX(ID) FROM APPROVAL WHERE RUN_ID = ? AND SCOPE = ?", Long.class, runId, "node=" + node);
         if (id == null) {
@@ -200,7 +211,7 @@ public class ApprovalService {
         for (Long id : jdbc.queryForList("SELECT ID FROM APPROVAL WHERE RUN_ID = ? AND DECISION IN ('PENDING', 'ESCALATED') ORDER BY ID",
                 Long.class, runId)) {
             Approval approval = find(runId, id);
-            if (!approval.expired()) {
+            if (!approval.expired() && !superseded(approval)) {
                 open.add(approval);
             }
         }

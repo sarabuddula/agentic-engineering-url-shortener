@@ -2,6 +2,7 @@ package com.agenticengineering.urlshortener.orchestration.api;
 
 import com.agenticengineering.urlshortener.orchestration.approval.ApprovalExpiredException;
 import com.agenticengineering.urlshortener.orchestration.approval.SelfApprovalDeniedException;
+import com.agenticengineering.urlshortener.orchestration.replan.ReplanConflictException;
 import com.agenticengineering.urlshortener.shared.api.ErrorResponse;
 import com.agenticengineering.urlshortener.shared.api.RequestAttributes;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,6 +27,12 @@ public class ControlPlaneExceptionHandler {
     public ResponseEntity<Map<String, Object>> handle(SelfApprovalDeniedException e, HttpServletRequest request) {
         return respond(HttpStatus.FORBIDDEN, "SELF_APPROVAL_DENIED", "Approver key identity must differ from the requester's"
                 + " and must be a human key", request);
+    }
+
+    @ExceptionHandler(ReplanConflictException.class)
+    ResponseEntity<Void> replanConflict(ReplanConflictException e) {
+        // the contract's 409 for /replan defines no body; the reason is in the run's audit history
+        return ResponseEntity.status(HttpStatus.CONFLICT).build();
     }
 
     @ExceptionHandler(ApprovalExpiredException.class)

@@ -114,6 +114,44 @@ public class WorkflowStore {
         });
     }
 
+    /**
+     * Activates run_revision + 1 (accepted replan, FR-029): new node rows and edges for the revision, the affected nodes
+     * PENDING and every other node carried over with its status; returns the new revision.
+     */
+    public int activateRevision(String runId, java.util.Collection<String> affected, String reason) {
+        return tx.execute(status -> {
+            Map<String, Object> run = jdbc.queryForMap("SELECT RUN_REVISION, VERSION FROM WORKFLOW_RUN WHERE ID = ?", runId);
+            int current = ((Number) run.get("RUN_REVISION")).intValue();
+            int next = current + 1;
+            Map<Long, Long> ids = new HashMap<>();
+            for (Map<String, Object> node : jdbc.queryForList("SELECT ID, NODE_KEY, STATUS, NOT_APPLICABLE_REASON FROM STAGE_NODE"
+                    + " WHERE RUN_ID = ? AND RUN_REVISION = ? ORDER BY ID", runId, current)) {
+                String key = (String) node.get("NODE_KEY");
+                boolean redo = affected.contains(key);
+                jdbc.update("INSERT INTO STAGE_NODE (RUN_ID, NODE_KEY, STATUS, ATTEMPT_COUNT, RUN_REVISION, VERSION, NOT_APPLICABLE_REASON)"
+                        + " VALUES (?, ?, ?, 0, ?, 0, ?)", runId, key, redo ? "PENDING" : node.get("STATUS"), next,
+                        redo ? null : node.get("NOT_APPLICABLE_REASON"));
+                ids.put(((Number) node.get("ID")).longValue(), jdbc.queryForObject(
+                        "SELECT ID FROM STAGE_NODE WHERE RUN_ID = ? AND NODE_KEY = ? AND RUN_REVISION = ?", Long.class, runId, key, next));
+            }
+            for (Map<String, Object> edge : jdbc.queryForList("SELECT FROM_NODE, TO_NODE, KIND FROM STAGE_EDGE WHERE RUN_ID = ?", runId)) {
+                Long from = ids.get(((Number) edge.get("FROM_NODE")).longValue());
+                Long to = ids.get(((Number) edge.get("TO_NODE")).longValue());
+                if (from != null && to != null) {
+                    jdbc.update("INSERT INTO STAGE_EDGE (RUN_ID, FROM_NODE, TO_NODE, KIND) VALUES (?, ?, ?, ?)", runId, from, to, edge.get("KIND"));
+                }
+            }
+            int updated = jdbc.update("UPDATE WORKFLOW_RUN SET RUN_REVISION = ?, REPLAN_COUNT = REPLAN_COUNT + 1, VERSION = VERSION + 1"
+                    + " WHERE ID = ? AND VERSION = ?", next, runId, run.get("VERSION"));
+            if (updated != 1) {
+                throw new StaleStateException("run changed concurrently");
+            }
+            audit.append(runId, new AuditEntry(AuditEntry.ActorType.SYSTEM, "REVISION_ACTIVATED", clock.now(), runId,
+                    "REVISION_" + next, reason + "; redo " + affected));
+            return next;
+        });
+    }
+
     public void transitionRun(String runId, RunStatus from, RunStatus to, String reason) {
         if (!StateMachines.isLegalRun(from, to)) {
             auditBlocked(runId, runId, from + "->" + to, reason, AuditEntry.ActorType.SYSTEM);

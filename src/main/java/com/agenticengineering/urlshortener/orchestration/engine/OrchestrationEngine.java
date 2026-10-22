@@ -7,6 +7,7 @@ import com.agenticengineering.urlshortener.orchestration.audit.AuditEntry;
 import com.agenticengineering.urlshortener.orchestration.audit.ChainVerification;
 import com.agenticengineering.urlshortener.orchestration.persistence.ReleaseDecisionStore;
 import com.agenticengineering.urlshortener.orchestration.persistence.TaskStore;
+import com.agenticengineering.urlshortener.orchestration.replan.ReplanningService;
 import com.agenticengineering.urlshortener.orchestration.persistence.WorkflowStore;
 import com.agenticengineering.urlshortener.shared.port.IdGenerator;
 import com.agenticengineering.urlshortener.shared.port.TimeSource;
@@ -38,10 +39,11 @@ public class OrchestrationEngine {
     private final ReleaseDecisionStore releases;
     private final AuditChain chain;
     private final TimeSource clock;
+    private final ReplanningService replanning;
 
     public OrchestrationEngine(WorkflowStore store, TaskStore tasks, @Qualifier("orchestrationStagePool") ExecutorService stagePool,
             @Qualifier("orchestrationTaskPool") ExecutorService taskPool, IdGenerator ids, ApprovalService approvals,
-            ReleaseDecisionStore releases, AuditChain chain, TimeSource clock) {
+            ReleaseDecisionStore releases, AuditChain chain, TimeSource clock, ReplanningService replanning) {
         this.store = store;
         this.tasks = tasks;
         this.stagePool = stagePool;
@@ -51,6 +53,7 @@ public class OrchestrationEngine {
         this.releases = releases;
         this.chain = chain;
         this.clock = clock;
+        this.replanning = replanning;
     }
 
     public String createRun(String requirementRef, String policyVersion) {
@@ -76,6 +79,11 @@ public class OrchestrationEngine {
         RunStatus runStatus = store.runStatus(runId);
         if (runStatus.isTerminal() || runStatus == RunStatus.SAFE_STOPPED) {
             return new RunOutcome(runStatus, "run is " + runStatus);
+        }
+        if (replanning.settle(runId)) {
+            // an accepted replan activated the next revision: drive it from the carried-over state
+            store.transitionRun(runId, runStatus, RunStatus.RUNNING, "resumed under the revision activated by an accepted replan");
+            return verifiedIfTerminal(runId, drive(runId, executors, taskExecutor));
         }
         return verifiedIfTerminal(runId, settleAndContinue(runId, runStatus, executors, taskExecutor));
     }
@@ -145,6 +153,13 @@ public class OrchestrationEngine {
     public void handleTimeouts() {
         for (ApprovalService.Approval expired : approvals.checkTimeouts()) {
             String runId = expired.runId();
+            if (expired.kind() == ApprovalKind.REPLAN_ACCEPTANCE) {
+                replanning.expire(runId, expired.id()); // the prior revision stays in force; the run is not stopped
+                continue;
+            }
+            if (approvals.latestForNode(runId, expired.node()).id() != expired.id()) {
+                continue; // superseded by a newer request for the node (for example after an accepted replan)
+            }
             if (store.nodeStatuses(runId).get(expired.node()) == NodeStatus.AWAITING_APPROVAL) {
                 store.transitionNode(runId, expired.node(), NodeStatus.AWAITING_APPROVAL, NodeStatus.SAFE_STOPPED,
                         "approval " + expired.id() + " expired after escalation (FP-4)");
