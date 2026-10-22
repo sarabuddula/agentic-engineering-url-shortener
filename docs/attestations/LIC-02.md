@@ -5,20 +5,35 @@ Inventory: docs/compliance/licenses.xml (license-maven-plugin output, every reso
 
 ## Checklist (answer each: YES / NO / NOT CHECKED, with a note)
 1. A third-party notices file exists in the distribution docs (for example docs/compliance/THIRD-PARTY-NOTICES.md or a
-   section in README.md) and lists every runtime dependency in licenses.xml: ____
+   section in README.md) and lists every runtime dependency in licenses.xml: NO - docs/compliance/ contains only
+   licenses.xml and dep-02-degradation.md; no notices file or README section exists.
 2. Every license in licenses.xml is acceptable for this use (Apache-2.0, MIT, EPL-2.0, BSD, LGPL used as a library, ...);
-   none is unknown or copyleft-incompatible: ____
-3. The notices are current with the pom.xml at the reviewed commit (scripts/trace-manifest.sh check and DEP-01 PASS): ____
-4. Anything else found: ____
+   none is unknown or copyleft-incompatible: YES - all 52 runtime (compile/runtime scope) dependencies are in the
+   inventory. Besides Apache-2.0 and MIT they are: logback-classic and logback-core 1.5.34 (EPL-2.0 / LGPL-2.1), h2
+   2.3.232 (MPL-2.0 / EPL-1.0), HdrHistogram 2.2.2 and LatencyUtils 2.0.3 (CC0 / BSD-2-Clause) and
+   jakarta.annotation-api 2.1.1 (EPL-2.0 / GPL-2.0 with Classpath Exception, used under EPL-2.0); all are used
+   unmodified as libraries. The remaining copyleft-family entries (eight java-json-tools libraries under LGPL-3.0+,
+   rhino under MPL-2.0, mailapi under CDDL/GPL-2.0 with CE) are test scope only, pulled in by the OpenAPI contract
+   validator, and are not distributed.
+3. The notices are current with the pom.xml at the reviewed commit (scripts/trace-manifest.sh check and DEP-01 PASS):
+   PARTIAL - DEP-01 PASS (DependencyInventoryCheckTest 5/5: every non-test pom.xml dependency is in licenses.xml with a
+   pinned version); `scripts/trace-manifest.sh check` exits 1 ("ORPHANS FOUND": 14 requirements without evidence and 10
+   tests without a requirement), a traceability gap (T090), not a licensing one. There are no notices to be current.
+4. Anything else found: jakarta.annotation-api is a runtime dependency (shipped), not test scope only.
 
 ## Evidence reviewed
-(files, commands, commit SHA you reviewed)
+- `ls docs/compliance/`
+- `mvn dependency:list -DincludeScope=runtime` (52 dependencies) joined with docs/compliance/licenses.xml
+- `mvn test -Dtest=DependencyInventoryCheckTest` (5 tests, 0 failures); `scripts/trace-manifest.sh check` (exit 1)
+- Commit reviewed: 90e394a
+- Prepared with AI assistance (Claude); reviewed, confirmed and decided by the human candidate.
 
 ## Decision
-ATTESTED / NOT ATTESTED: ____
-Limitations or follow-ups: ____
+ATTESTED / NOT ATTESTED: NOT ATTESTED
+Limitations or follow-ups: no third-party notices file exists; licenses themselves are acceptable. Follow-up: add
+docs/compliance/THIRD-PARTY-NOTICES.md listing the 52 runtime dependencies and their licenses, then re-attest.
 
-Attested by (key ID, never a raw key): ____
+Attested by (key ID, never a raw key): demo-release-owner
 Role: RELEASE_OWNER
-Date: ____
-Reviewed commit: ____
+Date: 2026-10-22
+Reviewed commit: 90e394a
