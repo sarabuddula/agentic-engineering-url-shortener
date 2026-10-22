@@ -98,6 +98,6 @@ Storage: single H2 file database, both planes, behind repository interfaces (ADR
 | LIC-02 | Licensing | Third-party notices/attribution present in the distribution docs | Attestation (human review, recorded) | — |
 | CHG-01 | Change control | Changes to approved artifacts carry approval records (approval-row join) | Automated | Engine evaluation |
 | CHG-02 | Change control | Downstream revalidation recorded on replan triggers | Automated | Engine evaluation |
-| CHG-03 | Change control | Bidirectional traceability complete (manifest join check; both directions clean) | Automated | Manifest join check |
+| CHG-03 | Change control | Bidirectional traceability complete (manifest join check; both directions clean). Per run, SC-002, SC-003, SC-006 and SC-007 (measured over the demonstration runs) are deferred to the demonstration-set check (T090), which stays strict (CHANGE_APPROVAL 2026-10-22) | Automated | Manifest join check |
 
 Runtime tool (fourth governed change 2026-10-21, T128): the N09 testing executor invokes Maven as a local subprocess; Maven is therefore listed in the DEP-01 inventory as a runtime tool, not only a build tool. All checks are mandatory for release; attestations are recorded as human decisions with the same evidence structure (PRV-02, LIC-02; DEP-02 when offline). Build-time tools (gitleaks, OWASP DependencyCheck plugin, license-maven-plugin) are build-scope dependencies, listed in the DEP-01 inventory.

@@ -20,6 +20,7 @@ Scenario identifiers: US-nnn (user stories), SCN-A/B/C (demonstration scenarios)
 - 2026-10-19: 302 (active), 410 (expired) and the base-62 alphabet are adopted at the contract level.
 - 2026-10-19: MTTR excludes governance wait (reported separately, plus a labelled secondary figure).
 - 2026-10-19: replan control (staged revision, HELD nodes, cap 2), rework cap 2, sync-wait bound of 2 approval windows, boot recovery to SAFE_STOPPED, DNS lookup timeout 3 s, and resume of governed stops by an APPROVER key are plan-level details of FR-024, FR-028 and FR-029.
+- 2026-10-22 (C-005, CHANGE_APPROVAL by the human candidate, approvals/2026-10-22-chg03-demonstration-set.md): CHG-03 evaluated per run (N12 and the FR-044 completion gate) defers SC-002, SC-003, SC-006 and SC-007, which are measured over the demonstration runs, to the demonstration-set traceability check (T090, with evidence from T092 and T094); that check stays strict. Approved requirement text is unchanged.
 
 ### Amendment Appendix A - Checklist closure (2026-10-19, C-005; proposals confirmed at T124 on 2026-10-21; approved requirement text above is unchanged)
 

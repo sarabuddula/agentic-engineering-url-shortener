@@ -104,6 +104,13 @@ T074-T078 -> T087-T089 -> T084 -> T090-T094 -> T099 -> T100.
 |---|---|
 | T128 | N09 testing invokes a real test suite (whitelisted operation TS) and records the actual outcomes as TEST_RUN evidence, labelled LIVE |
 
+### Governed change 2026-10-22: CHG-03 per run (no scope added or cut)
+
+CHANGE_APPROVAL by the human candidate ("approve the CHG-03 change"; specs/001-agentic-url-shortener/approvals/
+2026-10-22-chg03-demonstration-set.md): per-run CHG-03 defers SC-002, SC-003, SC-006 and SC-007 to the demonstration-set
+check (T090, evidence from T092/T094), which stays strict. Found in the SCN-A demonstration (run-934a50a1...): without it
+no run could reach COMPLETED.
+
 ## Further cut order (only at a checkpoint, only by human decision)
 
 1. T083 depth beyond the PVT-008 fields.

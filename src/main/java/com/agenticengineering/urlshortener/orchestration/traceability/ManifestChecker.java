@@ -32,7 +32,30 @@ public final class ManifestChecker {
                     + testsWithoutRequirement + "\nunknown requirement IDs: " + unknownRequirementIds + "\nmissing files: " + missingFiles
                     + "\nhash mismatches: " + hashMismatches + "\nunknown commits: " + unknownCommits;
         }
+
+        /**
+         * The view CHG-03 judges for a single run (human CHANGE_APPROVAL 2026-10-22,
+         * approvals/2026-10-22-chg03-demonstration-set.md): the criteria measured over the demonstration runs are deferred
+         * to the demonstration-set check (T090/T094); everything else is unchanged.
+         */
+        public RunView forRun() {
+            List<String> deferred = requirementsWithoutEvidence.stream().filter(DEMONSTRATION_SET_CRITERIA::contains).toList();
+            List<String> remaining = requirementsWithoutEvidence.stream().filter(id -> !DEMONSTRATION_SET_CRITERIA.contains(id)).toList();
+            return new RunView(new Report(remaining, testsWithoutRequirement, unknownRequirementIds, missingFiles, hashMismatches,
+                    unknownCommits), deferred);
+        }
     }
+
+    /** A per-run report and the demonstration-set criteria it deferred. */
+    public record RunView(Report report, List<String> deferredToDemonstrationSet) {
+
+        public boolean clean() {
+            return report.clean();
+        }
+    }
+
+    /** Success criteria measured over the demonstration runs, not within one run (spec SC-002, SC-003, SC-006, SC-007). */
+    public static final java.util.Set<String> DEMONSTRATION_SET_CRITERIA = java.util.Set.of("SC-002", "SC-003", "SC-006", "SC-007");
 
     private final Path root;
     private final CommitLookup commits;

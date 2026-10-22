@@ -182,9 +182,13 @@ public class PersistedEvidenceProvider implements PolicyEvidenceProvider {
             if (!Files.exists(manifest)) {
                 return Evidence.notOk("mapping manifest missing: " + manifest);
             }
-            ManifestChecker.Report report = new ManifestChecker(workspace, new GitCommitLookup(workspace))
-                    .check(MappingManifest.fromYaml(Files.readString(manifest)));
-            return report.clean() ? Evidence.ok("mapping manifest clean in both directions")
+            // per run: the demonstration-set criteria are deferred to T090/T094 (CHANGE_APPROVAL 2026-10-22)
+            ManifestChecker.RunView view = new ManifestChecker(workspace, new GitCommitLookup(workspace))
+                    .check(MappingManifest.fromYaml(Files.readString(manifest))).forRun();
+            ManifestChecker.Report report = view.report();
+            String deferred = view.deferredToDemonstrationSet().isEmpty() ? ""
+                    : "; deferred to the demonstration-set check (T090/T094): " + view.deferredToDemonstrationSet();
+            return report.clean() ? Evidence.ok("mapping manifest clean in both directions" + deferred)
                     : Evidence.notOk("mapping manifest not clean: " + report.requirementsWithoutEvidence().size() + " requirements without evidence, "
                             + report.testsWithoutRequirement().size() + " tests without requirement, " + report.unknownRequirementIds().size()
                             + " unknown IDs, " + report.missingFiles().size() + " missing files");
