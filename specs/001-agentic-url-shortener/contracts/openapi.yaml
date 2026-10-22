@@ -464,6 +464,45 @@ paths:
                   value: { code: "DESIGN_NOT_FOUND", message: "No design to revise: run run-42e1 has no design to revise", request_id: "req-9a2b" }
         '429': { $ref: '#/components/responses/RateLimited' }
 
+  /api/v1/orchestrator/runs/{runId}/accepted-limitations:
+    post:
+      summary: Request a G6 accepted limitation (T093, added 2026-10-22 by human decision, C-005 additive)
+      description: 'Records the limitation without authority and opens an ACCEPTED_LIMITATION (G6) approval. Only a RELEASE_OWNER other than the requester can approve it, through the approvals endpoint with accepted_limitation_text; approval writes the ACCEPTED_LIMITATION row, rejection writes nothing.'
+      security: [ { ApiKeyAuth: [] } ]
+      x-required-roles: [ENGINEER]
+      parameters:
+        - { name: runId, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AcceptedLimitationRequest' }
+            examples:
+              lsc01:
+                value: { limitation_id: "L-SC-01", description: "per-key control-plane rate limit deferred", compensating_control: "role-scoped, hashed demo keys" }
+      responses:
+        '201':
+          description: Limitation recorded and G6 approval opened
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AcceptedLimitationCreated' }
+              examples:
+                created:
+                  value: { approval_id: "41", limitation_id: "L-SC-01", status: "PENDING_APPROVAL" }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409':
+          description: The run is terminal
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+              examples:
+                terminal:
+                  value: { code: "LIMITATION_CONFLICT", message: "run run-42e1 is COMPLETED; a limitation needs an open run", request_id: "req-5d1c" }
+        '429': { $ref: '#/components/responses/RateLimited' }
+
   /api/v1/orchestrator/runs/{runId}/release-readiness:
     get:
       summary: Release-readiness recommendation and human decision record (FR-037)
@@ -735,6 +774,22 @@ components:
         artifact_type: { type: string, enum: [DESIGN] }
         version: { type: integer, minimum: 2 }
         content_hash: { type: string, pattern: '^[0-9a-f]{64}$' }
+
+    AcceptedLimitationRequest:
+      type: object
+      required: [limitation_id, description, compensating_control]
+      properties:
+        limitation_id: { type: string, description: 'Limitation ID from spec Amendment Appendix C, e.g. L-SC-01' }
+        description: { type: string }
+        compensating_control: { type: string }
+
+    AcceptedLimitationCreated:
+      type: object
+      required: [approval_id, limitation_id, status]
+      properties:
+        approval_id: { type: string }
+        limitation_id: { type: string }
+        status: { type: string, enum: [PENDING_APPROVAL] }
 
     PolicyExceptionCreated:
       type: object

@@ -5,6 +5,7 @@ import com.agenticengineering.urlshortener.orchestration.approval.ApprovalServic
 import com.agenticengineering.urlshortener.orchestration.audit.AuditEntry;
 import com.agenticengineering.urlshortener.orchestration.engine.RunDriver;
 import com.agenticengineering.urlshortener.orchestration.persistence.RequirementStore;
+import com.agenticengineering.urlshortener.orchestration.policy.AcceptedLimitationService;
 import com.agenticengineering.urlshortener.orchestration.policy.PolicyExceptionService;
 import com.agenticengineering.urlshortener.orchestration.security.KeyIdentity;
 import com.agenticengineering.urlshortener.orchestration.security.Roles;
@@ -36,14 +37,16 @@ public class ApprovalController {
     private final RunDriver driver;
     private final PolicyExceptionService exceptions;
     private final RequirementStore requirements;
+    private final AcceptedLimitationService limitations;
 
     public ApprovalController(ApprovalService approvals, Roles roles, RunDriver driver, PolicyExceptionService exceptions,
-            RequirementStore requirements) {
+            RequirementStore requirements, AcceptedLimitationService limitations) {
         this.approvals = approvals;
         this.roles = roles;
         this.driver = driver;
         this.exceptions = exceptions;
         this.requirements = requirements;
+        this.limitations = limitations;
     }
 
     public record PolicyExceptionPayload(@JsonProperty("policy_check_id") String policyCheckId, @JsonProperty("scope") String scope,
@@ -80,6 +83,9 @@ public class ApprovalController {
                 reason.isBlank() ? body.decision().toLowerCase() : reason);
         if (approve && approval.kind() == ApprovalKind.CLARIFICATION) {
             requirements.saveClarified(runId, approvalId, keyId, body.clarificationAnswer());
+        }
+        if (approve && approval.kind() == ApprovalKind.ACCEPTED_LIMITATION) {
+            limitations.recordApproved(runId, approvalId, keyId, body.acceptedLimitationText());
         }
         driver.resumeAsync(runId);
         return ResponseEntity.ok().build(); // the contract's 200 carries no body; the decision is in the run detail and history
