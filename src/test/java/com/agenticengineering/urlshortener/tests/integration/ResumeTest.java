@@ -17,9 +17,13 @@ import com.agenticengineering.urlshortener.orchestration.engine.StageResult;
 import com.agenticengineering.urlshortener.orchestration.engine.TaskSpec;
 import com.agenticengineering.urlshortener.orchestration.persistence.TaskStore;
 import com.agenticengineering.urlshortener.orchestration.persistence.WorkflowStore;
+import com.agenticengineering.urlshortener.orchestration.reliability.FailureEvent;
+import com.agenticengineering.urlshortener.orchestration.reliability.FailureRecorder;
+import com.agenticengineering.urlshortener.orchestration.reliability.RecoveryMechanism;
 import com.agenticengineering.urlshortener.orchestration.security.KeyIdentity;
 import com.agenticengineering.urlshortener.shared.api.ForbiddenException;
 import com.agenticengineering.urlshortener.tests.support.CompletionEvidenceFixture;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,6 +66,9 @@ class ResumeTest {
     @Autowired
     private JdbcTemplate jdbc;
 
+    @Autowired
+    private FailureRecorder failureRecorder;
+
     @Test
     void anEngineerResumesAFailureStopAndTheFailedStageRunsAgain() {
         AtomicInteger calls = new AtomicInteger();
@@ -75,6 +82,32 @@ class ResumeTest {
 
         assertThat(store.nodeStatuses(runId)).containsEntry("N06", NodeStatus.SUCCEEDED).containsEntry("N14", NodeStatus.SUCCEEDED);
         assertThat(store.history(runId)).anyMatch(e -> e.action().equals("RUN_RESUMED") && e.reason().contains("FAILURE"));
+    }
+
+    /**
+     * Defect found in the SCN-A demonstration (2026-10-22, run-934a50a1...): N08 failed before its commits existed, the
+     * run safe-stopped and was resumed, N08 then succeeded - but the failure stayed unrecovered, because failures were
+     * tracked per drive in memory. The completion gate then refused SECURITY_AND_RELIABILITY_CHECKED. A failure the
+     * resumed run recovers from must be recorded as recovered (FP-4 safe-stop and resumption), with the time spent
+     * waiting for the human resumption counted as governance wait.
+     */
+    @Test
+    void aFailureRecoveredAfterAResumptionIsRecordedAsRecovered() {
+        AtomicInteger calls = new AtomicInteger();
+        Map<String, StageExecutor> executors = fixtures(false);
+        executors.put("N06", ctx -> calls.incrementAndGet() == 1 ? StageResult.failed("permanent: design tool crashed") : StageResult.succeeded());
+        String runId = engine.createRun("api:test-engineer", "POL-2026-10-18-v1");
+        engine.execute(runId, executors, task -> StageResult.succeeded());
+
+        engine.resumeSafeStopped(runId, "test-engineer", KeyIdentity.Role.ENGINEER, executors, task -> StageResult.succeeded());
+
+        List<FailureEvent> failures = failureRecorder.forRun(runId);
+        assertThat(failures).hasSize(1);
+        assertThat(failures.get(0).recovered()).isTrue();
+        assertThat(failures.get(0).mechanism()).isEqualTo(RecoveryMechanism.FP_4_SAFE_STOP);
+        assertThat(failures.get(0).recoveryStartAt()).isNotNull();
+        assertThat(failures.get(0).governanceWait()).isEqualTo(
+                Duration.between(failures.get(0).failureDetectedAt(), failures.get(0).recoveryStartAt()));
     }
 
     @Test
