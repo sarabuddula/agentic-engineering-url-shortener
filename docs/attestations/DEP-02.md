@@ -46,3 +46,27 @@ Attested by (key ID, never a raw key): demo-release-owner
 Role: RELEASE_OWNER
 Date: 2026-10-22
 Reviewed commit: 90e394a
+
+## Re-review at b28f515 (2026-10-22)
+The decision above (NOT ATTESTED at 90e394a) stands for that commit. Re-reviewed after the remediation commit 6bb24f0:
+jackson-bom 2.21.4 -> 2.21.8, tomcat 10.1.55 -> 10.1.61, log4j2 2.24.3 -> 2.25.5 (the advised Tomcat 10.1.58 was
+never published to Maven Central; the latest patch of each line was used).
+1. Runtime dependencies reviewed: YES - the 52 compile/runtime dependencies at the upgraded versions.
+2. Vulnerability source: OSV.dev (api.osv.dev querybatch, ecosystem Maven, exact versions), 2026-10-22.
+3. Known vulnerabilities: 15 of the 17 advisories cleared. Remaining, both on spring-webmvc 6.2.19 and fixed only in
+   Spring Framework 7.0.9: GHSA-j9f9-w8pj-32f8 / CVE-2026-47890 CRITICAL (Server-Sent Event stream corruption while
+   rendering fragments) and GHSA-pc63-qcmh-9cmg / CVE-2026-47884 CRITICAL (improper path limitation in XsltView).
+   Not applicable: src/main contains no SseEmitter, ServerSentEvent, fragment rendering or XsltView.
+4. Compensating control: the affected features are not used; any future use of SSE fragment rendering or XsltView
+   requires re-review of this attestation or a move to Spring Framework 7 (Spring Boot 4).
+- `mvn clean verify` exit 0 (275 unit, 117 integration tests) with the upgraded dependencies.
+- Prepared with AI assistance (Claude); reviewed, confirmed and decided by the human candidate.
+
+ATTESTED / NOT ATTESTED: ATTESTED
+Limitations: offline/degraded check (OSV.dev), not an automated DependencyCheck scan result. Disclosed: two CRITICAL
+spring-webmvc advisories remain present in the dependency set and are judged not applicable to this application.
+
+Attested by (key ID, never a raw key): demo-release-owner
+Role: RELEASE_OWNER
+Date: 2026-10-22
+Reviewed commit: b28f515
