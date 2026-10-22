@@ -92,6 +92,27 @@ paths:
         '429': { $ref: '#/components/responses/RateLimited' }
         '503': { $ref: '#/components/responses/ServiceUnavailable' }
 
+  /api/v1/links/{code}/status:
+    get:
+      summary: Look up whether a short code is active, expired or unknown, with its expiry time (SCN-A, added 2026-10-22)
+      description: >
+        Read-only: never redirects and records no redirect event. Expiry is derived from expires_at at lookup time,
+        as for redirects (FR-006). An unknown or malformed code answers 200 with status UNKNOWN and no expires_at.
+        Not rate-limited (the per-IP limits cover creation and redirects only; disclosed limitation).
+      parameters:
+        - { name: code, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: Status of the code
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/LinkStatusResponse' }
+              examples:
+                active:
+                  value: { short_code: "aB3xK9mQ", status: "ACTIVE", expires_at: "2026-10-25T16:00:00Z" }
+                unknown:
+                  value: { short_code: "zzzzzzzz", status: "UNKNOWN" }
+
   /{code}:
     get:
       summary: Resolve a short code and redirect (FR-005)
@@ -527,6 +548,15 @@ components:
         message: { type: string }
         request_id: { type: string, description: 'Correlation identifier echoed to the client' }
         retry_after_seconds: { type: integer, description: 'Present only on 429 (FR-047 retry hint); mirrors the Retry-After header' }
+
+    LinkStatusResponse:
+      type: object
+      required: [short_code, status]
+      additionalProperties: false
+      properties:
+        short_code: { type: string }
+        status: { type: string, enum: [ACTIVE, EXPIRED, UNKNOWN] }
+        expires_at: { type: string, format: date-time, description: 'Present for ACTIVE and EXPIRED; absent for UNKNOWN' }
 
     CreateLinkRequest:
       type: object
