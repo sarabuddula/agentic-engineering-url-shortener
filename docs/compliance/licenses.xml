@@ -107,7 +107,7 @@
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-core</artifactId>
-      <version>2.21.4</version>
+      <version>2.21.8</version>
       <licenses>
         <license>
           <name>The Apache Software License, Version 2.0</name>
@@ -120,7 +120,7 @@
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
-      <version>2.21.4</version>
+      <version>2.21.8</version>
       <licenses>
         <license>
           <name>The Apache Software License, Version 2.0</name>
@@ -133,7 +133,7 @@
     <dependency>
       <groupId>com.fasterxml.jackson.dataformat</groupId>
       <artifactId>jackson-dataformat-yaml</artifactId>
-      <version>2.21.4</version>
+      <version>2.21.8</version>
       <licenses>
         <license>
           <name>The Apache Software License, Version 2.0</name>
@@ -146,7 +146,7 @@
     <dependency>
       <groupId>com.fasterxml.jackson.datatype</groupId>
       <artifactId>jackson-datatype-jdk8</artifactId>
-      <version>2.21.4</version>
+      <version>2.21.8</version>
       <licenses>
         <license>
           <name>The Apache Software License, Version 2.0</name>
@@ -159,7 +159,7 @@
     <dependency>
       <groupId>com.fasterxml.jackson.datatype</groupId>
       <artifactId>jackson-datatype-jsr310</artifactId>
-      <version>2.21.4</version>
+      <version>2.21.8</version>
       <licenses>
         <license>
           <name>The Apache Software License, Version 2.0</name>
@@ -172,7 +172,7 @@
     <dependency>
       <groupId>com.fasterxml.jackson.module</groupId>
       <artifactId>jackson-module-parameter-names</artifactId>
-      <version>2.21.4</version>
+      <version>2.21.8</version>
       <licenses>
         <license>
           <name>The Apache Software License, Version 2.0</name>
@@ -476,7 +476,6 @@
           <name>BSD</name>
           <url>http://asm.ow2.io/license.html</url>
           <distribution>repo</distribution>
-          <file>bsd - license.html</file>
         </license>
       </licenses>
     </dependency>
@@ -1115,7 +1114,7 @@
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-api</artifactId>
-      <version>2.24.3</version>
+      <version>2.25.5</version>
       <licenses>
         <license>
           <name>Apache-2.0</name>
@@ -1128,7 +1127,7 @@
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-to-slf4j</artifactId>
-      <version>2.24.3</version>
+      <version>2.25.5</version>
       <licenses>
         <license>
           <name>Apache-2.0</name>
@@ -1141,7 +1140,7 @@
     <dependency>
       <groupId>org.apache.tomcat.embed</groupId>
       <artifactId>tomcat-embed-core</artifactId>
-      <version>10.1.55</version>
+      <version>10.1.61</version>
       <licenses>
         <license>
           <name>Apache License, Version 2.0</name>
@@ -1154,7 +1153,7 @@
     <dependency>
       <groupId>org.apache.tomcat.embed</groupId>
       <artifactId>tomcat-embed-el</artifactId>
-      <version>10.1.55</version>
+      <version>10.1.61</version>
       <licenses>
         <license>
           <name>Apache License, Version 2.0</name>
@@ -1167,7 +1166,7 @@
     <dependency>
       <groupId>org.apache.tomcat.embed</groupId>
       <artifactId>tomcat-embed-websocket</artifactId>
-      <version>10.1.55</version>
+      <version>10.1.61</version>
       <licenses>
         <license>
           <name>Apache License, Version 2.0</name>
@@ -1453,7 +1452,6 @@
         <license>
           <name>BSD-3-Clause</name>
           <url>https://asm.ow2.io/license.html</url>
-          <file>bsd-3-clause - license.html</file>
         </license>
       </licenses>
     </dependency>

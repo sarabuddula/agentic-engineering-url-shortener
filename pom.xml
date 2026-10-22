@@ -30,6 +30,12 @@
         <archunit.version>1.5.1</archunit.version>
         <!-- Pinned at T106 (human decision 2026-10-21); DEP-02 vulnerability scan, profile dep-scan -->
         <dependency-check.version>13.0.0</dependency-check.version>
+        <!-- DEP-02 remediation (human decision 2026-10-22, T107 attestation): overrides of Spring Boot 3.5.16 managed
+             versions to the latest patch release at or above the OSV.dev fixed versions (Tomcat 10.1.58 was never
+             published) - jackson-core/databind advisories, Tomcat CVE-2026-65182/65905/68525, log4j-api CVE-2026-49844 -->
+        <jackson-bom.version>2.21.8</jackson-bom.version>
+        <tomcat.version>10.1.61</tomcat.version>
+        <log4j2.version>2.25.5</log4j2.version>
     </properties>
 
     <dependencies>
