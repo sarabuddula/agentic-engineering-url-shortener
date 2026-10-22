@@ -43,7 +43,7 @@ app:
 spring:
   datasource:
     # T026, ADR-003: one H2 file database for both planes; state survives restarts (FR-022, PVT-006)
-    url: jdbc:h2:file:${app.data-dir}/url-shortener
+    url: jdbc:h2:file:${app.data-dir}/url-shortener;WRITE_DELAY=0   # commits reach disk before returning (PVT-006, T078)
   sql:
     init:
       mode: always                    # Boot only auto-runs schema.sql for in-memory databases; the script is re-run safe

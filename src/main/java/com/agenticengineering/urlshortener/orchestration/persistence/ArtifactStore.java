@@ -15,6 +15,7 @@ import java.time.Instant;
 import java.util.HexFormat;
 import java.util.List;
 import java.util.Optional;
+import com.agenticengineering.urlshortener.orchestration.reliability.FaultInjection;
 import com.agenticengineering.urlshortener.orchestration.reliability.OperationLog;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -40,10 +41,12 @@ public class ArtifactStore {
     private final TransactionTemplate tx;
     private final Path directory;
     private final OperationLog operations;
+    private final FaultInjection faults;
 
     public ArtifactStore(JdbcTemplate jdbc, AuditChain audit, TimeSource clock, PlatformTransactionManager transactions,
-            @Value("${app.data-dir}") Path dataDir, @org.springframework.context.annotation.Lazy OperationLog operations) {
+            @Value("${app.data-dir}") Path dataDir, @org.springframework.context.annotation.Lazy OperationLog operations, FaultInjection faults) {
         this.operations = operations;
+        this.faults = faults;
         this.jdbc = jdbc;
         this.audit = audit;
         this.clock = clock;
@@ -63,7 +66,14 @@ public class ArtifactStore {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+        // idempotent (T078): the same content of the same type in the same run is the same artifact version
+        Optional<Artifact> existing = withHash(runId, type, hash);
         String operation = OperationLog.artifactWriteId(runId, hash);
+        if (existing.isPresent()) {
+            operations.begin(runId, node, "ARTIFACT_WRITE", operation);
+            operations.complete(operation, true);
+            return existing.get();
+        }
         operations.begin(runId, node, "ARTIFACT_WRITE", operation); // T122: PENDING before the effect
         Artifact recorded = tx.execute(status -> {
             Instant now = clock.now();
@@ -75,6 +85,7 @@ public class ArtifactStore {
                     type + " v" + version + " (" + provenance + ") sha256 " + hash));
             return latest(runId, type).orElseThrow();
         });
+        faults.afterEffect("ARTIFACT_WRITE"); // demonstration-only crash point (T078), off by default
         operations.complete(operation, true);
         return recorded;
     }
@@ -98,6 +109,13 @@ public class ArtifactStore {
                 (rs, i) -> new Artifact(rs.getLong("ID"), rs.getString("RUN_ID"), rs.getString("TYPE"), rs.getInt("VERSION"),
                         rs.getString("CONTENT_HASH"), rs.getString("PROVENANCE"), rs.getTimestamp("CREATED_AT").toInstant(),
                         content(rs.getString("CONTENT_HASH"))), runId, type);
+    }
+
+    private Optional<Artifact> withHash(String runId, String type, String hash) {
+        return jdbc.query("SELECT * FROM ARTIFACT WHERE RUN_ID = ? AND TYPE = ? AND CONTENT_HASH = ? ORDER BY VERSION DESC LIMIT 1",
+                (rs, i) -> new Artifact(rs.getLong("ID"), rs.getString("RUN_ID"), rs.getString("TYPE"), rs.getInt("VERSION"),
+                        rs.getString("CONTENT_HASH"), rs.getString("PROVENANCE"), rs.getTimestamp("CREATED_AT").toInstant(),
+                        content(rs.getString("CONTENT_HASH"))), runId, type, hash).stream().findFirst();
     }
 
     public Optional<Artifact> latest(String runId, String type) {
