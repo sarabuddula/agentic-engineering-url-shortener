@@ -18,8 +18,8 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
 
 /**
- * T071 (API side): POST /runs/{runId}/replan (FR-029): ENGINEER only; 202 when staged; 409 without a body (as the contract
- * defines it) when nothing can be replanned, the refusal audited.
+ * T071 (API side): POST /runs/{runId}/replan (FR-029): ENGINEER only; 202 when staged; 409 without a body with the standard Error body
+ * (REPLAN_CONFLICT; added 2026-10-22, human decision) when nothing can be replanned, the refusal audited.
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(ReplanFixture.class)
@@ -61,7 +61,8 @@ class ReplanApiIT {
 
         Response nothing = replan(runId, "ENGINEER");
         assertThat(nothing.statusCode()).isEqualTo(409);
-        assertThat(nothing.asString()).as("the contract's 409 for /replan has no body").isEmpty();
+        assertThat(nothing.jsonPath().getString("code")).isEqualTo("REPLAN_CONFLICT");
+        assertThat(nothing.jsonPath().getString("message")).contains("no upstream change");
         assertThat(store.history(runId)).anyMatch(e -> e.action().equals("REPLAN_REFUSED") && e.reason().contains("no upstream change"));
         assertThat(given().header("X-API-Key", DemoKeyFixtures.rawKey("APPROVER")).post("/api/v1/orchestrator/runs/" + runId + "/replan")
                 .statusCode()).isEqualTo(403);
