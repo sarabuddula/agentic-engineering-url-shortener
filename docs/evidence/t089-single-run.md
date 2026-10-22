@@ -27,3 +27,10 @@ N08 fans out to N09 (test execution) and N10 (documentation), joined at N11 (SYN
 SCN-A.4 (only one path suspends at G1 while the independent path reaches the synchronization point) and the sync-wait
 bound (A-018) are not implemented in the production graph. A redone N08 finds the existing task commits (markers name
 run and task, not revision); the revision here is documentation-only.
+
+## Outcome
+- N09 and N10 ran in parallel and joined at N11; N12: 16 PASS, 0 FAIL (CHG-02 passed on the replan's re-validation
+  records); release recommendation READY.
+- G7 approval 19 expired after one escalation (the reply came late; the N13 path safe-stopped, "silence is never
+  approval"); demo-approver resumed the governed stop; G7 approval 20 approved by demo-release-owner.
+- Run status COMPLETED, terminal outcome READY; terminal audit-chain verification intact (131 events).
