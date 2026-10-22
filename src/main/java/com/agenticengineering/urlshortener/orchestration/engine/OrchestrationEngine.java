@@ -1,6 +1,7 @@
 package com.agenticengineering.urlshortener.orchestration.engine;
 
 import com.agenticengineering.urlshortener.orchestration.approval.ApprovalService;
+import com.agenticengineering.urlshortener.orchestration.persistence.ReleaseDecisionStore;
 import com.agenticengineering.urlshortener.orchestration.persistence.TaskStore;
 import com.agenticengineering.urlshortener.orchestration.persistence.WorkflowStore;
 import com.agenticengineering.urlshortener.shared.port.IdGenerator;
@@ -29,15 +30,18 @@ public class OrchestrationEngine {
     private final ExecutorService taskPool;
     private final IdGenerator ids;
     private final ApprovalService approvals;
+    private final ReleaseDecisionStore releases;
 
     public OrchestrationEngine(WorkflowStore store, TaskStore tasks, @Qualifier("orchestrationStagePool") ExecutorService stagePool,
-            @Qualifier("orchestrationTaskPool") ExecutorService taskPool, IdGenerator ids, ApprovalService approvals) {
+            @Qualifier("orchestrationTaskPool") ExecutorService taskPool, IdGenerator ids, ApprovalService approvals,
+            ReleaseDecisionStore releases) {
         this.store = store;
         this.tasks = tasks;
         this.stagePool = stagePool;
         this.taskPool = taskPool;
         this.ids = ids;
         this.approvals = approvals;
+        this.releases = releases;
     }
 
     public String createRun(String requirementRef, String policyVersion) {
@@ -129,6 +133,11 @@ public class OrchestrationEngine {
                 (node, from, to, reason) -> store.transitionNode(runId, node, from, to, reason))
                 .execute(SdlcWorkflow.graph(), stageTasks, store.nodeStatuses(runId));
         if (result.succeeded()) {
+            if (releases.recommendation(runId).filter("NOT_READY"::equals).isPresent()) {
+                store.finishRun(runId, RunStatus.RUNNING, RunStatus.TERMINATED, "NOT_READY",
+                        "graph finished with a NOT READY determination; release authorization was blocked (FR-033)");
+                return new RunOutcome(RunStatus.TERMINATED, "NOT_READY");
+            }
             store.transitionRun(runId, RunStatus.RUNNING, RunStatus.COMPLETED, "all stages succeeded or not applicable");
             return new RunOutcome(RunStatus.COMPLETED, "all stages succeeded or not applicable");
         }

@@ -106,6 +106,14 @@ public class WorkflowStore {
         });
     }
 
+    /** Records the run's terminal outcome (for example NOT_READY or READY) together with the terminal transition. */
+    public void finishRun(String runId, RunStatus from, RunStatus to, String terminalOutcome, String reason) {
+        tx.executeWithoutResult(status -> {
+            transitionRun(runId, from, to, reason);
+            jdbc.update("UPDATE WORKFLOW_RUN SET TERMINAL_OUTCOME = ? WHERE ID = ?", terminalOutcome, runId);
+        });
+    }
+
     public void transitionRun(String runId, RunStatus from, RunStatus to, String reason) {
         if (!StateMachines.isLegalRun(from, to)) {
             auditBlocked(runId, runId, from + "->" + to, reason, AuditEntry.ActorType.SYSTEM);
