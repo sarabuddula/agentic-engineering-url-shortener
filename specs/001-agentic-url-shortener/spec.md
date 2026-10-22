@@ -21,6 +21,7 @@ Scenario identifiers: US-nnn (user stories), SCN-A/B/C (demonstration scenarios)
 - 2026-10-19: MTTR excludes governance wait (reported separately, plus a labelled secondary figure).
 - 2026-10-19: replan control (staged revision, HELD nodes, cap 2), rework cap 2, sync-wait bound of 2 approval windows, boot recovery to SAFE_STOPPED, DNS lookup timeout 3 s, and resume of governed stops by an APPROVER key are plan-level details of FR-024, FR-028 and FR-029.
 - 2026-10-22 (C-005, CHANGE_APPROVAL by the human candidate, approvals/2026-10-22-chg03-demonstration-set.md): CHG-03 evaluated per run (N12 and the FR-044 completion gate) defers SC-002, SC-003, SC-006 and SC-007, which are measured over the demonstration runs, to the demonstration-set traceability check (T090, with evidence from T092 and T094); that check stays strict. Approved requirement text is unchanged.
+- 2026-10-22 (C-005, C-006; human decision "(b) approved", approvals/2026-10-22-a018-scna4-scope-cut.md): governed scope cut of A-018 (2-window join-wait bound, approved 2026-10-19) together with SCN-A.4 and US-002 scenario 4; recorded as accepted limitation L-SC-07 for G6 (T093). Approved requirement text is unchanged.
 
 ### Amendment Appendix A - Checklist closure (2026-10-19, C-005; proposals confirmed at T124 on 2026-10-21; approved requirement text above is unchanged)
 
@@ -68,6 +69,7 @@ Scenario identifiers: US-nnn (user stories), SCN-A/B/C (demonstration scenarios)
 | L-SC-04 | FR-024(c), A-016 | Rework cycles and the rework cap of 2 | A rejection ends the path in governed termination (TERMINATED, audited), which FR-024(c) permits ("bounded rework or governed termination") | None needed; behaviour stays within FR-024(c) |
 | L-SC-05 | (withdrawn) | Withdrawn 2026-10-21 after analyze run 4 (X1): T109 restored, so replay after expiry keeps its test | — | — |
 | L-SC-06 | FR-045 | Full control-plane role-matrix tests | 401 without key, 403 for wrong role, 403 self-approval (T059-T061) | Approval endpoints are the only state-changing control-plane path and are tested |
+| L-SC-07 | FR-024 (edge case), A-018, US-002 scenario 4, SCN-A.4 | Join wait bounded by 2 approval windows; one parallel path suspended (G1 or approval) while the independent path proceeds to the synchronization point (governed cut 2026-10-22, approvals/2026-10-22-a018-scna4-scope-cut.md) | Approval timeout, one escalation re-issue, safe-stop of the waiting path and APPROVER resumption, demonstrated live (SCN-C run-05c9fd8d, T089 run-4738769c, SCN-B run-8306f656) | No gate exists on a parallel path in the production graph, so no path can wait at a join; every gate is on the linear path and stops the run safely when it expires |
 
 **Requirements still fully met by reduced tasks.** FR-010 through the Actuator default DataSource health indicator (custom check T043 deferred; plan tier 1). FR-022 through H2 file mode (PostgreSQL portability seam deferred; already in the backlog). FR-031 end-to-end latency per run (p95 deferred). NFR-001 input rejection matrix (T046 reduced; log secrecy covered by T022).
 

@@ -61,6 +61,7 @@ T074-T078 -> T087-T089 -> T084 -> T090-T094 -> T099 -> T100.
 | T111 | Bucket4j capacity-pressure test | Bounded bucket map implemented in T041 | FR-047, L-SC-01 |
 | T115 | Dedicated concurrent-resolution test | Concurrent creation and duplicate tests (T035) | FR-008, L-SC-02 |
 | T120, T121 | Staged revision, HELD nodes, replan cap 2 (A-017) | Replanning with re-validation and human acceptance (T071-T073) | FR-029, L-SC-03 |
+| T117 (part), T089 (folded T116 part) | Join wait bounded by 2 approval windows (A-018); one parallel path suspended while the independent path reaches the join (US-002 scenario 4, SCN-A.4). Governed cut 2026-10-22 ("(b) approved") | Approval timeout, escalation re-issue, safe-stop and APPROVER resumption, shown live in SCN-C, T089 and SCN-B runs | FR-024, A-018, L-SC-07 |
 | T126 | Rework cycles and rework cap 2 (A-016) | A rejection ends the path in governed termination | FR-024(c), L-SC-04 |
 
 ### Folded (same evidence, fewer tasks)
