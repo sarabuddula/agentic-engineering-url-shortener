@@ -15,6 +15,7 @@ import java.time.Instant;
 import java.util.HexFormat;
 import java.util.List;
 import java.util.Optional;
+import com.agenticengineering.urlshortener.orchestration.reliability.OperationLog;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
@@ -38,9 +39,11 @@ public class ArtifactStore {
     private final TimeSource clock;
     private final TransactionTemplate tx;
     private final Path directory;
+    private final OperationLog operations;
 
     public ArtifactStore(JdbcTemplate jdbc, AuditChain audit, TimeSource clock, PlatformTransactionManager transactions,
-            @Value("${app.data-dir}") Path dataDir) {
+            @Value("${app.data-dir}") Path dataDir, @org.springframework.context.annotation.Lazy OperationLog operations) {
+        this.operations = operations;
         this.jdbc = jdbc;
         this.audit = audit;
         this.clock = clock;
@@ -60,7 +63,9 @@ public class ArtifactStore {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-        return tx.execute(status -> {
+        String operation = OperationLog.artifactWriteId(runId, hash);
+        operations.begin(runId, node, "ARTIFACT_WRITE", operation); // T122: PENDING before the effect
+        Artifact recorded = tx.execute(status -> {
             Instant now = clock.now();
             int version = jdbc.queryForObject("SELECT COALESCE(MAX(VERSION), 0) + 1 FROM ARTIFACT WHERE RUN_ID = ? AND TYPE = ?",
                     Integer.class, runId, type);
@@ -70,6 +75,8 @@ public class ArtifactStore {
                     type + " v" + version + " (" + provenance + ") sha256 " + hash));
             return latest(runId, type).orElseThrow();
         });
+        operations.complete(operation, true);
+        return recorded;
     }
 
     /**

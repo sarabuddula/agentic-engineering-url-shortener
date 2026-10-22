@@ -35,8 +35,9 @@ class FileModePersistenceIT {
 
         try (ConfigurableApplicationContext second = start(args)) {
             JdbcTemplate jdbc = second.getBean(JdbcTemplate.class);
-            assertThat(jdbc.queryForObject("SELECT STATUS FROM WORKFLOW_RUN WHERE ID = 'run-durable'", String.class))
-                    .isEqualTo("RUNNING");
+            // the row survived the restart; since T122 boot recovery safe-stops a run found RUNNING (FR-028)
+            assertThat(jdbc.queryForMap("SELECT STATUS, SAFE_STOP_CAUSE FROM WORKFLOW_RUN WHERE ID = 'run-durable'"))
+                    .containsEntry("STATUS", "SAFE_STOPPED").containsEntry("SAFE_STOP_CAUSE", "BOOT_RECOVERY");
         }
     }
 
