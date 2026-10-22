@@ -1,0 +1,459 @@
+{
+ "exported_at_note": "exported 2026-10-22 from the demonstration database (~/demo/data) through the REVIEWER API",
+ "run": {
+  "run_id": "run-579bebe4-5b94-4831-9837-5f548e49e2b8",
+  "status": "SAFE_STOPPED",
+  "policy_version": "POL-2026-10-18-v1",
+  "run_revision": 0,
+  "execution_class": "LIVE",
+  "pending_approvals": []
+ },
+ "verify": {
+  "run_id": "run-579bebe4-5b94-4831-9837-5f548e49e2b8",
+  "verified": true,
+  "head_hash": "a21c20d10955596482814a8faf1d70b081cffc468005a6961db35836ba3239f3",
+  "event_count": 47
+ },
+ "release_readiness": {
+  "code": "RELEASE_NOT_DETERMINED",
+  "message": "Release readiness is determined at N12, which has not run",
+  "request_id": "req-d6f308dc-b19a-4064-bbf9-1d525cdebb79"
+ },
+ "history": [
+  {
+   "seq": 1,
+   "actor_type": "SYSTEM",
+   "action": "RUN_CREATED",
+   "affected": "run-579bebe4-5b94-4831-9837-5f548e49e2b8",
+   "result": "CREATED",
+   "reason": "run created with 14 nodes and 17 edges; policy POL-2026-10-18-v1; execution class LIVE",
+   "occurred_at": "2026-10-22T13:57:29.772121Z"
+  },
+  {
+   "seq": 2,
+   "actor_type": "SYSTEM",
+   "action": "NODE_TRANSITION",
+   "affected": "N01",
+   "result": "PENDING->READY",
+   "reason": "run created",
+   "occurred_at": "2026-10-22T13:57:29.805812Z"
+  },
+  {
+   "seq": 3,
+   "actor_type": "SYSTEM",
+   "action": "NODE_TRANSITION",
+   "affected": "N01",
+   "result": "READY->RUNNING",
+   "reason": "ingestion dispatched",
+   "occurred_at": "2026-10-22T13:57:29.808818Z"
+  },
+  {
+   "seq": 4,
+   "actor_type": "AGENT",
+   "action": "REQUIREMENT_INGESTED",
+   "affected": "N01",
+   "result": "VERSION 1",
+   "reason": "requirement stored (22 characters, provenance PROPOSED)",
+   "occurred_at": "2026-10-22T13:57:29.813027Z"
+  },
+  {
+   "seq": 5,
+   "actor_type": "SYSTEM",
+   "action": "NODE_TRANSITION",
+   "affected": "N01",
+   "result": "RUNNING->SUCCEEDED",
+   "reason": "requirement artifact version 1 stored",
+   "occurred_at": "2026-10-22T13:57:29.815983Z"
+  },
+  {
+   "seq": 6,
+   "actor_type": "SYSTEM",
+   "action": "NODE_TRANSITION",
+   "affected": "N02",
+   "result": "PENDING->READY",
+   "reason": "entry criteria met: all predecessors satisfied",
+   "occurred_at": "2026-10-22T13:57:29.824925Z"
+  },
+  {
+   "seq": 7,
+   "actor_type": "SYSTEM",
+   "action": "NODE_TRANSITION",
+   "affected": "N02",
+   "result": "READY->RUNNING",
+   "reason": "dispatched to executor",
+   "occurred_at": "2026-10-22T13:57:29.829867Z"
+  },
+  {
+   "seq": 8,
+   "actor_type": "AGENT",
+   "action": "QUALITY_CHECKED",
+   "affected": "N02",
+   "result": "AMBIGUOUS",
+   "reason": "clarification required: 2 material finding(s) [AMB-1 'support', AMB-2 'links']",
+   "occurred_at": "2026-10-22T13:57:29.853918Z"
+  },
+  {
+   "seq": 9,
+   "actor_type": "SYSTEM",
+   "action": "NODE_TRANSITION",
+   "affected": "N02",
+   "result": "RUNNING->SUCCEEDED",
+   "reason": "exit criteria met",
+   "occurred_at": "2026-10-22T13:57:29.857739Z"
+  },
+  {
+   "seq": 10,
+   "actor_type": "SYSTEM",
+   "action": "NODE_TRANSITION",
+   "affected": "N03",
+   "result": "PENDING->READY",
+   "reason": "entry criteria met: all predecessors satisfied",
+   "occurred_at": "2026-10-22T13:57:29.860601Z"
+  },
+  {
+   "seq": 11,
+   "actor_type": "SYSTEM",
+   "action": "NODE_TRANSITION",
+   "affected": "N03",
+   "result": "READY->RUNNING",
+   "reason": "dispatched to executor",
+   "occurred_at": "2026-10-22T13:57:29.863735Z"
+  },
+  {
+   "seq": 12,
+   "actor_type": "SYSTEM",
+   "action": "NODE_TRANSITION",
+   "affected": "N04",
+   "result": "PENDING->NOT_APPLICABLE",
+   "reason": "branch not selected by N02",
+   "occurred_at": "2026-10-22T13:57:29.868090Z"
+  },
+  {
+   "seq": 13,
+   "actor_type": "SYSTEM",
+   "action": "APPROVAL_REQUESTED",
+   "affected": "G1",
+   "result": "PENDING",
+   "reason": "CLARIFICATION for N03 requested by demo-engineer; approval 2",
+   "occurred_at": "2026-10-22T13:57:29.867411Z"
+  },
+  {
+   "seq": 14,
+   "actor_type": "SYSTEM",
+   "action": "NODE_TRANSITION",
+   "affected": "N03",
+   "result": "RUNNING->AWAITING_APPROVAL",
+   "reason": "approval 2 (G1) requested",
+   "occurred_at": "2026-10-22T13:57:29.882822Z"
+  },
+  {
+   "seq": 15,
+   "actor_type": "SYSTEM",
+   "action": "RUN_TRANSITION",
+   "affected": "run-579bebe4-5b94-4831-9837-5f548e49e2b8",
+   "result": "RUNNING->SUSPENDED_CLARIFICATION",
+   "reason": "waiting for a human decision at [N03]",
+   "occurred_at": "2026-10-22T13:57:29.888888Z"
+  },
+  {
+   "seq": 16,
+   "actor_type": "HUMAN",
+   "action": "APPROVAL_DECIDED",
+   "affected": "G1",
+   "result": "APPROVED",
+   "reason": "CLARIFICATION approval 2 by demo-approver: resolves AMB-1 and AMB-2 as defined for SCN-C in plan section 11; clarification: links = the existing URL-shortener short links; support = create (POST /api/v1/links) and resolve (GET /{code} redirect) [evidence HUMAN]",
+   "occurred_at": "2026-10-22T13:58:43.602525Z"
+  },
+  {
+   "seq": 17,
+   "actor_type": "SYSTEM",
+   "action": "REQUIREMENT_CLARIFIED",
+   "affected": "N03",
+   "result": "VERSION 2",
+   "reason": "requirement updated from clarification approval 2 by demo-approver (provenance CONFIRMED)",
+   "occurred_at": "2026-10-22T13:58:43.618399Z"
+  },
+  {
+   "seq": 18,
+   "actor_type": "HUMAN",
+   "action": "DECISION_RECORDED",
+   "affected": "decision:2",
+   "rationale": "resolves AMB-1 and AMB-2 as defined for SCN-C in plan section 11; clarification: links = the existing URL-shortener short links; support = create (POST /api/v1/links) and resolve (GET /{code} redirect)",
+   "rejected_alternatives": [
+    "implement the ambiguous requirement as written (unsafe, FR-035)"
+   ],
+   "artifact_refs": [],
+   "result": "CLARIFICATION",
+   "reason": "CLARIFICATION at N03 APPROVED by demo-approver (approval 2) [evidence HUMAN]",
+   "occurred_at": "2026-10-22T13:58:43.629722Z"
+  },
+  {
+   "seq": 19,
+   "actor_type": "SYSTEM",
+   "action": "NODE_TRANSITION",
+   "affected": "N03",
+   "result": "AWAITING_APPROVAL->RUNNING",
+   "reason": "approval 2 approved by demo-approver",
+   "occurred_at": "2026-10-22T13:58:43.633676Z"
+  },
+  {
+   "seq": 20,
+   "actor_type": "SYSTEM",
+   "action": "NODE_TRANSITION",
+   "affected": "N03",
+   "result": "RUNNING->SUCCEEDED",
+   "reason": "G1 passed with recorded approval 2",
+   "occurred_at": "2026-10-22T13:58:43.637032Z"
+  },
+  {
+   "seq": 21,
+   "actor_type": "SYSTEM",
+   "action": "RUN_TRANSITION",
+   "affected": "run-579bebe4-5b94-4831-9837-5f548e49e2b8",
+   "result": "SUSPENDED_CLARIFICATION->RUNNING",
+   "reason": "resumed after a recorded human decision",
+   "occurred_at": "2026-10-22T13:58:43.639504Z"
+  },
+  {
+   "seq": 22,
+   "actor_type": "SYSTEM",
+   "action": "NODE_TRANSITION",
+   "affected": "N05",
+   "result": "PENDING->READY",
+   "reason": "entry criteria met: all predecessors satisfied",
+   "occurred_at": "2026-10-22T13:58:43.643031Z"
+  },
+  {
+   "seq": 23,
+   "actor_type": "SYSTEM",
+   "action": "NODE_TRANSITION",
+   "affected": "N05",
+   "result": "READY->RUNNING",
+   "reason": "dispatched to executor",
+   "occurred_at": "2026-10-22T13:58:43.645661Z"
+  },
+  {
+   "seq": 24,
+   "actor_type": "AGENT",
+   "action": "DECOMPOSITION_RECORDED",
+   "affected": "N08",
+   "result": "5 tasks",
+   "reason": "tasks and explicit dependency rows persisted for N08",
+   "occurred_at": "2026-10-22T13:58:43.660715Z"
+  },
+  {
+   "seq": 25,
+   "actor_type": "SYSTEM",
+   "action": "NODE_TRANSITION",
+   "affected": "N05",
+   "result": "RUNNING->SUCCEEDED",
+   "reason": "exit criteria met",
+   "occurred_at": "2026-10-22T13:58:43.665602Z"
+  },
+  {
+   "seq": 26,
+   "actor_type": "SYSTEM",
+   "action": "NODE_TRANSITION",
+   "affected": "N06",
+   "result": "PENDING->READY",
+   "reason": "entry criteria met: all predecessors satisfied",
+   "occurred_at": "2026-10-22T13:58:43.668189Z"
+  },
+  {
+   "seq": 27,
+   "actor_type": "SYSTEM",
+   "action": "NODE_TRANSITION",
+   "affected": "N06",
+   "result": "READY->RUNNING",
+   "reason": "dispatched to executor",
+   "occurred_at": "2026-10-22T13:58:43.671523Z"
+  },
+  {
+   "seq": 28,
+   "actor_type": "AGENT",
+   "action": "ARTIFACT_RECORDED",
+   "affected": "N06",
+   "result": "RECORDED",
+   "reason": "DESIGN v1 (DETERMINISTIC) sha256 287c45344763a12aa332dd4e565d270f10d141327ee7ef7f633d8b5c927d7a12",
+   "occurred_at": "2026-10-22T13:58:43.688501Z"
+  },
+  {
+   "seq": 29,
+   "actor_type": "SYSTEM",
+   "action": "NODE_TRANSITION",
+   "affected": "N06",
+   "result": "RUNNING->SUCCEEDED",
+   "reason": "exit criteria met",
+   "occurred_at": "2026-10-22T13:58:43.698123Z"
+  },
+  {
+   "seq": 30,
+   "actor_type": "SYSTEM",
+   "action": "NODE_TRANSITION",
+   "affected": "N07",
+   "result": "PENDING->READY",
+   "reason": "entry criteria met: all predecessors satisfied",
+   "occurred_at": "2026-10-22T13:58:43.700515Z"
+  },
+  {
+   "seq": 31,
+   "actor_type": "SYSTEM",
+   "action": "NODE_TRANSITION",
+   "affected": "N07",
+   "result": "READY->RUNNING",
+   "reason": "dispatched to executor",
+   "occurred_at": "2026-10-22T13:58:43.702747Z"
+  },
+  {
+   "seq": 32,
+   "actor_type": "SYSTEM",
+   "action": "APPROVAL_REQUESTED",
+   "affected": "G2",
+   "result": "PENDING",
+   "reason": "DESIGN_APPROVAL for N07 requested by demo-engineer; approval 3",
+   "occurred_at": "2026-10-22T13:58:43.704959Z"
+  },
+  {
+   "seq": 33,
+   "actor_type": "SYSTEM",
+   "action": "NODE_TRANSITION",
+   "affected": "N07",
+   "result": "RUNNING->AWAITING_APPROVAL",
+   "reason": "approval 3 (G2) requested",
+   "occurred_at": "2026-10-22T13:58:43.708Z"
+  },
+  {
+   "seq": 34,
+   "actor_type": "SYSTEM",
+   "action": "RUN_TRANSITION",
+   "affected": "run-579bebe4-5b94-4831-9837-5f548e49e2b8",
+   "result": "RUNNING->AWAITING_APPROVAL",
+   "reason": "waiting for a human decision at [N07]",
+   "occurred_at": "2026-10-22T13:58:43.711034Z"
+  },
+  {
+   "seq": 35,
+   "actor_type": "HUMAN",
+   "action": "APPROVAL_DECIDED",
+   "affected": "G2",
+   "result": "APPROVED",
+   "reason": "DESIGN_APPROVAL approval 3 by demo-approver: design for the clarified SCN-C requirement (create + resolve short links) approved [evidence HUMAN]",
+   "occurred_at": "2026-10-22T13:59:44.785937Z"
+  },
+  {
+   "seq": 36,
+   "actor_type": "HUMAN",
+   "action": "DECISION_RECORDED",
+   "affected": "decision:3",
+   "rationale": "design for the clarified SCN-C requirement (create + resolve short links) approved",
+   "rejected_alternatives": [
+    "start implementation without an approved design (FR-024)"
+   ],
+   "artifact_refs": [
+    "1@1#287c45344763a12aa332dd4e565d270f10d141327ee7ef7f633d8b5c927d7a12"
+   ],
+   "result": "DESIGN_APPROVAL",
+   "reason": "DESIGN_APPROVAL at N07 APPROVED by demo-approver (approval 3) [evidence HUMAN]",
+   "occurred_at": "2026-10-22T13:59:44.799107Z"
+  },
+  {
+   "seq": 37,
+   "actor_type": "SYSTEM",
+   "action": "NODE_TRANSITION",
+   "affected": "N07",
+   "result": "AWAITING_APPROVAL->RUNNING",
+   "reason": "approval 3 approved by demo-approver",
+   "occurred_at": "2026-10-22T13:59:44.810994Z"
+  },
+  {
+   "seq": 38,
+   "actor_type": "SYSTEM",
+   "action": "NODE_TRANSITION",
+   "affected": "N07",
+   "result": "RUNNING->SUCCEEDED",
+   "reason": "G2 passed with recorded approval 3",
+   "occurred_at": "2026-10-22T13:59:44.817109Z"
+  },
+  {
+   "seq": 39,
+   "actor_type": "SYSTEM",
+   "action": "RUN_TRANSITION",
+   "affected": "run-579bebe4-5b94-4831-9837-5f548e49e2b8",
+   "result": "AWAITING_APPROVAL->RUNNING",
+   "reason": "resumed after a recorded human decision",
+   "occurred_at": "2026-10-22T13:59:44.826479Z"
+  },
+  {
+   "seq": 40,
+   "actor_type": "SYSTEM",
+   "action": "NODE_TRANSITION",
+   "affected": "N08",
+   "result": "PENDING->READY",
+   "reason": "entry criteria met: all predecessors satisfied",
+   "occurred_at": "2026-10-22T13:59:44.830592Z"
+  },
+  {
+   "seq": 41,
+   "actor_type": "SYSTEM",
+   "action": "NODE_TRANSITION",
+   "affected": "N08",
+   "result": "READY->RUNNING",
+   "reason": "dispatched to executor",
+   "occurred_at": "2026-10-22T13:59:44.835391Z"
+  },
+  {
+   "seq": 42,
+   "actor_type": "SYSTEM",
+   "action": "TASK_TRANSITION",
+   "affected": "t1",
+   "result": "PENDING->READY",
+   "reason": "task state change",
+   "occurred_at": "2026-10-22T13:59:44.844720Z"
+  },
+  {
+   "seq": 43,
+   "actor_type": "SYSTEM",
+   "action": "TASK_TRANSITION",
+   "affected": "t1",
+   "result": "READY->RUNNING",
+   "reason": "task state change",
+   "occurred_at": "2026-10-22T13:59:44.847431Z"
+  },
+  {
+   "seq": 44,
+   "actor_type": "SYSTEM",
+   "action": "TASK_TRANSITION",
+   "affected": "t1",
+   "result": "RUNNING->FAILED",
+   "reason": "permanent: no implementation commit for task t1; commit the change with [run run-579bebe4-5b94-4831-9837-5f548e49e2b8 task t1] in the message and resume the run",
+   "occurred_at": "2026-10-22T13:59:44.969894Z"
+  },
+  {
+   "seq": 45,
+   "actor_type": "SYSTEM",
+   "action": "NODE_TRANSITION",
+   "affected": "N08",
+   "result": "RUNNING->FAILED",
+   "reason": "tasks failed: t1",
+   "occurred_at": "2026-10-22T13:59:44.972471Z"
+  },
+  {
+   "seq": 46,
+   "actor_type": "SYSTEM",
+   "action": "NODE_TRANSITION",
+   "affected": "N08",
+   "result": "FAILED->SAFE_STOPPED",
+   "reason": "FP-4 safe-stop: permanent failure on a mandatory path (tasks failed: t1)",
+   "occurred_at": "2026-10-22T13:59:44.980813Z"
+  },
+  {
+   "seq": 47,
+   "actor_type": "SYSTEM",
+   "action": "RUN_TRANSITION",
+   "affected": "run-579bebe4-5b94-4831-9837-5f548e49e2b8",
+   "result": "RUNNING->SAFE_STOPPED",
+   "reason": "safe-stop after N08: tasks failed: t1",
+   "occurred_at": "2026-10-22T13:59:44.983639Z"
+  }
+ ]
+}
