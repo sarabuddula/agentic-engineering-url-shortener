@@ -51,7 +51,8 @@ class PolicyRecordTest {
         WorkflowStore.HistoryEntry audit = store.history("run-policy-1").get(1);
         assertThat(audit.action()).isEqualTo("POLICY_EVALUATED");
         assertThat(audit.affected()).isEqualTo("POL-2026-10-18-v1");
-        assertThat(audit.result()).isEqualTo("1 PASS, 1 FAIL, 0 EXCEPTION_REQUESTED, 1 NOT_APPLICABLE");
-        assertThat(audit.reason()).contains("mandatory failures: [DEP-01]");
+        assertThat(audit.result()).isEqualTo("FAIL");
+        assertThat(audit.reason()).contains("1 PASS, 1 FAIL, 0 EXCEPTION_REQUESTED, 1 NOT_APPLICABLE")
+                .contains("mandatory failures: [DEP-01]");
     }
 }

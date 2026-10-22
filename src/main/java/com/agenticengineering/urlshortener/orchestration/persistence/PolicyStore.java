@@ -14,7 +14,8 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 /**
  * Records a policy evaluation (T057, FR-032): one POLICY_EVALUATION row per check and a POLICY_EVALUATED audit event
- * naming the policy version, the outcome counts and the mandatory failures, in one transaction.
+ * naming the policy version, the overall outcome (FAIL when a mandatory check failed), the outcome counts and the
+ * mandatory failures, in one transaction.
  */
 @Component
 public class PolicyStore {
@@ -42,11 +43,13 @@ public class PolicyStore {
                         runId, e.checkId(), e.outcome().name(), e.evidenceRef(), e.exceptionId());
                 counts.merge(e.outcome(), 1, Integer::sum);
             }
+            // RESULT is VARCHAR(32) in the approved schema: the overall outcome there, the counts in REASON
             audit.append(runId, new AuditEntry(AuditEntry.ActorType.AGENT, "POLICY_EVALUATED", clock.now(), result.policyVersion(),
-                    counts.get(PolicyOutcome.PASS) + " PASS, " + counts.get(PolicyOutcome.FAIL) + " FAIL, "
+                    result.mandatoryFailures().isEmpty() ? "PASS" : "FAIL",
+                    "counts: " + counts.get(PolicyOutcome.PASS) + " PASS, " + counts.get(PolicyOutcome.FAIL) + " FAIL, "
                             + counts.get(PolicyOutcome.EXCEPTION_REQUESTED) + " EXCEPTION_REQUESTED, "
-                            + counts.get(PolicyOutcome.NOT_APPLICABLE) + " NOT_APPLICABLE",
-                    "mandatory failures: " + result.mandatoryFailures()));
+                            + counts.get(PolicyOutcome.NOT_APPLICABLE) + " NOT_APPLICABLE; mandatory failures: "
+                            + result.mandatoryFailures()));
         });
     }
 }
