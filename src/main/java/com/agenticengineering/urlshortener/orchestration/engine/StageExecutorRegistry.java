@@ -7,6 +7,7 @@ import com.agenticengineering.urlshortener.orchestration.stages.PolicyStageExecu
 import com.agenticengineering.urlshortener.orchestration.stages.DecompositionStageExecutor;
 import com.agenticengineering.urlshortener.orchestration.stages.DesignStageExecutor;
 import com.agenticengineering.urlshortener.orchestration.stages.DocumentationStageExecutor;
+import com.agenticengineering.urlshortener.orchestration.stages.EngineeringSummaryStageExecutor;
 import com.agenticengineering.urlshortener.orchestration.stages.EvidenceStageExecutor;
 import com.agenticengineering.urlshortener.orchestration.stages.ImpactAnalysisStageExecutor;
 import com.agenticengineering.urlshortener.orchestration.stages.ImplementationTaskExecutor;
@@ -23,7 +24,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class StageExecutorRegistry {
 
-    private static final Map<String, String> NOT_YET_BUILT = Map.of("N14", "T091 engineering summary");
+    private static final Map<String, String> NOT_YET_BUILT = Map.of(); // every stage has a production executor
 
     private final RequirementStore requirements;
     private final QualityStageExecutor quality;
@@ -36,12 +37,13 @@ public class StageExecutorRegistry {
     private final DocumentationStageExecutor documentation;
     private final EvidenceStageExecutor evidenceAssembly;
     private final ImplementationTaskExecutor implementation;
+    private final EngineeringSummaryStageExecutor summary;
 
     public StageExecutorRegistry(RequirementStore requirements, QualityStageExecutor quality,
             DecompositionStageExecutor decomposition, GateExecutor.Factory gates, PolicyStageExecutor.Factory policies,
             PersistedEvidenceProvider evidence, ImpactAnalysisStageExecutor impact, TestExecutionStageExecutor.Factory tests,
             DesignStageExecutor design, DocumentationStageExecutor.Factory documentation, EvidenceStageExecutor evidenceAssembly,
-            ImplementationTaskExecutor.Factory implementation) {
+            ImplementationTaskExecutor.Factory implementation, EngineeringSummaryStageExecutor summary) {
         this.requirements = requirements;
         this.quality = quality;
         this.decomposition = decomposition;
@@ -53,6 +55,7 @@ public class StageExecutorRegistry {
         this.documentation = documentation.production();
         this.evidenceAssembly = evidenceAssembly;
         this.implementation = implementation.production();
+        this.summary = summary;
     }
 
     public Map<String, StageExecutor> executors() {
@@ -67,6 +70,7 @@ public class StageExecutorRegistry {
         executors.put("N09", tests); // T128: real test execution
         executors.put("N10", documentation);
         executors.put("N11", evidenceAssembly);
+        executors.put("N14", summary);
         executors.put("N07", gates.gate(ApprovalKind.DESIGN_APPROVAL));
         executors.put("N12", policy); // production evidence is partial: unverified checks fail closed (NOT READY)
         executors.put("N13", gates.gate(ApprovalKind.RELEASE_AUTHORIZATION));
