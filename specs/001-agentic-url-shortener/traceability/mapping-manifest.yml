@@ -865,6 +865,8 @@ requirements:
     - T099
     - T100
     tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/contract/AcceptedLimitationApiIT.java
+      commit: 9a213925b4c01dc29404686a195b8cfa7b8c7205
     - path: src/test/java/com/agenticengineering/urlshortener/tests/contract/ReleaseReadinessApiIT.java
       commit: 837aa264bbd0f5d83417e43aee14e635d3807d0c
     - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/DependencyPolicyDemonstrationTest.java
@@ -1352,7 +1354,13 @@ requirements:
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
       commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
-    evidence: []
+    evidence:
+    - path: docs/evidence/t092-reviewer-walkthrough.md
+      sha256: bc63e40fccd74c2a6b72a0609f1587e038274928ee7e413c18ee1bca1f887d39
+    - path: docs/evidence/t092-reconstruction-run-4738769c.txt
+      sha256: e346f8c9e3224e27f1796283326b78518384716a8afd5882bf5acd763474cf99
+    - path: scripts/reconstruct-run.py
+      sha256: a96e8d8bc8947585629989841b6507c44237cc9f90e95074e5e9339bd78be383
   SC-007:
     adrs:
     - ADR-005
