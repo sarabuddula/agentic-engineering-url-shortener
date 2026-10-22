@@ -21,7 +21,7 @@ app:
     max-retries: 3
     initial-backoff: 1s               # then 2 s, 4 s
     jitter: 0.2
-  default-ttl-days: 7                 # A-006
+  default-ttl-days: 1                 # A-006: 24 hours (SCN-B CHANGE_APPROVAL 2026-10-22; was 7 days)
   approval-timeout-minutes: 5         # PVT-005
   rework-cap: 2                       # A-016
   replan-cap: 2                       # A-017
