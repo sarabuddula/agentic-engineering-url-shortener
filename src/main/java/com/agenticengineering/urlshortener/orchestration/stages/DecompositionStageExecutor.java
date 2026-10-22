@@ -29,9 +29,12 @@ public class DecompositionStageExecutor implements StageExecutor {
         if (!tasks.statuses(context.runId()).isEmpty()) {
             return StageResult.succeeded();
         }
+        QualityReport report = checker.check(requirements.content(context.runId()));
+        if (report.materialAmbiguity() && requirements.clarified(context.runId())) {
+            report = report.resolvedByClarification();
+        }
         try {
-            tasks.saveDecomposition(context.runId(), decomposer.decompose(checker.check(requirements.content(context.runId())),
-                    requirements.requirementRef(context.runId())));
+            tasks.saveDecomposition(context.runId(), decomposer.decompose(report, requirements.requirementRef(context.runId())));
             return StageResult.succeeded();
         } catch (OpenAmbiguityException e) {
             return StageResult.failed("permanent: " + e.getMessage());

@@ -4,6 +4,7 @@ import com.agenticengineering.urlshortener.orchestration.approval.ApprovalKind;
 import com.agenticengineering.urlshortener.orchestration.approval.ApprovalService;
 import com.agenticengineering.urlshortener.orchestration.audit.AuditEntry;
 import com.agenticengineering.urlshortener.orchestration.engine.RunDriver;
+import com.agenticengineering.urlshortener.orchestration.persistence.RequirementStore;
 import com.agenticengineering.urlshortener.orchestration.policy.PolicyExceptionService;
 import com.agenticengineering.urlshortener.orchestration.security.KeyIdentity;
 import com.agenticengineering.urlshortener.orchestration.security.Roles;
@@ -24,7 +25,8 @@ import org.springframework.web.bind.annotation.RestController;
  * POST /api/v1/orchestrator/runs/{runId}/approvals/{approvalId} (T061; FR-024, FR-046; ADR-008). Endpoint roles
  * APPROVER or RELEASE_OWNER; the approval kind then requires its own role and a key different from the requester's.
  * Approving a CLARIFICATION, POLICY_EXCEPTION or ACCEPTED_LIMITATION requires its payload. After a decision the run
- * resumes (or follows the rejection behaviour) asynchronously.
+ * resumes (or follows the rejection behaviour) asynchronously. An approved CLARIFICATION also writes the next
+ * requirement version with the answer, so the run continues from the clarified requirement (plan section 11, SCN-C).
  */
 @RestController
 public class ApprovalController {
@@ -33,12 +35,15 @@ public class ApprovalController {
     private final Roles roles;
     private final RunDriver driver;
     private final PolicyExceptionService exceptions;
+    private final RequirementStore requirements;
 
-    public ApprovalController(ApprovalService approvals, Roles roles, RunDriver driver, PolicyExceptionService exceptions) {
+    public ApprovalController(ApprovalService approvals, Roles roles, RunDriver driver, PolicyExceptionService exceptions,
+            RequirementStore requirements) {
         this.approvals = approvals;
         this.roles = roles;
         this.driver = driver;
         this.exceptions = exceptions;
+        this.requirements = requirements;
     }
 
     public record PolicyExceptionPayload(@JsonProperty("policy_check_id") String policyCheckId, @JsonProperty("scope") String scope,
@@ -73,6 +78,9 @@ public class ApprovalController {
         }
         approvals.decide(runId, approvalId, keyId, role, AuditEntry.ActorType.HUMAN, approve,
                 reason.isBlank() ? body.decision().toLowerCase() : reason);
+        if (approve && approval.kind() == ApprovalKind.CLARIFICATION) {
+            requirements.saveClarified(runId, approvalId, keyId, body.clarificationAnswer());
+        }
         driver.resumeAsync(runId);
         return ResponseEntity.ok().build(); // the contract's 200 carries no body; the decision is in the run detail and history
     }

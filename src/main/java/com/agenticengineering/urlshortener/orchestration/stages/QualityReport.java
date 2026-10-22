@@ -13,6 +13,12 @@ public record QualityReport(String normalizedText, Kind kind, Map<String, Outcom
 
     public enum Outcome { PASS, FAIL }
 
+    /** The same report with its material findings resolved by an approved G1 clarification (the findings stay on record). */
+    public QualityReport resolvedByClarification() {
+        return new QualityReport(normalizedText, kind, checks, findings, false, selectedBranches,
+                rationale + "; material findings resolved by the approved clarification");
+    }
+
     /** NEW_CAPABILITY (greenfield), CHANGE_REQUEST (brownfield: changes existing behaviour), UNCLASSIFIED. */
     public enum Kind { NEW_CAPABILITY, CHANGE_REQUEST, UNCLASSIFIED }
 
