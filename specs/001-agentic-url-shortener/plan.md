@@ -168,6 +168,13 @@ specs/001-agentic-url-shortener/
 
 **Header note (C-005).** FR-007 binds idempotency to the client-supplied request identity without naming a header; the binding mechanism is the contract-level `Idempotency-Key` header (renamed from X-Request-Id by human decision 2026-10-19). This is a contract-level decision recorded here for traceability, not a spec delta.
 
+**Contract deltas during implementation (C-005; each approved where noted, recorded here at T096 on 2026-10-22).** All additive within `/api/v1`:
+(1) 503 SERVICE_UNAVAILABLE on `POST /api/v1/links` and `GET /{code}` after bounded persistence retries, and the Actuator media type on `/actuator/health` - human decision at the T050 checkpoint (approvals/2026-10-21-t050-checkpoint.md);
+(2) approval KIND (REPLAN_ACCEPTANCE, CHANGE_APPROVAL without a gate number), `POST /runs/{runId}/policy-exceptions`, `expiry_or_review_condition` as an ISO-8601 instant, and the `head-mismatch` verification check name - fifth governed change at the T066 checkpoint (approvals/2026-10-21-t066-checkpoint.md);
+(3) the standard Error body (REPLAN_CONFLICT) on the 409 of `POST /runs/{runId}/replan` - human decision (approvals/2026-10-22-scnb-replan409-attestations.md);
+(4) `GET /api/v1/links/{code}/status` (SCN-A link status lookup) - delivered by demonstration run run-934a50a1 under its G2 design approval (HUMAN), contract commit 0a78fee;
+(5) A-006 default TTL 7 days -> 24 hours - SCN-B run run-8306f656 under CHANGE_APPROVAL and G2 (HUMAN); spec Amendment Log.
+
 **Analytics failure observability (FR-015, design proposal for Phase 1).** When synchronous capture fails but resolution succeeds, the failure is recorded best-effort and an in-memory unrecorded-event counter is incremented; a periodic durable checkpoint writes the counter to a loss-report record so the loss stays quantified and reportable. Disclosed limitation: a process crash between failure and checkpoint loses the count (bounded by the checkpoint interval); checkpoint interval is configurable.
 
 **API contracts** (full schemas in `contracts/`, Phase 1; OpenAPI 3.0 proposed, validated by contract tests):
@@ -367,7 +374,7 @@ All entities below are control-plane-owned rows in the shared H2 store; each car
 
 **Release-blocking path (explicit, FR-033).** Normal path: `N12 all mandatory PASS → N13 recommendation + human authorization → N14 summary`. Policy-failure path: `N12 mandatory FAIL → persist NOT READY determination (with blocked-transition audit) → N14 reporting-only`. The failing check blocks all other downstream execution and the N13 release-authorization path is **not** taken; no release authorization or completion declaration is possible (Constitution VI, FR-037).
 
-**Planned demonstration (not yet executed — no execution evidence exists at planning time).** A fault-injection test forces the mandatory check **POL-DEP-01 (approved-dependencies: every runtime dependency pinned and declared in the dependency/license inventory)** to FAIL, simulated by an undeclared dependency in the build. Expected evidence: FAIL PolicyEvaluation row; blocked-transition audit event; NOT READY determination; N14 NOT READY summary; absence of any release-approval record; FR-044 completion gate blocking completion. This test, once executed and captured, is the demonstration that failed mandatory policy checks prevent release readiness.
+**Planned demonstration (executed since: `DependencyPolicyDemonstrationTest` at T082, 2026-10-21, and NOT READY demonstration runs, see docs/evidence/pvt-report.md; the paragraph below is the planning text).** A fault-injection test forces the mandatory check **POL-DEP-01 (approved-dependencies: every runtime dependency pinned and declared in the dependency/license inventory)** to FAIL, simulated by an undeclared dependency in the build. Expected evidence: FAIL PolicyEvaluation row; blocked-transition audit event; NOT READY determination; N14 NOT READY summary; absence of any release-approval record; FR-044 completion gate blocking completion. This test, once executed and captured, is the demonstration that failed mandatory policy checks prevent release readiness.
 
 ### 10. Testing
 
