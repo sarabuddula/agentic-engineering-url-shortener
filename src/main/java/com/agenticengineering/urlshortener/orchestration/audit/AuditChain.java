@@ -56,6 +56,12 @@ public class AuditChain {
         return new Appended(seq, eventHash);
     }
 
+    /** The run's retained head hash (GENESIS_HASH before the first event). */
+    public String headHash(String runId) {
+        String head = jdbc.queryForObject("SELECT AUDIT_HEAD_HASH FROM WORKFLOW_RUN WHERE ID = ?", String.class, runId);
+        return head == null ? GENESIS_HASH : head;
+    }
+
     @Transactional(readOnly = true)
     public ChainVerification verify(String runId) {
         Map<String, Object> run = jdbc.queryForMap(
