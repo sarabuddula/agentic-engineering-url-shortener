@@ -18,7 +18,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
- * Role-scoped key authentication for the control plane (T058; FR-045, ADR-008). Every /api/v1/orchestrator request
+ * Role-scoped key authentication for the control plane (T058; FR-045, ADR-008). Every /api/v1/orchestrator request,
+ * and the demonstration metrics endpoint (T083),
  * needs a valid X-API-Key; otherwise 401 UNAUTHORIZED, audited on the platform chain as AUTH_FAILED without any key
  * material. On success only the key ID and role are put on the request.
  */
@@ -27,6 +28,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class ApiKeyAuthenticationFilter extends OncePerRequestFilter {
 
     static final String CONTROL_PLANE_PREFIX = "/api/v1/orchestrator/";
+    static final String METRICS_PATH = "/api/v1/metrics/demo";
 
     private final KeyIdentityStore keys;
     private final PlatformAudit audit;
@@ -39,7 +41,8 @@ public class ApiKeyAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        return !request.getRequestURI().startsWith(CONTROL_PLANE_PREFIX);
+        String uri = request.getRequestURI();
+        return !uri.startsWith(CONTROL_PLANE_PREFIX) && !uri.equals(METRICS_PATH);
     }
 
     @Override

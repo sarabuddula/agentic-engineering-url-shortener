@@ -79,7 +79,8 @@ public class CompensationService {
     }
 
     private void failed(String runId, String node, String reason) {
-        audit.append(runId, new AuditEntry(AuditEntry.ActorType.SYSTEM, "COMPENSATION_FAILED", clock.now(), node, "FAILED", reason));
+        String bounded = reason.length() > 900 ? reason.substring(0, 900) + "..." : reason; // AUDIT_EVENT.REASON is 1024 chars
+        audit.append(runId, new AuditEntry(AuditEntry.ActorType.SYSTEM, "COMPENSATION_FAILED", clock.now(), node, "FAILED", bounded));
     }
 
     private record Result(int exitCode, String output) {
