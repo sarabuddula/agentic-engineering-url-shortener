@@ -106,6 +106,16 @@ public class GraphScheduler {
             while (changed) {
                 changed = false;
                 for (String node : graph.nodes()) {
+                    if (status.get(node) == NodeStatus.READY) {
+                        // a node returned to READY by a governed resumption (T110): its entry criteria held when it stopped
+                        transition(status, reasons, node, NodeStatus.RUNNING, "resumed");
+                        started.put(node, Instant.now());
+                        attempts.computeIfAbsent(node, n -> new Attempts()).firstStart = Instant.now();
+                        submit(completions, node, Objects.requireNonNull(tasks.get(node), "no executor for node " + node));
+                        running++;
+                        changed = true;
+                        continue;
+                    }
                     if (status.get(node) != NodeStatus.PENDING) {
                         continue;
                     }

@@ -2,6 +2,9 @@ package com.agenticengineering.urlshortener.orchestration.engine;
 
 import com.agenticengineering.urlshortener.orchestration.approval.ApprovalKind;
 import com.agenticengineering.urlshortener.orchestration.approval.ApprovalService;
+import com.agenticengineering.urlshortener.orchestration.approval.SelfApprovalDeniedException;
+import com.agenticengineering.urlshortener.orchestration.security.KeyIdentity;
+import com.agenticengineering.urlshortener.shared.api.ForbiddenException;
 import com.agenticengineering.urlshortener.orchestration.audit.AuditChain;
 import com.agenticengineering.urlshortener.orchestration.audit.AuditEntry;
 import com.agenticengineering.urlshortener.orchestration.audit.ChainVerification;
@@ -103,6 +106,61 @@ public class OrchestrationEngine {
             return verifiedIfTerminal(runId, drive(runId, executors, taskExecutor));
         }
         return verifiedIfTerminal(runId, settleAndContinue(runId, runStatus, executors, taskExecutor));
+    }
+
+    /**
+     * Governed resumption of a safe-stopped run (T110; FR-028; human decision 2026-10-19), then the run continues.
+     */
+    public RunOutcome resumeSafeStopped(String runId, String keyId, KeyIdentity.Role role, Map<String, StageExecutor> executors,
+            TaskExecutor taskExecutor) {
+        authorizeResume(runId, keyId, role);
+        return continueRun(runId, executors, taskExecutor);
+    }
+
+    /**
+     * Checks and records the resumption: only SAFE_STOPPED runs; governed stops (approval timeout, boot recovery) need an
+     * APPROVER other than the run's requester; a completion-gate stop needs the missing evidence; unverifiable pending
+     * operations block it. Stopped nodes go back to READY and the run to RUNNING.
+     */
+    public void authorizeResume(String runId, String keyId, KeyIdentity.Role role) {
+        RunStatus status = store.runStatus(runId);
+        if (status != RunStatus.SAFE_STOPPED) {
+            throw new ResumeConflictException("run is " + status + ", not SAFE_STOPPED");
+        }
+        String cause = store.safeStopCause(runId);
+        boolean governed = "BOOT_RECOVERY".equals(cause) || "APPROVAL_TIMEOUT".equals(cause);
+        if (governed && role != KeyIdentity.Role.APPROVER) {
+            chain.append(runId, new AuditEntry(AuditEntry.ActorType.HUMAN, "RESUME_DENIED", clock.now(), runId, "DENIED",
+                    "key " + keyId + " (" + role + ") cannot resume a governed stop (" + cause + "); an APPROVER is required"));
+            throw new ForbiddenException("an APPROVER key is required to resume a governed stop (" + cause + ")");
+        }
+        if (governed && keyId.equals(store.requesterKeyId(runId))) {
+            chain.append(runId, new AuditEntry(AuditEntry.ActorType.HUMAN, "RESUME_DENIED", clock.now(), runId, "DENIED",
+                    "key " + keyId + " requested the run and cannot authorize resuming its governed stop (" + cause + ")"));
+            throw new SelfApprovalDeniedException("the resuming APPROVER must differ from the run's requester");
+        }
+        if ("COMPLETION_GATE".equals(cause)) {
+            List<CompletionGate.Condition> unmet = completionGate.unmet(runId);
+            if (!unmet.isEmpty()) {
+                throw new ResumeConflictException("completion evidence still missing: " + unmet);
+            }
+        }
+        if (store.unverifiablePendingOperations(runId) > 0) {
+            throw new ResumeConflictException("pending operations without an effect-verification rule; a human must resolve them");
+        }
+        chain.append(runId, new AuditEntry(AuditEntry.ActorType.HUMAN, "RUN_RESUMED", clock.now(), runId, "RESUMED",
+                "safe-stop cause " + cause + " addressed; resumed by " + keyId + " (" + role + ")"));
+        store.nodeStatuses(runId).forEach((node, nodeStatus) -> {
+            if (nodeStatus == NodeStatus.SAFE_STOPPED) {
+                store.transitionNode(runId, node, NodeStatus.SAFE_STOPPED, NodeStatus.READY, "resumption re-checks entry criteria");
+            }
+        });
+        store.resumeRun(runId, "resumed after " + cause + " by " + keyId);
+    }
+
+    /** Drives a RUNNING run from its persisted node states (after an authorized resumption). */
+    public RunOutcome continueRun(String runId, Map<String, StageExecutor> executors, TaskExecutor taskExecutor) {
+        return verifiedIfTerminal(runId, drive(runId, executors, taskExecutor));
     }
 
     /** T118: the human decision at a gate node, with what it rejected and the artifact versions it was taken on. */
@@ -214,7 +272,7 @@ public class OrchestrationEngine {
             RunStatus runStatus = store.runStatus(runId);
             if (runStatus == RunStatus.AWAITING_APPROVAL || runStatus == RunStatus.SUSPENDED_CLARIFICATION
                     || runStatus == RunStatus.RUNNING) {
-                store.transitionRun(runId, runStatus, RunStatus.SAFE_STOPPED, "approval " + expired.id() + " (" + expired.gate()
+                store.safeStopRun(runId, runStatus, "APPROVAL_TIMEOUT", "approval " + expired.id() + " (" + expired.gate()
                         + ") expired without a decision; silence is never approval");
             }
         }
@@ -306,7 +364,7 @@ public class OrchestrationEngine {
                         "FP-4 safe-stop: permanent failure on a mandatory path (" + cause + ")");
                 reason.append(reason.isEmpty() ? "" : "; ").append(failed).append(": ").append(cause);
             }
-            store.transitionRun(runId, RunStatus.RUNNING, RunStatus.SAFE_STOPPED, "safe-stop after " + reason);
+            store.safeStopRun(runId, RunStatus.RUNNING, "FAILURE", "safe-stop after " + reason);
             return new RunOutcome(RunStatus.SAFE_STOPPED, reason.toString());
         }
         RunStatus waiting = result.awaitingNodes().contains("N03") ? RunStatus.SUSPENDED_CLARIFICATION : RunStatus.AWAITING_APPROVAL;

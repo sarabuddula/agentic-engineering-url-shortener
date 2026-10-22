@@ -31,6 +31,17 @@ public class RunDriver {
         });
     }
 
+    /** Continues an authorized resumption off the request thread (T110). */
+    public void continueAsync(String runId) {
+        runner.submit(() -> {
+            try {
+                engine.continueRun(runId, registry.executors(), registry.taskExecutor());
+            } catch (RuntimeException e) {
+                LOG.error("continue failed run_id={} type={}", runId, e.getClass().getName());
+            }
+        });
+    }
+
     @jakarta.annotation.PreDestroy
     void stop() {
         runner.shutdownNow();

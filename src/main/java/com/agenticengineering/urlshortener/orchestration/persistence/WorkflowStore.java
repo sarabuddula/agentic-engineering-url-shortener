@@ -114,6 +114,24 @@ public class WorkflowStore {
         });
     }
 
+    public String safeStopCause(String runId) {
+        return jdbc.queryForObject("SELECT SAFE_STOP_CAUSE FROM WORKFLOW_RUN WHERE ID = ?", String.class, runId);
+    }
+
+    /** SAFE_STOPPED -> RUNNING with the cause cleared (authorized resumption, T110). */
+    public void resumeRun(String runId, String reason) {
+        tx.executeWithoutResult(status -> {
+            transitionRun(runId, RunStatus.SAFE_STOPPED, RunStatus.RUNNING, reason);
+            jdbc.update("UPDATE WORKFLOW_RUN SET SAFE_STOP_CAUSE = NULL WHERE ID = ?", runId);
+        });
+    }
+
+    /** Pending operations of a type without an effect-verification rule (T122). */
+    public int unverifiablePendingOperations(String runId) {
+        return jdbc.queryForObject("SELECT COUNT(*) FROM OPERATION_RECORD WHERE RUN_ID = ? AND STATUS = 'PENDING' AND TYPE NOT IN"
+                + " ('ARTIFACT_WRITE', 'TEST_RUN', 'DOC_GENERATE', 'POLICY_EVAL', 'APPROVAL_REQUEST')", Integer.class, runId);
+    }
+
     /** Records the run's terminal outcome (for example NOT_READY or READY) together with the terminal transition. */
     public void finishRun(String runId, RunStatus from, RunStatus to, String terminalOutcome, String reason) {
         tx.executeWithoutResult(status -> {
