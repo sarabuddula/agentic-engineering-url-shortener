@@ -77,6 +77,8 @@ public class ArtifactStore {
         operations.begin(runId, node, "ARTIFACT_WRITE", operation); // T122: PENDING before the effect
         Artifact recorded = tx.execute(status -> {
             Instant now = clock.now();
+            // serializes concurrent writers of one run (parallel N08 tasks) so MAX(VERSION) + 1 is never read twice
+            jdbc.queryForList("SELECT ID FROM WORKFLOW_RUN WHERE ID = ? FOR UPDATE", String.class, runId);
             int version = jdbc.queryForObject("SELECT COALESCE(MAX(VERSION), 0) + 1 FROM ARTIFACT WHERE RUN_ID = ? AND TYPE = ?",
                     Integer.class, runId, type);
             jdbc.update("INSERT INTO ARTIFACT (RUN_ID, TYPE, VERSION, CONTENT_HASH, PROVENANCE, CREATED_AT) VALUES (?, ?, ?, ?, ?, ?)",
