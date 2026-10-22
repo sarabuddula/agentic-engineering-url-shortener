@@ -7,14 +7,19 @@ import com.agenticengineering.urlshortener.orchestration.audit.AuditEntry;
 import com.agenticengineering.urlshortener.orchestration.audit.ChainVerification;
 import com.agenticengineering.urlshortener.orchestration.persistence.ReleaseDecisionStore;
 import com.agenticengineering.urlshortener.orchestration.persistence.TaskStore;
+import com.agenticengineering.urlshortener.orchestration.reliability.FailureRecorder;
+import com.agenticengineering.urlshortener.orchestration.reliability.RecoveryMechanism;
 import com.agenticengineering.urlshortener.orchestration.replan.ReplanningService;
 import com.agenticengineering.urlshortener.orchestration.persistence.WorkflowStore;
 import com.agenticengineering.urlshortener.shared.port.IdGenerator;
 import com.agenticengineering.urlshortener.shared.port.TimeSource;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /**
@@ -40,10 +45,13 @@ public class OrchestrationEngine {
     private final AuditChain chain;
     private final TimeSource clock;
     private final ReplanningService replanning;
+    private final FailureRecorder failureRecorder;
+    private final RetryPolicy retryPolicy;
 
     public OrchestrationEngine(WorkflowStore store, TaskStore tasks, @Qualifier("orchestrationStagePool") ExecutorService stagePool,
             @Qualifier("orchestrationTaskPool") ExecutorService taskPool, IdGenerator ids, ApprovalService approvals,
-            ReleaseDecisionStore releases, AuditChain chain, TimeSource clock, ReplanningService replanning) {
+            ReleaseDecisionStore releases, AuditChain chain, TimeSource clock, ReplanningService replanning,
+            FailureRecorder failureRecorder, @Value("${app.orchestration.retry.base-delay-ms:1000}") long retryBaseDelayMs) {
         this.store = store;
         this.tasks = tasks;
         this.stagePool = stagePool;
@@ -54,6 +62,8 @@ public class OrchestrationEngine {
         this.chain = chain;
         this.clock = clock;
         this.replanning = replanning;
+        this.failureRecorder = failureRecorder;
+        this.retryPolicy = new RetryPolicy(3, Duration.ofMillis(retryBaseDelayMs), Duration.ofSeconds(60));
     }
 
     public String createRun(String requirementRef, String policyVersion) {
@@ -173,8 +183,41 @@ public class OrchestrationEngine {
         }
     }
 
+    /**
+     * Records each node failure for MTTR (FR-031, plan section 7): detection on FAILED, recovery start and mechanism (FP-1
+     * retry, FP-2 fallback) on RETRY_WAITING, completion on SUCCEEDED. A failure the path never recovers from stays
+     * unrecovered (excluded from the primary MTTR and reported separately, T079).
+     */
+    private final class FailureTracking {
+
+        private final String runId;
+        private final Map<String, Long> open = new HashMap<>();
+
+        FailureTracking(String runId) {
+            this.runId = runId;
+        }
+
+        void onTransition(String node, NodeStatus to, String reason) {
+            Instant now = clock.now();
+            if (to == NodeStatus.FAILED && !open.containsKey(node)) {
+                open.put(node, failureRecorder.detected(runId, store.nodeId(runId, node), now));
+            } else if (to == NodeStatus.RETRY_WAITING && open.containsKey(node)) {
+                RecoveryMechanism mechanism = reason != null && reason.startsWith("FP-2") ? RecoveryMechanism.FP_2_FALLBACK : RecoveryMechanism.FP_1_RETRY;
+                long id = open.get(node);
+                if (failureRecorder.find(id).recoveryStartAt() == null) {
+                    failureRecorder.recoveryStarted(id, now, mechanism);
+                } else {
+                    failureRecorder.switchMechanism(id, mechanism);
+                }
+            } else if (to == NodeStatus.SUCCEEDED && open.containsKey(node)) {
+                failureRecorder.recovered(open.remove(node), now);
+            }
+        }
+    }
+
     private RunOutcome drive(String runId, Map<String, StageExecutor> executors, TaskExecutor taskExecutor) {
         Map<String, StageTask> stageTasks = new HashMap<>();
+        Map<String, StageTask> fallbacks = new HashMap<>();
         for (String node : SdlcWorkflow.graph().nodes()) {
             if (node.equals(SdlcWorkflow.IMPLEMENTATION_NODE)) {
                 stageTasks.put(node, ctx -> runTasks(runId, taskExecutor));
@@ -183,12 +226,18 @@ public class OrchestrationEngine {
                 if (executor == null) {
                     throw new IllegalArgumentException("no executor registered for " + node);
                 }
-                stageTasks.put(node, ctx -> executor.execute(new RunContext(runId, node)));
+                StageExecutor primary = executor instanceof StageExecutor.WithFallback f ? f.primary() : executor;
+                stageTasks.put(node, ctx -> primary.execute(new RunContext(runId, node)));
+                if (executor instanceof StageExecutor.WithFallback f) {
+                    fallbacks.put(node, ctx -> f.fallback().execute(new RunContext(runId, node)));
+                }
             }
         }
-        GraphScheduler.RunResult result = new GraphScheduler(stagePool,
-                (node, from, to, reason) -> store.transitionNode(runId, node, from, to, reason))
-                .execute(SdlcWorkflow.graph(), stageTasks, store.nodeStatuses(runId));
+        FailureTracking failures = new FailureTracking(runId);
+        GraphScheduler.RunResult result = new GraphScheduler(stagePool, (node, from, to, reason) -> {
+            store.transitionNode(runId, node, from, to, reason);
+            failures.onTransition(node, to, reason);
+        }, retryPolicy).execute(SdlcWorkflow.graph(), stageTasks, fallbacks, store.nodeStatuses(runId));
         if (result.succeeded()) {
             if (releases.recommendation(runId).filter("NOT_READY"::equals).isPresent()) {
                 store.finishRun(runId, RunStatus.RUNNING, RunStatus.TERMINATED, "NOT_READY",

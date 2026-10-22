@@ -191,6 +191,12 @@ public class WorkflowStore {
         audit.append(runId, new AuditEntry(AuditEntry.ActorType.SYSTEM, "GATE_BLOCKED", clock.now(), node, "PENDING", reason));
     }
 
+    /** The STAGE_NODE id of the node in the run's current revision. */
+    public long nodeId(String runId, String node) {
+        return jdbc.queryForObject("SELECT n.ID FROM STAGE_NODE n JOIN WORKFLOW_RUN r ON r.ID = n.RUN_ID AND r.RUN_REVISION = n.RUN_REVISION"
+                + " WHERE n.RUN_ID = ? AND n.NODE_KEY = ?", Long.class, runId, node);
+    }
+
     public RunStatus runStatus(String runId) {
         return RunStatus.valueOf(jdbc.queryForObject("SELECT STATUS FROM WORKFLOW_RUN WHERE ID = ?", String.class, runId));
     }

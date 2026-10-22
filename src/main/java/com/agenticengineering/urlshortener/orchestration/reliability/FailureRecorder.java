@@ -46,6 +46,11 @@ public class FailureRecorder {
                 ts(at), mechanism.code(), id);
     }
 
+    /** The recovery moved to another mechanism (FP-1 retries exhausted, FP-2 fallback); the recovery start is kept. */
+    public void switchMechanism(long id, RecoveryMechanism mechanism) {
+        jdbc.update("UPDATE FAILURE_EVENT SET RECOVERY_MECHANISM = ? WHERE ID = ? AND RECOVERY_START_AT IS NOT NULL", mechanism.code(), id);
+    }
+
     public void recovered(long id, Instant at) {
         FailureEvent event = find(id);
         if (event.recoveryStartAt() == null) {

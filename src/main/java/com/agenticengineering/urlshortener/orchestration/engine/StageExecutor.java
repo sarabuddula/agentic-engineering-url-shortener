@@ -8,4 +8,18 @@ package com.agenticengineering.urlshortener.orchestration.engine;
 public interface StageExecutor {
 
     StageResult execute(RunContext context) throws Exception;
+
+    /** A node with an alternative recorded in advance (FP-2, FR-026): it runs when the primary path fails. */
+    static StageExecutor withFallback(StageExecutor primary, StageExecutor fallback) {
+        return new WithFallback(primary, fallback);
+    }
+
+    /** The primary executor and the fallback the scheduler runs after a permanent failure or retry exhaustion. */
+    record WithFallback(StageExecutor primary, StageExecutor fallback) implements StageExecutor {
+
+        @Override
+        public StageResult execute(RunContext context) throws Exception {
+            return primary.execute(context);
+        }
+    }
 }

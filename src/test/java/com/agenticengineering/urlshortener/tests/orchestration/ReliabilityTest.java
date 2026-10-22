@@ -35,6 +35,7 @@ class ReliabilityTest {
 
     private final ExecutorService pool = Executors.newFixedThreadPool(2);
     private final List<String> transitions = Collections.synchronizedList(new ArrayList<>());
+    private final List<String> reasons = Collections.synchronizedList(new ArrayList<>());
 
     @AfterEach
     void shutdown() {
@@ -127,7 +128,7 @@ class ReliabilityTest {
         assertThat(afterPermanent.statuses()).containsEntry("A", NodeStatus.SUCCEEDED);
         assertThat(afterExhaustion.statuses()).containsEntry("A", NodeStatus.SUCCEEDED);
         assertThat(fallbackCalls).hasValue(2);
-        assertThat(transitions).anyMatch(t -> t.contains("FAILED->RETRY_WAITING") && t.contains("FP-2"));
+        assertThat(reasons).anyMatch(t -> t.contains("FAILED->RETRY_WAITING") && t.contains("FP-2"));
     }
 
     @Test
@@ -140,7 +141,9 @@ class ReliabilityTest {
     }
 
     private GraphScheduler scheduler(RetryPolicy policy) {
-        return new GraphScheduler(pool, (node, from, to, reason) -> transitions.add(node + " " + from + "->" + to
-                + (reason != null ? " " + reason : "")), policy);
+        return new GraphScheduler(pool, (node, from, to, reason) -> {
+            transitions.add(node + " " + from + "->" + to);
+            reasons.add(node + " " + from + "->" + to + " " + reason);
+        }, policy);
     }
 }

@@ -29,6 +29,9 @@ app:
   analytics:
     checkpoint-interval: PT60S        # FR-015 loss checkpoint interval (plan section 2)
   data-dir: ./data                    # H2 file location (T026); gitignored
+  orchestration:
+    retry:
+      base-delay-ms: 1000             # FP-1 backoff base (1 s, 2 s, 4 s); at most 3 retries, 60 s bound (T075)
   policy:                             # DEP-01 evidence inputs (T082), relative to the working directory
     pom-file: pom.xml
     inventory-file: docs/compliance/licenses.xml
