@@ -76,6 +76,12 @@ public class FailureRecorder {
         jdbc.update("UPDATE FAILURE_EVENT SET MTTR_EXCLUDED = TRUE, MTTR_EXCLUSION_REASON = ? WHERE ID = ?", reason, id);
     }
 
+    /** Every failure event of a run, in detection order (input to MttrCalculator). */
+    public java.util.List<FailureEvent> forRun(String runId) {
+        return jdbc.queryForList("SELECT ID FROM FAILURE_EVENT WHERE RUN_ID = ? ORDER BY ID", Long.class, runId).stream()
+                .map(this::find).toList();
+    }
+
     public FailureEvent find(long id) {
         Map<String, Object> row = jdbc.queryForMap("SELECT * FROM FAILURE_EVENT WHERE ID = ?", id);
         String mechanism = (String) row.get("RECOVERY_MECHANISM");
