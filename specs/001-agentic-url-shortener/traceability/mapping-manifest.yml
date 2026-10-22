@@ -1,0 +1,1316 @@
+# Mapping manifest (T105, plan section 13). Generated: scripts/trace-manifest.sh generate (evidence entries are kept).
+# Commits are the last commit touching each file, never this manifest's own commit.
+manifest_version: 1
+feature: specs/001-agentic-url-shortener
+requirements:
+  US-001:
+    adrs:
+    - ADR-004
+    tasks:
+    - T047
+    - T049
+    tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/e2e/AppPlaneE2EIT.java
+      commit: 8a0ed921808a06a05705d1088ea115ac079b5719
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  US-002:
+    adrs:
+    - ADR-008
+    tasks:
+    - T117
+    tests: []
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  US-003:
+    adrs: []
+    tasks: []
+    tests: []
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  US-004:
+    adrs: []
+    tasks: []
+    tests: []
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  US-005:
+    adrs:
+    - ADR-004
+    tasks:
+    - T092
+    tests: []
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  SCN-A:
+    adrs:
+    - ADR-006
+    - ADR-007
+    tasks:
+    - T012
+    - T087
+    - T089
+    - T116
+    tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/orchestration/RequirementIngestionTest.java
+      commit: bc2e9b97a0cceb062ec73312cde4c36b9a870c6b
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  SCN-B:
+    adrs:
+    - ADR-004
+    - ADR-007
+    tasks:
+    - T069
+    - T070
+    tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/BrownfieldImpactTest.java
+      commit: eb612fe386562de7925c991e448cf36dfe8d2752
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  SCN-C:
+    adrs:
+    - ADR-007
+    tasks:
+    - T088
+    tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/orchestration/RequirementIngestionTest.java
+      commit: bc2e9b97a0cceb062ec73312cde4c36b9a870c6b
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  FR-001:
+    adrs:
+    - ADR-001
+    - ADR-002
+    - ADR-006
+    tasks:
+    - T027
+    - T030
+    - T036
+    tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/shortener/domain/LinkDomainTest.java
+      commit: b6b816c4bf59efa5d8233d5308d1c55fa4cf4286
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/contract/LinkCreationIT.java
+      commit: 4cfe283bddac646baaddb6a126854870493c079e
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/e2e/AppPlaneE2EIT.java
+      commit: 8a0ed921808a06a05705d1088ea115ac079b5719
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/unit/MappingManifestTest.java
+      commit: 68c98e5052c88dbd62e3fd0726c6213a667db9cd
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  FR-002:
+    adrs:
+    - ADR-001
+    - ADR-002
+    - ADR-006
+    - ADR-008
+    tasks:
+    - T011
+    - T015
+    - T016
+    - T017
+    - T029
+    - T031
+    - T036
+    - T044
+    - T046
+    tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/shortener/domain/LinkDomainTest.java
+      commit: b6b816c4bf59efa5d8233d5308d1c55fa4cf4286
+    - path: src/test/java/com/agenticengineering/urlshortener/shortener/domain/UrlValidationTest.java
+      commit: bba1052f5eac746c70bdf5c9f883288e7f054dd4
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/contract/AppPlaneContractIT.java
+      commit: 73c7de8ca9ae90831e3fb274d103d7ad62100df4
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/contract/LinkCreationIT.java
+      commit: 4cfe283bddac646baaddb6a126854870493c079e
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/security/UrlRejectionMatrixIT.java
+      commit: ec7bcb141589498950f724d591f58562ad4f2635
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/unit/ErrorMappingTest.java
+      commit: 4cfe283bddac646baaddb6a126854870493c079e
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/unit/MappingManifestTest.java
+      commit: 68c98e5052c88dbd62e3fd0726c6213a667db9cd
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/unit/SharedValueObjectsTest.java
+      commit: 341c2f41d196abf0b06b9d271e0f577eb3e6de20
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  FR-003:
+    adrs:
+    - ADR-002
+    - ADR-008
+    tasks:
+    - T029
+    - T031
+    - T046
+    tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/shortener/domain/UrlValidationTest.java
+      commit: bba1052f5eac746c70bdf5c9f883288e7f054dd4
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/security/UrlRejectionMatrixIT.java
+      commit: ec7bcb141589498950f724d591f58562ad4f2635
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  FR-004:
+    adrs:
+    - ADR-006
+    tasks:
+    - T032
+    - T033
+    tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/shortener/domain/ShortCodeGeneratorTest.java
+      commit: 88cc464811998676315f1508cadc9bcfb5c4b231
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  FR-016:
+    adrs:
+    - ADR-003
+    - ADR-006
+    tasks:
+    - T018
+    - T032
+    - T033
+    - T035
+    - T113
+    tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/shortener/domain/ShortCodeGeneratorTest.java
+      commit: 88cc464811998676315f1508cadc9bcfb5c4b231
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/JdbcLinkRepositoryTest.java
+      commit: 09ecf7eb0298a4e678e28ef15bda1010e160b1e4
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/Pvt003ConcurrencyIT.java
+      commit: 2e55eb2f57729ca5d6d1181a091339868bb9da77
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  FR-005:
+    adrs:
+    - ADR-001
+    - ADR-002
+    - ADR-006
+    tasks:
+    - T027
+    - T030
+    - T037
+    - T113
+    tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/shortener/domain/LinkDomainTest.java
+      commit: b6b816c4bf59efa5d8233d5308d1c55fa4cf4286
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/contract/RedirectIT.java
+      commit: 4716ecfc7cffed3e828ba098f5b661f08d1a9a40
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/e2e/AppPlaneE2EIT.java
+      commit: 8a0ed921808a06a05705d1088ea115ac079b5719
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  FR-006:
+    adrs:
+    - ADR-001
+    - ADR-002
+    - ADR-006
+    tasks:
+    - T027
+    - T030
+    - T037
+    - T113
+    tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/shortener/domain/LinkDomainTest.java
+      commit: b6b816c4bf59efa5d8233d5308d1c55fa4cf4286
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/contract/RedirectIT.java
+      commit: 4716ecfc7cffed3e828ba098f5b661f08d1a9a40
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/e2e/AppPlaneE2EIT.java
+      commit: 8a0ed921808a06a05705d1088ea115ac079b5719
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  FR-007:
+    adrs:
+    - ADR-002
+    - ADR-003
+    - ADR-004
+    - ADR-006
+    tasks:
+    - T018
+    - T028
+    - T034
+    - T036
+    - T047
+    - T109
+    tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/shortener/domain/IdempotencyTest.java
+      commit: 969d8d8d4ea2a4ef42dfa5cd5a96ab95fbc110bb
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/contract/LinkCreationIT.java
+      commit: 4cfe283bddac646baaddb6a126854870493c079e
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/e2e/AppPlaneE2EIT.java
+      commit: 8a0ed921808a06a05705d1088ea115ac079b5719
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/JdbcLinkRepositoryTest.java
+      commit: 09ecf7eb0298a4e678e28ef15bda1010e160b1e4
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  FR-008:
+    adrs:
+    - ADR-003
+    tasks:
+    - T035
+    - T115
+    tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/Pvt003ConcurrencyIT.java
+      commit: 2e55eb2f57729ca5d6d1181a091339868bb9da77
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  FR-009:
+    adrs:
+    - ADR-009
+    tasks:
+    - T102
+    tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/shortener/persistence/RetryingLinkRepositoryTest.java
+      commit: b57acd89e1f49767fdf0fd9635b6288991c26b06
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/reliability/RedirectPersistenceFailureIT.java
+      commit: b57acd89e1f49767fdf0fd9635b6288991c26b06
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  FR-010:
+    adrs:
+    - ADR-002
+    - ADR-004
+    tasks:
+    - T010
+    - T043
+    tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/WalkingSkeletonIT.java
+      commit: e7913b26e0d8a78bfa658fff0432d13ac1edb562
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  FR-011:
+    adrs:
+    - ADR-001
+    - ADR-003
+    tasks:
+    - T030
+    - T038
+    tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/shortener/domain/LinkDomainTest.java
+      commit: b6b816c4bf59efa5d8233d5308d1c55fa4cf4286
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/contract/LinkCreationIT.java
+      commit: 4cfe283bddac646baaddb6a126854870493c079e
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/e2e/AppPlaneE2EIT.java
+      commit: 8a0ed921808a06a05705d1088ea115ac079b5719
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  FR-012:
+    adrs:
+    - ADR-002
+    - ADR-003
+    - ADR-004
+    tasks:
+    - T018
+    - T039
+    - T040
+    - T047
+    - T108
+    tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/shortener/analytics/AnalyticsCaptureTest.java
+      commit: c3bb6dc4e885e7de445e8b85b0fccf369f1e2e10
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/contract/AnalyticsSummaryIT.java
+      commit: c32b4de20395f8930989afe39fc3f1cd7cb33068
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/contract/ApprovalApiIT.java
+      commit: e4a06bb341749c3c95165a87eda4e374287d6729
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/contract/RedirectAnalyticsIT.java
+      commit: c3bb6dc4e885e7de445e8b85b0fccf369f1e2e10
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/contract/UnknownCodeAnalyticsIT.java
+      commit: c32b4de20395f8930989afe39fc3f1cd7cb33068
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/e2e/AppPlaneE2EIT.java
+      commit: 8a0ed921808a06a05705d1088ea115ac079b5719
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/ApprovalLifecycleTest.java
+      commit: a31acd30f658579e907b790b5fa676107f10bdd1
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  FR-013:
+    adrs:
+    - ADR-001
+    - ADR-002
+    tasks:
+    - T015
+    - T016
+    - T029
+    - T031
+    tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/shortener/domain/UrlValidationTest.java
+      commit: bba1052f5eac746c70bdf5c9f883288e7f054dd4
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/contract/LinkCreationIT.java
+      commit: 4cfe283bddac646baaddb6a126854870493c079e
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/unit/SharedValueObjectsTest.java
+      commit: 341c2f41d196abf0b06b9d271e0f577eb3e6de20
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  FR-014:
+    adrs:
+    - ADR-001
+    - ADR-002
+    - ADR-003
+    tasks:
+    - T027
+    - T037
+    - T108
+    tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/shortener/domain/LinkDomainTest.java
+      commit: b6b816c4bf59efa5d8233d5308d1c55fa4cf4286
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/contract/RedirectIT.java
+      commit: 4716ecfc7cffed3e828ba098f5b661f08d1a9a40
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/contract/UnknownCodeAnalyticsIT.java
+      commit: c32b4de20395f8930989afe39fc3f1cd7cb33068
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  FR-015:
+    adrs:
+    - ADR-003
+    tasks:
+    - T018
+    - T039
+    tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/shortener/analytics/AnalyticsCaptureTest.java
+      commit: c3bb6dc4e885e7de445e8b85b0fccf369f1e2e10
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/contract/AnalyticsSummaryIT.java
+      commit: c32b4de20395f8930989afe39fc3f1cd7cb33068
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  FR-020:
+    adrs:
+    - ADR-005
+    - ADR-007
+    - ADR-008
+    tasks:
+    - T019
+    - T051
+    - T052
+    - T058
+    - T128
+    tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/contract/RunApiIT.java
+      commit: 840fcac71c1d9ffd8c4cf152b58c9024e94c7ed7
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/ControlPlaneSchemaTest.java
+      commit: 36eb43100fffe5de4854e061a63f16e96cd2a4be
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/orchestration/GraphSchedulerTest.java
+      commit: 29ff459c519b10bef93c0e99eface7f837124296
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/orchestration/NodeTransitionTest.java
+      commit: fe5061bf9db1c4445b2d962796a5ad148efbe417
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  FR-021:
+    adrs:
+    - ADR-007
+    tasks:
+    - T051
+    tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/orchestration/NodeTransitionTest.java
+      commit: fe5061bf9db1c4445b2d962796a5ad148efbe417
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  FR-022:
+    adrs:
+    - ADR-003
+    - ADR-005
+    - ADR-007
+    tasks:
+    - T019
+    - T026
+    - T053
+    tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/ControlPlaneSchemaTest.java
+      commit: 36eb43100fffe5de4854e061a63f16e96cd2a4be
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/FileModePersistenceIT.java
+      commit: e7183cf0d914ccb09432f0b9159a1645237f2835
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/WorkflowLifecycleTest.java
+      commit: 4d246d12bc49edb8ec54a4351f7967f54d50441e
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  FR-023:
+    adrs:
+    - ADR-005
+    tasks:
+    - T085
+    - T118
+    tests: []
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  FR-024:
+    adrs:
+    - ADR-007
+    - ADR-008
+    tasks:
+    - T025
+    - T059
+    - T060
+    - T061
+    - T116
+    - T117
+    - T119
+    - T126
+    tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/contract/ApprovalApiIT.java
+      commit: e4a06bb341749c3c95165a87eda4e374287d6729
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/ApprovalLifecycleTest.java
+      commit: a31acd30f658579e907b790b5fa676107f10bdd1
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/GateIntegrationTest.java
+      commit: d90c589f6f22ed4dd7d73fb2dd51db24c38c178d
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  FR-025:
+    adrs:
+    - ADR-005
+    - ADR-007
+    - ADR-008
+    - ADR-009
+    tasks:
+    - T051
+    - T053
+    - T060
+    - T074
+    - T075
+    - T126
+    tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/ApprovalLifecycleTest.java
+      commit: a31acd30f658579e907b790b5fa676107f10bdd1
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/GateIntegrationTest.java
+      commit: d90c589f6f22ed4dd7d73fb2dd51db24c38c178d
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/ReliabilityEngineTest.java
+      commit: 62ec56d0fb67a0e56d8c6ad5075d86f4599da5ea
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/WorkflowLifecycleTest.java
+      commit: 4d246d12bc49edb8ec54a4351f7967f54d50441e
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/orchestration/NodeTransitionTest.java
+      commit: fe5061bf9db1c4445b2d962796a5ad148efbe417
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/orchestration/ReliabilityTest.java
+      commit: 4a8f3b541f17b0855740619d6bb66472b4483030
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  FR-026:
+    adrs:
+    - ADR-009
+    tasks:
+    - T074
+    - T075
+    tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/ReliabilityEngineTest.java
+      commit: 62ec56d0fb67a0e56d8c6ad5075d86f4599da5ea
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/orchestration/ReliabilityTest.java
+      commit: 4a8f3b541f17b0855740619d6bb66472b4483030
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  FR-027:
+    adrs:
+    - ADR-005
+    - ADR-009
+    tasks:
+    - T076
+    - T077
+    - T123
+    tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/CompensationTest.java
+      commit: 8f9eedd5a1230b9d3355d3efdbca53196d5a6af4
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  FR-028:
+    adrs:
+    - ADR-007
+    - ADR-008
+    - ADR-009
+    tasks:
+    - T078
+    - T110
+    - T122
+    tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/GateIntegrationTest.java
+      commit: d90c589f6f22ed4dd7d73fb2dd51db24c38c178d
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  FR-029:
+    adrs:
+    - ADR-005
+    - ADR-007
+    - ADR-008
+    tasks:
+    - T071
+    - T072
+    - T073
+    - T110
+    - T118
+    - T120
+    - T121
+    tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/contract/ReplanApiIT.java
+      commit: bef1c415b3e1d9e0b6c828e1fe43bea67e48eda6
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/ReplanningTest.java
+      commit: c9b2ea22c6ac3873e54831b908404ef66ffe642b
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  FR-030:
+    adrs:
+    - ADR-005
+    - ADR-007
+    - ADR-009
+    tasks:
+    - T053
+    - T085
+    - T090
+    - T105
+    - T123
+    - T128
+    tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/WorkflowLifecycleTest.java
+      commit: 4d246d12bc49edb8ec54a4351f7967f54d50441e
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/unit/MappingManifestTest.java
+      commit: 68c98e5052c88dbd62e3fd0726c6213a667db9cd
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  FR-031:
+    adrs:
+    - ADR-009
+    tasks:
+    - T048
+    - T079
+    - T083
+    - T094
+    - T104
+    tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/contract/DemoMetricsApiIT.java
+      commit: c468734c76a64ec8620b2e0bcf93026907211bfe
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/FailureRecorderTest.java
+      commit: 3c0b1dbf7f7e2a923b6d6822ff2a3343c80a2267
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/ReliabilityEngineTest.java
+      commit: 62ec56d0fb67a0e56d8c6ad5075d86f4599da5ea
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/unit/MttrTest.java
+      commit: 77d0dcb0deb0bcbcb72e7e6b2b2deb3a59d240e2
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  FR-032:
+    adrs:
+    - ADR-005
+    tasks:
+    - T057
+    tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/PolicyRecordTest.java
+      commit: 91fe2ba908fcd03eea4038d5633709338c6a1bba
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/orchestration/PolicyEvaluatorTest.java
+      commit: 002a6ae7908761315c7c0fdf9ec66e23be708013
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  FR-033:
+    adrs:
+    - ADR-005
+    - ADR-008
+    - ADR-009
+    tasks:
+    - T057
+    - T062
+    - T063
+    - T082
+    tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/DependencyPolicyDemonstrationTest.java
+      commit: 4e92d74f8e6b55bc81830f2b9932ec5413fb9242
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/PolicyBlockingTest.java
+      commit: 82322fd3b7c63b9be093328d9c61b7540a00d282
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/PolicyExceptionTest.java
+      commit: 42340f32f2b98710a254fd9b6c9a72cf568d9aaf
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/orchestration/PolicyEvaluatorTest.java
+      commit: 002a6ae7908761315c7c0fdf9ec66e23be708013
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  FR-034:
+    adrs:
+    - ADR-007
+    tasks:
+    - T055
+    - T056
+    tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/orchestration/RequirementIngestionTest.java
+      commit: bc2e9b97a0cceb062ec73312cde4c36b9a870c6b
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  FR-035:
+    adrs:
+    - ADR-007
+    tasks:
+    - T055
+    - T056
+    - T089
+    - T116
+    tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/orchestration/RequirementIngestionTest.java
+      commit: bc2e9b97a0cceb062ec73312cde4c36b9a870c6b
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  FR-036:
+    adrs:
+    - ADR-005
+    - ADR-007
+    tasks:
+    - T019
+    - T054
+    - T055
+    - T056
+    tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/ControlPlaneSchemaTest.java
+      commit: 36eb43100fffe5de4854e061a63f16e96cd2a4be
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/SdlcWorkflowTest.java
+      commit: e9360d765293c09fdaf8647c518922fbe3f730df
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/orchestration/RequirementIngestionTest.java
+      commit: bc2e9b97a0cceb062ec73312cde4c36b9a870c6b
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  FR-037:
+    adrs:
+    - ADR-004
+    - ADR-008
+    - ADR-009
+    tasks:
+    - T062
+    - T080
+    - T081
+    - T082
+    - T093
+    - T099
+    - T100
+    tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/contract/ReleaseReadinessApiIT.java
+      commit: a70b7d566c2384ab69b5572a6c7cf86d58d32306
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/DependencyPolicyDemonstrationTest.java
+      commit: 4e92d74f8e6b55bc81830f2b9932ec5413fb9242
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/PolicyBlockingTest.java
+      commit: 82322fd3b7c63b9be093328d9c61b7540a00d282
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/ReleaseReadinessTest.java
+      commit: a70b7d566c2384ab69b5572a6c7cf86d58d32306
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  FR-038:
+    adrs:
+    - ADR-005
+    tasks:
+    - T091
+    tests: []
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  FR-039:
+    adrs:
+    - ADR-005
+    tasks:
+    - T057
+    tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/orchestration/PolicyEvaluatorTest.java
+      commit: 002a6ae7908761315c7c0fdf9ec66e23be708013
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  FR-044:
+    adrs:
+    - ADR-004
+    - ADR-008
+    - ADR-009
+    tasks:
+    - T095
+    - T099
+    - T100
+    - T101
+    tests: []
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  FR-045:
+    adrs:
+    - ADR-007
+    - ADR-008
+    tasks:
+    - T023
+    - T042
+    - T058
+    - T065
+    - T110
+    tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/contract/RunApiIT.java
+      commit: 840fcac71c1d9ffd8c4cf152b58c9024e94c7ed7
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/KeyIdentityStoreTest.java
+      commit: 0c902dbe386e7435a9d5857bb421dd9ace1da865
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  FR-046:
+    adrs:
+    - ADR-007
+    - ADR-008
+    tasks:
+    - T059
+    - T061
+    - T071
+    tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/contract/ApprovalApiIT.java
+      commit: e4a06bb341749c3c95165a87eda4e374287d6729
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/ApprovalLifecycleTest.java
+      commit: a31acd30f658579e907b790b5fa676107f10bdd1
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/ControlPlaneSchemaTest.java
+      commit: 36eb43100fffe5de4854e061a63f16e96cd2a4be
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/ReplanningTest.java
+      commit: c9b2ea22c6ac3873e54831b908404ef66ffe642b
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  FR-047:
+    adrs:
+    - ADR-002
+    - ADR-008
+    tasks:
+    - T017
+    - T041
+    - T042
+    - T103
+    - T111
+    tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/security/RateLimitIT.java
+      commit: 6e89188974e4a9b7ad65f183f9d58f9468ab39b2
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/unit/ErrorMappingTest.java
+      commit: 4cfe283bddac646baaddb6a126854870493c079e
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  FR-048:
+    adrs:
+    - ADR-005
+    - ADR-007
+    tasks:
+    - T019
+    - T020
+    - T021
+    - T064
+    - T086
+    tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/contract/VerifyApiIT.java
+      commit: 0969bd0d5cb07b6a883d111c7362983a54d4f1ca
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/AuditChainTest.java
+      commit: daeb1276dc7e2486c43c15ecc9b99d7fc63b54c1
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/ControlPlaneSchemaTest.java
+      commit: 36eb43100fffe5de4854e061a63f16e96cd2a4be
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/TerminalVerificationTest.java
+      commit: 79fbbbc1c3cc458f0188c0d68f504d346f6c489e
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  FR-049:
+    adrs:
+    - ADR-009
+    tasks:
+    - T076
+    tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/CompensationTest.java
+      commit: 8f9eedd5a1230b9d3355d3efdbca53196d5a6af4
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  FR-040:
+    adrs:
+    - ADR-007
+    tasks:
+    - T087
+    tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/SdlcWorkflowTest.java
+      commit: e9360d765293c09fdaf8647c518922fbe3f730df
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  FR-041:
+    adrs:
+    - ADR-004
+    - ADR-007
+    tasks:
+    - T067
+    - T068
+    - T069
+    tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/BrownfieldImpactTest.java
+      commit: eb612fe386562de7925c991e448cf36dfe8d2752
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  FR-042:
+    adrs:
+    - ADR-007
+    - ADR-008
+    tasks:
+    - T088
+    - T117
+    tests: []
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  FR-043:
+    adrs:
+    - ADR-007
+    tasks:
+    - T052
+    - T089
+    tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/orchestration/GraphSchedulerTest.java
+      commit: 29ff459c519b10bef93c0e99eface7f837124296
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  NFR-001:
+    adrs:
+    - ADR-002
+    - ADR-005
+    - ADR-008
+    tasks:
+    - T005
+    - T022
+    - T046
+    - T065
+    - T106
+    - T112
+    tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/RequestCorrelationLoggingTest.java
+      commit: 66d523dd49d25eef2192db0b423a988f70f513a6
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/security/UrlRejectionMatrixIT.java
+      commit: ec7bcb141589498950f724d591f58562ad4f2635
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/unit/MappingManifestTest.java
+      commit: 68c98e5052c88dbd62e3fd0726c6213a667db9cd
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  NFR-002:
+    adrs:
+    - ADR-009
+    tasks:
+    - T102
+    tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/shortener/persistence/RetryingLinkRepositoryTest.java
+      commit: b57acd89e1f49767fdf0fd9635b6288991c26b06
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  NFR-003:
+    adrs:
+    - ADR-003
+    - ADR-005
+    tasks:
+    - T035
+    - T090
+    - T115
+    tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/Pvt003ConcurrencyIT.java
+      commit: 2e55eb2f57729ca5d6d1181a091339868bb9da77
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  NFR-004:
+    adrs:
+    - ADR-004
+    tasks:
+    - T002
+    - T009
+    - T070
+    tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/arch/ArchitectureRulesTest.java
+      commit: 0cb9b3b9bdded89b3e9e958315ff02152887be30
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  NFR-005:
+    adrs:
+    - ADR-005
+    - ADR-008
+    - ADR-009
+    tasks:
+    - T022
+    - T123
+    tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/RequestCorrelationLoggingTest.java
+      commit: 66d523dd49d25eef2192db0b423a988f70f513a6
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  NFR-006:
+    adrs:
+    - ADR-005
+    tasks:
+    - T021
+    tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/AuditChainTest.java
+      commit: daeb1276dc7e2486c43c15ecc9b99d7fc63b54c1
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  NFR-007:
+    adrs:
+    - ADR-003
+    tasks:
+    - T045
+    tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/PerformanceIT.java
+      commit: 5a0f98435dafaf2735c52d13073aaef9cb8af952
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  NFR-008:
+    adrs:
+    - ADR-009
+    tasks:
+    - T078
+    tests: []
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  NFR-009:
+    adrs:
+    - ADR-002
+    tasks:
+    - T044
+    tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/contract/AppPlaneContractIT.java
+      commit: 73c7de8ca9ae90831e3fb274d103d7ad62100df4
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  NFR-010:
+    adrs:
+    - ADR-008
+    tasks:
+    - T119
+    tests: []
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  NFR-011:
+    adrs:
+    - ADR-005
+    - ADR-007
+    tasks:
+    - T054
+    - T090
+    - T112
+    tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/SdlcWorkflowTest.java
+      commit: e9360d765293c09fdaf8647c518922fbe3f730df
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  SC-001:
+    adrs:
+    - ADR-004
+    - ADR-005
+    tasks:
+    - T047
+    - T090
+    - T112
+    tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/e2e/AppPlaneE2EIT.java
+      commit: 8a0ed921808a06a05705d1088ea115ac079b5719
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  SC-002:
+    adrs:
+    - ADR-005
+    - ADR-007
+    tasks:
+    - T087
+    - T088
+    - T089
+    - T090
+    tests: []
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  SC-003:
+    adrs:
+    - ADR-007
+    tasks:
+    - T073
+    - T089
+    tests: []
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  SC-004:
+    adrs:
+    - ADR-005
+    - ADR-008
+    tasks:
+    - T059
+    - T060
+    - T090
+    tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/ApprovalLifecycleTest.java
+      commit: a31acd30f658579e907b790b5fa676107f10bdd1
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/GateIntegrationTest.java
+      commit: d90c589f6f22ed4dd7d73fb2dd51db24c38c178d
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/WorkflowLifecycleTest.java
+      commit: 4d246d12bc49edb8ec54a4351f7967f54d50441e
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/orchestration/NodeTransitionTest.java
+      commit: fe5061bf9db1c4445b2d962796a5ad148efbe417
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  SC-005:
+    adrs:
+    - ADR-005
+    - ADR-009
+    tasks:
+    - T083
+    - T090
+    tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/contract/DemoMetricsApiIT.java
+      commit: c468734c76a64ec8620b2e0bcf93026907211bfe
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  SC-006:
+    adrs:
+    - ADR-004
+    tasks:
+    - T092
+    tests: []
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  SC-007:
+    adrs:
+    - ADR-005
+    - ADR-009
+    tasks:
+    - T090
+    - T094
+    - T112
+    tests: []
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  PVT-001:
+    adrs:
+    - ADR-003
+    - ADR-009
+    tasks:
+    - T045
+    - T094
+    tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/PerformanceIT.java
+      commit: 5a0f98435dafaf2735c52d13073aaef9cb8af952
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/unit/MappingManifestTest.java
+      commit: 68c98e5052c88dbd62e3fd0726c6213a667db9cd
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  PVT-002:
+    adrs:
+    - ADR-003
+    tasks:
+    - T045
+    tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/PerformanceIT.java
+      commit: 5a0f98435dafaf2735c52d13073aaef9cb8af952
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  PVT-003:
+    adrs:
+    - ADR-002
+    - ADR-003
+    - ADR-006
+    tasks:
+    - T007
+    - T012
+    - T035
+    tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/ApplicationSchemaTest.java
+      commit: 36eb43100fffe5de4854e061a63f16e96cd2a4be
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/Pvt003ConcurrencyIT.java
+      commit: 2e55eb2f57729ca5d6d1181a091339868bb9da77
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/TestFixturesContextTest.java
+      commit: 94630014e11bfda4e919e0b6706898014402aeab
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/unit/FixedLocalResolverTest.java
+      commit: c9b495806262c707ebe98dc2917af3681cf43155
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  PVT-004:
+    adrs:
+    - ADR-009
+    tasks:
+    - T074
+    - T102
+    tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/shortener/domain/ShortCodeGeneratorTest.java
+      commit: 88cc464811998676315f1508cadc9bcfb5c4b231
+    - path: src/test/java/com/agenticengineering/urlshortener/shortener/persistence/RetryingLinkRepositoryTest.java
+      commit: b57acd89e1f49767fdf0fd9635b6288991c26b06
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/orchestration/ReliabilityTest.java
+      commit: 4a8f3b541f17b0855740619d6bb66472b4483030
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  PVT-005:
+    adrs:
+    - ADR-008
+    tasks:
+    - T059
+    - T117
+    tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/ApprovalLifecycleTest.java
+      commit: a31acd30f658579e907b790b5fa676107f10bdd1
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  PVT-006:
+    adrs:
+    - ADR-007
+    - ADR-009
+    tasks:
+    - T078
+    - T089
+    - T122
+    tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/ApplicationSchemaTest.java
+      commit: 36eb43100fffe5de4854e061a63f16e96cd2a4be
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/FileModePersistenceIT.java
+      commit: e7183cf0d914ccb09432f0b9159a1645237f2835
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  PVT-007:
+    adrs:
+    - ADR-005
+    tasks:
+    - T085
+    tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/WorkflowLifecycleTest.java
+      commit: 4d246d12bc49edb8ec54a4351f7967f54d50441e
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
+  PVT-008:
+    adrs:
+    - ADR-009
+    tasks:
+    - T079
+    - T104
+    tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/contract/DemoMetricsApiIT.java
+      commit: c468734c76a64ec8620b2e0bcf93026907211bfe
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/unit/MttrTest.java
+      commit: 77d0dcb0deb0bcbcb72e7e6b2b2deb3a59d240e2
+    docs:
+    - path: specs/001-agentic-url-shortener/spec.md
+      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+    evidence: []
