@@ -35,6 +35,9 @@ class MappingManifestTest {
         }
     };
 
+    /** An undefined ID, assembled so this source file does not itself cite it. */
+    private static final String GHOST = "FR-" + "999";
+
     @TempDir
     Path root;
 
@@ -51,6 +54,7 @@ class MappingManifestTest {
                 """);
         write("src/test/java/x/CreateTest.java", "/** FR-001, NFR-001. */ class CreateTest {}");
         write("src/test/java/x/support/Helper.java", "class Helper {}");
+        write("src/test/java/x/package-info.java", "package x;");
     }
 
     @Test
@@ -72,9 +76,23 @@ class MappingManifestTest {
     }
 
     @Test
+    void aLargeManifestIsWrittenWithoutAliases() throws IOException {
+        StringBuilder spec = new StringBuilder();
+        for (int i = 1; i <= 80; i++) {
+            spec.append("- **FR-").append(String.format("%03d", i)).append("** [Confirmed]: requirement.\n");
+        }
+        write("specs/001-feature/spec.md", spec.toString());
+
+        String yaml = generator().generate().toYaml();
+
+        assertThat(yaml).doesNotContain("&id").doesNotContain("*id");
+        assertThat(MappingManifest.fromYaml(yaml).requirements()).hasSize(80);
+    }
+
+    @Test
     void orphansAreReportedInBothDirections() throws IOException {
         write("src/test/java/x/UnmappedTest.java", "class UnmappedTest {}");
-        write("src/test/java/x/GhostIdTest.java", "/** FR-999 */ class GhostIdTest {}");
+        write("src/test/java/x/GhostIdTest.java", "/** " + GHOST + " */ class GhostIdTest {}");
         write("docs/evidence/run-1.json", "{\"ok\":true}");
         MappingManifest generated = generator().generate();
         MappingManifest manifest = generated.withEvidence("FR-001", List.of(
@@ -86,7 +104,7 @@ class MappingManifestTest {
 
         assertThat(report.requirementsWithoutEvidence()).containsExactly("PVT-001");
         assertThat(report.testsWithoutRequirement()).containsExactly("src/test/java/x/UnmappedTest.java");
-        assertThat(report.unknownRequirementIds()).containsExactly("FR-999 (src/test/java/x/GhostIdTest.java)");
+        assertThat(report.unknownRequirementIds()).containsExactly(GHOST + " (src/test/java/x/GhostIdTest.java)");
         assertThat(report.missingFiles()).containsExactlyInAnyOrder("src/test/java/x/DeletedTest.java", "docs/evidence/missing.json");
         assertThat(report.hashMismatches()).containsExactly("docs/evidence/run-1.json");
         assertThat(report.unknownCommits()).containsExactly("b".repeat(40));

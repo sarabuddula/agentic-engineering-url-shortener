@@ -59,6 +59,7 @@ public record MappingManifest(String feature, Map<String, Entry> requirements) {
         DumperOptions options = new DumperOptions();
         options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
         options.setWidth(160);
+        options.setDereferenceAliases(true); // no anchors: shared empty lists would otherwise become aliases
         return "# Mapping manifest (T105, plan section 13). Generated: scripts/trace-manifest.sh generate (evidence entries are kept).\n"
                 + "# Commits are the last commit touching each file, never this manifest's own commit.\n"
                 + new Yaml(options).dump(root);

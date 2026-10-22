@@ -80,14 +80,15 @@ public final class ManifestGenerator {
         return new MappingManifest.FileRef(relative, commits.lastCommit(Path.of(relative)).orElse("UNCOMMITTED"));
     }
 
-    /** Test classes under src/test/java, support classes excluded, in path order. */
+    /** Test classes (names ending in Test or IT) under src/test/java, support classes excluded, in path order. */
     static List<Path> testSources(Path root) throws IOException {
         Path base = root.resolve("src/test/java");
         if (!Files.isDirectory(base)) {
             return List.of();
         }
         try (Stream<Path> walk = Files.walk(base)) {
-            return walk.filter(p -> p.toString().endsWith(".java") && !p.toString().replace('\\', '/').contains("/support/")).sorted().toList();
+            return walk.filter(p -> p.getFileName().toString().matches(".*(Test|IT)\\.java"))
+                    .filter(p -> !p.toString().replace('\\', '/').contains("/support/")).sorted().toList();
         }
     }
 
