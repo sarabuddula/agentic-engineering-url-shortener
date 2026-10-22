@@ -57,6 +57,29 @@ class MappingManifestTest {
         write("src/test/java/x/package-info.java", "package x;");
     }
 
+    /**
+     * CHG-03 per run (human CHANGE_APPROVAL 2026-10-22, approvals/2026-10-22-chg03-demonstration-set.md): SC-002, SC-003,
+     * SC-006 and SC-007 are measured over the demonstration runs, so a single run's check defers them to the
+     * demonstration-set check; any other gap still fails, and the full report stays strict.
+     */
+    @Test
+    void thePerRunViewDefersOnlyTheDemonstrationSetCriteria() {
+        ManifestChecker.Report onlyDeferred = new ManifestChecker.Report(List.of("SC-002", "SC-003", "SC-006", "SC-007"), List.of(),
+                List.of(), List.of(), List.of(), List.of());
+        assertThat(onlyDeferred.clean()).isFalse();
+        assertThat(onlyDeferred.forRun().clean()).isTrue();
+        assertThat(onlyDeferred.forRun().deferredToDemonstrationSet()).containsExactly("SC-002", "SC-003", "SC-006", "SC-007");
+
+        ManifestChecker.Report otherGap = new ManifestChecker.Report(List.of("SC-002", "FR-001"), List.of(), List.of(), List.of(),
+                List.of(), List.of());
+        assertThat(otherGap.forRun().clean()).isFalse();
+        assertThat(otherGap.forRun().report().requirementsWithoutEvidence()).containsExactly("FR-001");
+
+        ManifestChecker.Report integrityGap = new ManifestChecker.Report(List.of("SC-003"), List.of(), List.of(), List.of(),
+                List.of("docs/x.md"), List.of());
+        assertThat(integrityGap.forRun().clean()).isFalse();
+    }
+
     @Test
     void theCatalogListsEveryDefinedRequirement() throws IOException {
         assertThat(RequirementCatalog.read(root.resolve("specs/001-feature/spec.md"))).containsExactly("FR-001", "FR-002", "NFR-001", "PVT-001");
