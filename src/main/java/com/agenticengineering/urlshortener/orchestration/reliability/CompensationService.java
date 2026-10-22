@@ -85,6 +85,19 @@ public class CompensationService {
                 + " (FR-027, FR-049)"), List.of("commit:" + commit, "commit:" + compensating));
     }
 
+    /**
+     * A rollback request for committed code (T076; FR-049): the rollback is rejected and audited, and the compensating
+     * action - a revert commit - is applied instead.
+     */
+    public Compensation rollbackOrCompensate(String runId, String node, Path repository, String commit, String cause) {
+        try {
+            rollback(runId, node, "commit " + commit);
+        } catch (IrreversibleOperationException rejected) {
+            return compensateCommit(runId, node, repository, commit, cause);
+        }
+        throw new IllegalStateException("rollback of committed code must never succeed");
+    }
+
     /** Rollback is only for reversible operations (uncommitted transaction rows); any other request is refused. */
     public void rollback(String runId, String node, String operation) {
         independent.executeWithoutResult(s -> audit.append(runId, new AuditEntry(AuditEntry.ActorType.SYSTEM, "ROLLBACK_REJECTED",
