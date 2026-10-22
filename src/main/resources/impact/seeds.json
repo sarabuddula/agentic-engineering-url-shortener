@@ -1,0 +1,19 @@
+[
+  {
+    "concept": "default link TTL (A-006)",
+    "trigger": "\\b(ttl|time[- ]to[- ]live|expiry|expiration)\\b",
+    "anchors": ["default-ttl-days", "defaultTtlDays", "defaultTtl\\b", "\\bA-006\\b", "(?i)default ttl"],
+    "regression_risks": [
+      "Links created before the change keep their stored EXPIRES_AT; only links created after deployment get the new default",
+      "Clients relying on the documented default (contract and spec A-006) see shorter or longer link lifetimes",
+      "Idempotent replays of a creation made before the change return the original link with its original expiry"
+    ],
+    "rollout": [
+      "Change the configured default and the documented default (contract description, spec A-006) in one approved change (C-005)",
+      "Deploy; the new default applies to links created afterwards, with no data migration"
+    ],
+    "rollback": [
+      "Restore the previous configured default and documentation; links created meanwhile keep the expiry they were given (not reversible for those links)"
+    ]
+  }
+]

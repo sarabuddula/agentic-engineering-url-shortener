@@ -6,6 +6,7 @@ import com.agenticengineering.urlshortener.orchestration.approval.ApprovalServic
 import com.agenticengineering.urlshortener.orchestration.audit.AuditEntry;
 import com.agenticengineering.urlshortener.orchestration.engine.NodeStatus;
 import com.agenticengineering.urlshortener.orchestration.engine.OrchestrationEngine;
+import com.agenticengineering.urlshortener.orchestration.engine.RunStatus;
 import com.agenticengineering.urlshortener.orchestration.engine.StageExecutor;
 import com.agenticengineering.urlshortener.orchestration.engine.StageExecutorRegistry;
 import com.agenticengineering.urlshortener.orchestration.engine.StageResult;
@@ -104,9 +105,12 @@ class BrownfieldImpactTest {
 
     @Test
     void aChangeWhoseImpactCannotBeIdentifiedStopsBeforeImplementation() {
-        String runId = start("Change the frobnication limit from 3 to 5.");
+        String runId = start("Change the redirect status code from 302 to 301.");
 
-        assertThat(store.nodeStatuses(runId)).containsEntry("N04", NodeStatus.FAILED).containsEntry("N08", NodeStatus.PENDING);
+        assertThat(store.nodeStatuses(runId)).containsEntry("N03", NodeStatus.NOT_APPLICABLE).containsEntry("N08", NodeStatus.PENDING);
+        assertThat(store.nodeStatuses(runId)).as("a failed node is safe-stopped (FP-4)").containsEntry("N04", NodeStatus.SAFE_STOPPED);
+        assertThat(store.runStatus(runId)).isEqualTo(RunStatus.SAFE_STOPPED);
+        assertThat(store.history(runId)).anyMatch(e -> "N04".equals(e.affected()) && e.reason().contains("impact could not be identified"));
         assertThat(artifacts.latest(runId, "IMPACT_ANALYSIS")).isEmpty();
     }
 
