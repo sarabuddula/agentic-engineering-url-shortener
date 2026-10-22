@@ -1,5 +1,6 @@
 package com.agenticengineering.urlshortener.shortener.api;
 
+import com.agenticengineering.urlshortener.shared.api.RequestAttributes;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,7 +28,7 @@ public class RequestCorrelationFilter extends OncePerRequestFilter {
     public static final String MDC_REQUEST_ID = "request_id";
 
     /** Request attribute the authentication step sets to the resolved key ID (never the key itself). */
-    public static final String KEY_ID_ATTRIBUTE = "app.keyId";
+    public static final String KEY_ID_ATTRIBUTE = RequestAttributes.KEY_ID;
 
     private static final Logger ACCESS = LoggerFactory.getLogger("access");
 

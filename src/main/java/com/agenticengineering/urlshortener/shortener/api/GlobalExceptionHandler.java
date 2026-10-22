@@ -1,6 +1,10 @@
 package com.agenticengineering.urlshortener.shortener.api;
 
 import com.agenticengineering.urlshortener.shared.api.ErrorResponse;
+import com.agenticengineering.urlshortener.shared.api.ForbiddenException;
+import com.agenticengineering.urlshortener.shared.api.InvalidRequestException;
+import com.agenticengineering.urlshortener.shared.api.RequestAttributes;
+import com.agenticengineering.urlshortener.shared.api.ResourceNotFoundException;
 import com.agenticengineering.urlshortener.shared.value.InvalidShortCodeException;
 import com.agenticengineering.urlshortener.shared.value.InvalidTargetUrlException;
 import com.agenticengineering.urlshortener.shortener.domain.InvalidExpirationException;
@@ -31,7 +35,7 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 public class GlobalExceptionHandler {
 
     /** Request attribute holding the correlation id; set by the request-correlation filter (T022). */
-    public static final String REQUEST_ID_ATTRIBUTE = "app.requestId";
+    public static final String REQUEST_ID_ATTRIBUTE = RequestAttributes.REQUEST_ID;
 
     private static final Logger LOG = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
@@ -49,6 +53,16 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(InvalidRequestException.class)
     public ResponseEntity<Map<String, Object>> handle(InvalidRequestException e, HttpServletRequest request) {
         return respond(HttpStatus.BAD_REQUEST, error("INVALID_REQUEST", e.getMessage(), request));
+    }
+
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<Map<String, Object>> handle(ForbiddenException e, HttpServletRequest request) {
+        return respond(HttpStatus.FORBIDDEN, error("FORBIDDEN", "The key lacks a role this endpoint requires", request));
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handle(ResourceNotFoundException e, HttpServletRequest request) {
+        return respond(HttpStatus.NOT_FOUND, error(e.code(), e.getMessage(), request));
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)

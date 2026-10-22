@@ -47,12 +47,22 @@ public class WorkflowStore {
         this.tx = new TransactionTemplate(transactions);
     }
 
+    /** A run's externally visible state (contract RunResponse without pending approvals). */
+    public record RunDetail(String runId, RunStatus status, String policyVersion, int runRevision, String executionClass,
+            String terminalOutcome) {
+    }
+
     public void createRun(String runId, String requirementRef, String policyVersion, StageGraph graph) {
+        createRun(runId, requirementRef, policyVersion, graph, "LIVE");
+    }
+
+    /** @param executionClass LIVE or REPLAY (REPLAY: the run exercises behaviour implemented before the run) */
+    public void createRun(String runId, String requirementRef, String policyVersion, StageGraph graph, String executionClass) {
         tx.executeWithoutResult(status -> {
             Instant now = clock.now();
             jdbc.update("INSERT INTO WORKFLOW_RUN (ID, REQUIREMENT_REF, POLICY_VERSION, STATUS, RUN_REVISION, VERSION,"
-                    + " AUDIT_EVENT_COUNT, CREATED_AT, EXECUTION_CLASS, REPLAN_COUNT) VALUES (?, ?, ?, 'RUNNING', 0, 0, 0, ?, 'LIVE', 0)",
-                    runId, requirementRef, policyVersion, Timestamp.from(now));
+                    + " AUDIT_EVENT_COUNT, CREATED_AT, EXECUTION_CLASS, REPLAN_COUNT) VALUES (?, ?, ?, 'RUNNING', 0, 0, 0, ?, ?, 0)",
+                    runId, requirementRef, policyVersion, Timestamp.from(now), executionClass);
             Map<String, Long> ids = new HashMap<>();
             for (String node : graph.nodes()) {
                 jdbc.update("INSERT INTO STAGE_NODE (RUN_ID, NODE_KEY, STATUS, ATTEMPT_COUNT, RUN_REVISION, VERSION)"
@@ -114,6 +124,14 @@ public class WorkflowStore {
             audit.append(runId, new AuditEntry(AuditEntry.ActorType.SYSTEM, "RUN_TRANSITION", clock.now(), runId,
                     from + "->" + to, reason != null ? reason : "run state change"));
         });
+    }
+
+    public java.util.Optional<RunDetail> runDetail(String runId) {
+        List<RunDetail> rows = jdbc.query("SELECT ID, STATUS, POLICY_VERSION, RUN_REVISION, EXECUTION_CLASS, TERMINAL_OUTCOME"
+                + " FROM WORKFLOW_RUN WHERE ID = ?", (rs, i) -> new RunDetail(rs.getString("ID"), RunStatus.valueOf(rs.getString("STATUS")),
+                        rs.getString("POLICY_VERSION"), rs.getInt("RUN_REVISION"), rs.getString("EXECUTION_CLASS"),
+                        rs.getString("TERMINAL_OUTCOME")), runId);
+        return rows.stream().findFirst();
     }
 
     public RunStatus runStatus(String runId) {

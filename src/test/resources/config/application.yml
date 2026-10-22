@@ -2,3 +2,5 @@
 # in file mode like the application but never share data or write to ./data. H2 requires the explicit ./ prefix.
 app:
   data-dir: ./target/test-data/${random.uuid}
+  security:
+    key-file: src/test/resources/fixtures/demo-keys.test.yml   # test-only fixture keys (T012), hashes only

@@ -1,5 +1,6 @@
 package com.agenticengineering.urlshortener.shortener.api;
 
+import com.agenticengineering.urlshortener.shared.api.InvalidRequestException;
 import com.agenticengineering.urlshortener.shared.value.TargetUrl;
 import com.agenticengineering.urlshortener.shortener.domain.IdempotencyService;
 import com.agenticengineering.urlshortener.shortener.domain.ShortLink;

@@ -1,5 +1,6 @@
 package com.agenticengineering.urlshortener.shortener.api;
 
+import com.agenticengineering.urlshortener.shared.api.InvalidRequestException;
 import com.agenticengineering.urlshortener.shared.value.InvalidShortCodeException;
 import com.agenticengineering.urlshortener.shared.value.ShortCode;
 import com.agenticengineering.urlshortener.shortener.analytics.RedirectAnalytics;

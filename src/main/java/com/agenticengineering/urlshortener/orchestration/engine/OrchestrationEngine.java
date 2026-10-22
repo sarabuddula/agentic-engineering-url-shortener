@@ -38,8 +38,12 @@ public class OrchestrationEngine {
     }
 
     public String createRun(String requirementRef, String policyVersion) {
+        return createRun(requirementRef, policyVersion, "LIVE");
+    }
+
+    public String createRun(String requirementRef, String policyVersion, String executionClass) {
         String runId = ids.newId();
-        store.createRun(runId, requirementRef, policyVersion, SdlcWorkflow.graph());
+        store.createRun(runId, requirementRef, policyVersion, SdlcWorkflow.graph(), executionClass);
         return runId;
     }
 
