@@ -6,6 +6,7 @@ import com.agenticengineering.urlshortener.orchestration.policy.PersistedEvidenc
 import com.agenticengineering.urlshortener.orchestration.stages.PolicyStageExecutor;
 import com.agenticengineering.urlshortener.orchestration.stages.DecompositionStageExecutor;
 import com.agenticengineering.urlshortener.orchestration.stages.ImpactAnalysisStageExecutor;
+import com.agenticengineering.urlshortener.orchestration.stages.TestExecutionStageExecutor;
 import com.agenticengineering.urlshortener.orchestration.stages.QualityStageExecutor;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,8 +20,7 @@ import org.springframework.stereotype.Component;
 public class StageExecutorRegistry {
 
     private static final Map<String, String> NOT_YET_BUILT = Map.of(
-            "N06", "the design executor (T087 scenario work)", "N09", "T128 real test execution",
-            "N10", "the documentation executor (T087 scenario work)", "N11", "T085/T094 evidence assembly",
+            "N06", "the design executor (T087 scenario work)",             "N10", "the documentation executor (T087 scenario work)", "N11", "T085/T094 evidence assembly",
             "N14", "T091 engineering summary");
 
     private final RequirementStore requirements;
@@ -29,16 +29,18 @@ public class StageExecutorRegistry {
     private final GateExecutor.Factory gates;
     private final PolicyStageExecutor policy;
     private final ImpactAnalysisStageExecutor impact;
+    private final TestExecutionStageExecutor tests;
 
     public StageExecutorRegistry(RequirementStore requirements, QualityStageExecutor quality,
             DecompositionStageExecutor decomposition, GateExecutor.Factory gates, PolicyStageExecutor.Factory policies,
-            PersistedEvidenceProvider evidence, ImpactAnalysisStageExecutor impact) {
+            PersistedEvidenceProvider evidence, ImpactAnalysisStageExecutor impact, TestExecutionStageExecutor.Factory tests) {
         this.requirements = requirements;
         this.quality = quality;
         this.decomposition = decomposition;
         this.gates = gates;
         this.policy = policies.withEvidence(evidence);
         this.impact = impact;
+        this.tests = tests.production();
     }
 
     public Map<String, StageExecutor> executors() {
@@ -49,6 +51,7 @@ public class StageExecutorRegistry {
         executors.put("N03", gates.gate(ApprovalKind.CLARIFICATION));
         executors.put("N04", impact);
         executors.put("N05", decomposition);
+        executors.put("N09", tests); // T128: real test execution
         executors.put("N07", gates.gate(ApprovalKind.DESIGN_APPROVAL));
         executors.put("N12", policy); // production evidence is partial: unverified checks fail closed (NOT READY)
         executors.put("N13", gates.gate(ApprovalKind.RELEASE_AUTHORIZATION));

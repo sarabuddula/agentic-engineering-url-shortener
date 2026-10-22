@@ -32,6 +32,11 @@ app:
   orchestration:
     retry:
       base-delay-ms: 1000             # FP-1 backoff base (1 s, 2 s, 4 s); at most 3 retries, 60 s bound (T075)
+  test-execution:                     # N09 real test execution (T128); Maven is a runtime tool (A-004)
+    working-dir: .
+    maven-command: mvn
+    default-pattern: "*Test"
+    timeout-seconds: 180              # one retry on timeout (human decision at T124)
   policy:                             # DEP-01 evidence inputs (T082), relative to the working directory
     pom-file: pom.xml
     inventory-file: docs/compliance/licenses.xml

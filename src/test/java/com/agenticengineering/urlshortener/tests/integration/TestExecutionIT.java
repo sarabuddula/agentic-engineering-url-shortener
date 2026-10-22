@@ -65,7 +65,7 @@ class TestExecutionIT {
         assertThat(result.outcome()).isEqualTo(StageResult.Outcome.FAILED);
         assertThat(result.reason()).startsWith("permanent:").contains("1 of 2 failed").contains("FailingTest");
         assertThat(statuses(runId)).containsEntry("fixture.PassingTest#adds", "PASSED").containsEntry("fixture.FailingTest#subtractsWrongly", "FAILED");
-        assertThat(jdbc.queryForObject("SELECT REQUIREMENT_REFS FROM TEST_OUTCOME WHERE RUN_ID = ? AND TEST_ID LIKE '%PassingTest%'",
+        assertThat(jdbc.queryForObject("SELECT REQUIREMENT_REFS FROM TEST_OUTCOME WHERE RUN_ID = ? AND SUITE = 'fixture.PassingTest'",
                 String.class, runId)).isEqualTo("FR-001");
         assertThat(jdbc.queryForMap("SELECT TYPE, STATUS, EFFECT_VERIFIED FROM OPERATION_RECORD WHERE RUN_ID = ? AND TYPE = 'TEST_RUN'", runId))
                 .containsEntry("STATUS", "COMPLETED").containsEntry("EFFECT_VERIFIED", true);

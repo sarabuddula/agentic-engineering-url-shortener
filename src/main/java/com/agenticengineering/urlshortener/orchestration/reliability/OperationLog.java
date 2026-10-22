@@ -35,6 +35,11 @@ public class OperationLog {
         return operationId;
     }
 
+    public void fail(String operationId) {
+        jdbc.update("UPDATE OPERATION_RECORD SET STATUS = 'FAILED', COMPLETED_AT = ? WHERE OPERATION_ID = ?", Timestamp.from(Instant.now()),
+                operationId);
+    }
+
     public void complete(String operationId, boolean effectVerified) {
         jdbc.update("UPDATE OPERATION_RECORD SET STATUS = 'COMPLETED', EFFECT_VERIFIED = ?, COMPLETED_AT = ? WHERE OPERATION_ID = ?",
                 effectVerified, Timestamp.from(Instant.now()), operationId);
