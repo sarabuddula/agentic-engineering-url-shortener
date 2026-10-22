@@ -14,7 +14,7 @@ requirements:
       commit: 8a0ed921808a06a05705d1088ea115ac079b5719
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   US-002:
     adrs:
@@ -28,7 +28,7 @@ requirements:
       commit: 837aa264bbd0f5d83417e43aee14e635d3807d0c
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   US-003:
     adrs: []
@@ -37,10 +37,10 @@ requirements:
     - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/BrownfieldImpactTest.java
       commit: 837aa264bbd0f5d83417e43aee14e635d3807d0c
     - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/ChangeApprovalTest.java
-      commit: 837aa264bbd0f5d83417e43aee14e635d3807d0c
+      commit: 5c24a3b2af5a5b9cf8076ce638757b9263ff8188
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   US-004:
     adrs: []
@@ -52,7 +52,7 @@ requirements:
       commit: 837aa264bbd0f5d83417e43aee14e635d3807d0c
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   US-005:
     adrs:
@@ -64,7 +64,7 @@ requirements:
       commit: 653efc4bd728784a9a8ed8047edf2bdcfb7e7665
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   SCN-A:
     adrs:
@@ -76,11 +76,17 @@ requirements:
     - T089
     - T116
     tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/shortener/domain/LinkStatusTest.java
+      commit: 1137e75bfa39d25b55d4d72118aedb856c7afeef
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/LinkStatusApiTest.java
+      commit: 1137e75bfa39d25b55d4d72118aedb856c7afeef
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/ResumeTest.java
+      commit: 431fd4c4d380f9c750c05da74f135e5afe9f35c3
     - path: src/test/java/com/agenticengineering/urlshortener/tests/orchestration/RequirementIngestionTest.java
       commit: bc2e9b97a0cceb062ec73312cde4c36b9a870c6b
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   SCN-B:
     adrs:
@@ -90,13 +96,17 @@ requirements:
     - T069
     - T070
     tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/contract/LinkCreationIT.java
+      commit: 9fc9da61fb159d59bb3e0cc6e888567947bae811
     - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/BrownfieldImpactTest.java
       commit: 837aa264bbd0f5d83417e43aee14e635d3807d0c
     - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/ChangeApprovalTest.java
-      commit: 837aa264bbd0f5d83417e43aee14e635d3807d0c
+      commit: 5c24a3b2af5a5b9cf8076ce638757b9263ff8188
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/ConfigurationBindingTest.java
+      commit: 9fc9da61fb159d59bb3e0cc6e888567947bae811
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   SCN-C:
     adrs:
@@ -108,11 +118,15 @@ requirements:
       commit: 837aa264bbd0f5d83417e43aee14e635d3807d0c
     - path: src/test/java/com/agenticengineering/urlshortener/tests/contract/RunStartIT.java
       commit: 837aa264bbd0f5d83417e43aee14e635d3807d0c
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/ArtifactVersionConcurrencyTest.java
+      commit: cf801ea4938515743a7fd2a773b12c9d4df0c754
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/ScnCCreateResolveTest.java
+      commit: 491dc9a4de78d8a905f784e3e581c59eb6a50a9b
     - path: src/test/java/com/agenticengineering/urlshortener/tests/orchestration/RequirementIngestionTest.java
       commit: bc2e9b97a0cceb062ec73312cde4c36b9a870c6b
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   FR-001:
     adrs:
@@ -127,18 +141,20 @@ requirements:
     - path: src/test/java/com/agenticengineering/urlshortener/shortener/domain/LinkDomainTest.java
       commit: b6b816c4bf59efa5d8233d5308d1c55fa4cf4286
     - path: src/test/java/com/agenticengineering/urlshortener/tests/contract/LinkCreationIT.java
-      commit: 4cfe283bddac646baaddb6a126854870493c079e
+      commit: 9fc9da61fb159d59bb3e0cc6e888567947bae811
     - path: src/test/java/com/agenticengineering/urlshortener/tests/e2e/AppPlaneE2EIT.java
       commit: 8a0ed921808a06a05705d1088ea115ac079b5719
     - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/ProductionStagesTest.java
       commit: 083f0577d33440bf2bf368eb51e69a7fae528d47
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/ScnCCreateResolveTest.java
+      commit: 491dc9a4de78d8a905f784e3e581c59eb6a50a9b
     - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/TestExecutionIT.java
       commit: 1b4eb446bf825e5f2690331e36bc54a8d19bdebd
     - path: src/test/java/com/agenticengineering/urlshortener/tests/unit/MappingManifestTest.java
-      commit: 68c98e5052c88dbd62e3fd0726c6213a667db9cd
+      commit: e71ab7dce07764314478379c76b8f2cb5a6cce9e
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   FR-002:
     adrs:
@@ -164,18 +180,18 @@ requirements:
     - path: src/test/java/com/agenticengineering/urlshortener/tests/contract/AppPlaneContractIT.java
       commit: 73c7de8ca9ae90831e3fb274d103d7ad62100df4
     - path: src/test/java/com/agenticengineering/urlshortener/tests/contract/LinkCreationIT.java
-      commit: 4cfe283bddac646baaddb6a126854870493c079e
+      commit: 9fc9da61fb159d59bb3e0cc6e888567947bae811
     - path: src/test/java/com/agenticengineering/urlshortener/tests/security/UrlRejectionMatrixIT.java
       commit: ec7bcb141589498950f724d591f58562ad4f2635
     - path: src/test/java/com/agenticengineering/urlshortener/tests/unit/ErrorMappingTest.java
       commit: 4cfe283bddac646baaddb6a126854870493c079e
     - path: src/test/java/com/agenticengineering/urlshortener/tests/unit/MappingManifestTest.java
-      commit: 68c98e5052c88dbd62e3fd0726c6213a667db9cd
+      commit: e71ab7dce07764314478379c76b8f2cb5a6cce9e
     - path: src/test/java/com/agenticengineering/urlshortener/tests/unit/SharedValueObjectsTest.java
       commit: 341c2f41d196abf0b06b9d271e0f577eb3e6de20
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   FR-003:
     adrs:
@@ -192,7 +208,7 @@ requirements:
       commit: ec7bcb141589498950f724d591f58562ad4f2635
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   FR-004:
     adrs:
@@ -205,7 +221,7 @@ requirements:
       commit: 88cc464811998676315f1508cadc9bcfb5c4b231
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   FR-016:
     adrs:
@@ -226,7 +242,7 @@ requirements:
       commit: 2e55eb2f57729ca5d6d1181a091339868bb9da77
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   FR-005:
     adrs:
@@ -245,9 +261,11 @@ requirements:
       commit: 4716ecfc7cffed3e828ba098f5b661f08d1a9a40
     - path: src/test/java/com/agenticengineering/urlshortener/tests/e2e/AppPlaneE2EIT.java
       commit: 8a0ed921808a06a05705d1088ea115ac079b5719
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/ScnCCreateResolveTest.java
+      commit: 491dc9a4de78d8a905f784e3e581c59eb6a50a9b
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   FR-006:
     adrs:
@@ -262,13 +280,17 @@ requirements:
     tests:
     - path: src/test/java/com/agenticengineering/urlshortener/shortener/domain/LinkDomainTest.java
       commit: b6b816c4bf59efa5d8233d5308d1c55fa4cf4286
+    - path: src/test/java/com/agenticengineering/urlshortener/shortener/domain/LinkStatusTest.java
+      commit: 1137e75bfa39d25b55d4d72118aedb856c7afeef
     - path: src/test/java/com/agenticengineering/urlshortener/tests/contract/RedirectIT.java
       commit: 4716ecfc7cffed3e828ba098f5b661f08d1a9a40
     - path: src/test/java/com/agenticengineering/urlshortener/tests/e2e/AppPlaneE2EIT.java
       commit: 8a0ed921808a06a05705d1088ea115ac079b5719
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/LinkStatusApiTest.java
+      commit: 1137e75bfa39d25b55d4d72118aedb856c7afeef
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   FR-007:
     adrs:
@@ -289,14 +311,14 @@ requirements:
     - path: src/test/java/com/agenticengineering/urlshortener/tests/contract/IdempotencyAfterExpiryIT.java
       commit: 837aa264bbd0f5d83417e43aee14e635d3807d0c
     - path: src/test/java/com/agenticengineering/urlshortener/tests/contract/LinkCreationIT.java
-      commit: 4cfe283bddac646baaddb6a126854870493c079e
+      commit: 9fc9da61fb159d59bb3e0cc6e888567947bae811
     - path: src/test/java/com/agenticengineering/urlshortener/tests/e2e/AppPlaneE2EIT.java
       commit: 8a0ed921808a06a05705d1088ea115ac079b5719
     - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/JdbcLinkRepositoryTest.java
       commit: 09ecf7eb0298a4e678e28ef15bda1010e160b1e4
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   FR-008:
     adrs:
@@ -309,7 +331,7 @@ requirements:
       commit: 2e55eb2f57729ca5d6d1181a091339868bb9da77
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   FR-009:
     adrs:
@@ -323,7 +345,7 @@ requirements:
       commit: b57acd89e1f49767fdf0fd9635b6288991c26b06
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   FR-010:
     adrs:
@@ -337,7 +359,7 @@ requirements:
       commit: e7913b26e0d8a78bfa658fff0432d13ac1edb562
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   FR-011:
     adrs:
@@ -350,14 +372,14 @@ requirements:
     - path: src/test/java/com/agenticengineering/urlshortener/shortener/domain/LinkDomainTest.java
       commit: b6b816c4bf59efa5d8233d5308d1c55fa4cf4286
     - path: src/test/java/com/agenticengineering/urlshortener/tests/contract/LinkCreationIT.java
-      commit: 4cfe283bddac646baaddb6a126854870493c079e
+      commit: 9fc9da61fb159d59bb3e0cc6e888567947bae811
     - path: src/test/java/com/agenticengineering/urlshortener/tests/e2e/AppPlaneE2EIT.java
       commit: 8a0ed921808a06a05705d1088ea115ac079b5719
     - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/ConfigurationBindingTest.java
-      commit: 837aa264bbd0f5d83417e43aee14e635d3807d0c
+      commit: 9fc9da61fb159d59bb3e0cc6e888567947bae811
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   FR-012:
     adrs:
@@ -385,11 +407,13 @@ requirements:
       commit: 8a0ed921808a06a05705d1088ea115ac079b5719
     - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/ApprovalLifecycleTest.java
       commit: a31acd30f658579e907b790b5fa676107f10bdd1
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/LinkStatusApiTest.java
+      commit: 1137e75bfa39d25b55d4d72118aedb856c7afeef
     - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/RedirectEventFieldsTest.java
       commit: c8dc3d19db4d2d585b3a7d21ed9ba5b448cac370
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   FR-013:
     adrs:
@@ -404,12 +428,12 @@ requirements:
     - path: src/test/java/com/agenticengineering/urlshortener/shortener/domain/UrlValidationTest.java
       commit: bba1052f5eac746c70bdf5c9f883288e7f054dd4
     - path: src/test/java/com/agenticengineering/urlshortener/tests/contract/LinkCreationIT.java
-      commit: 4cfe283bddac646baaddb6a126854870493c079e
+      commit: 9fc9da61fb159d59bb3e0cc6e888567947bae811
     - path: src/test/java/com/agenticengineering/urlshortener/tests/unit/SharedValueObjectsTest.java
       commit: 341c2f41d196abf0b06b9d271e0f577eb3e6de20
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   FR-014:
     adrs:
@@ -429,7 +453,7 @@ requirements:
       commit: c32b4de20395f8930989afe39fc3f1cd7cb33068
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   FR-015:
     adrs:
@@ -446,7 +470,7 @@ requirements:
       commit: c8dc3d19db4d2d585b3a7d21ed9ba5b448cac370
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   FR-020:
     adrs:
@@ -472,7 +496,7 @@ requirements:
       commit: fe5061bf9db1c4445b2d962796a5ad148efbe417
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   FR-021:
     adrs:
@@ -484,7 +508,7 @@ requirements:
       commit: fe5061bf9db1c4445b2d962796a5ad148efbe417
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   FR-022:
     adrs:
@@ -504,7 +528,7 @@ requirements:
       commit: 4d246d12bc49edb8ec54a4351f7967f54d50441e
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   FR-023:
     adrs:
@@ -515,11 +539,13 @@ requirements:
     tests:
     - path: src/test/java/com/agenticengineering/urlshortener/tests/contract/RunHistoryApiIT.java
       commit: 653efc4bd728784a9a8ed8047edf2bdcfb7e7665
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/ArtifactVersionConcurrencyTest.java
+      commit: cf801ea4938515743a7fd2a773b12c9d4df0c754
     - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/DecisionLineageTest.java
       commit: 05700edb1ab57b8c39e537b760c8ba06cdc3f73d
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   FR-024:
     adrs:
@@ -542,12 +568,12 @@ requirements:
     - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/ApprovalSchemaAdditionsTest.java
       commit: 837aa264bbd0f5d83417e43aee14e635d3807d0c
     - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/ChangeApprovalTest.java
-      commit: 837aa264bbd0f5d83417e43aee14e635d3807d0c
+      commit: 5c24a3b2af5a5b9cf8076ce638757b9263ff8188
     - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/GateIntegrationTest.java
       commit: 837aa264bbd0f5d83417e43aee14e635d3807d0c
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   FR-025:
     adrs:
@@ -577,7 +603,7 @@ requirements:
       commit: 4a8f3b541f17b0855740619d6bb66472b4483030
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   FR-026:
     adrs:
@@ -592,7 +618,7 @@ requirements:
       commit: 4a8f3b541f17b0855740619d6bb66472b4483030
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   FR-027:
     adrs:
@@ -611,7 +637,7 @@ requirements:
       commit: e426d214eb1fd1d77c4f6d3b11b4b65d290deda1
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   FR-028:
     adrs:
@@ -625,6 +651,8 @@ requirements:
     tests:
     - path: src/test/java/com/agenticengineering/urlshortener/tests/contract/ResumeApiIT.java
       commit: 31e82b2ba3829ec467ee40d6759d09ce356a0920
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/BootRecoveryOrderingIT.java
+      commit: e177d07946c7005cb2269c91d81d22241e370d28
     - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/BootRecoveryTest.java
       commit: ae08d7cb69e81101806277e0fb4fb6fd5aca3d2c
     - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/FileModePersistenceIT.java
@@ -632,12 +660,12 @@ requirements:
     - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/GateIntegrationTest.java
       commit: 837aa264bbd0f5d83417e43aee14e635d3807d0c
     - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/ResumeTest.java
-      commit: 31e82b2ba3829ec467ee40d6759d09ce356a0920
+      commit: 431fd4c4d380f9c750c05da74f135e5afe9f35c3
     - path: src/test/java/com/agenticengineering/urlshortener/tests/reliability/KillRestartIT.java
       commit: d831e752c349cf5fde2a93e3bce8705d18f7e73d
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   FR-029:
     adrs:
@@ -653,15 +681,19 @@ requirements:
     - T120
     - T121
     tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/contract/DesignRevisionApiIT.java
+      commit: ceac94fa2a89c581251349c064acad1cf34d79bb
     - path: src/test/java/com/agenticengineering/urlshortener/tests/contract/ReplanApiIT.java
       commit: b3363853ae08da11d61bbc87794a8cd853eb5981
     - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/DecisionLineageTest.java
       commit: 05700edb1ab57b8c39e537b760c8ba06cdc3f73d
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/DesignReadRecordingTest.java
+      commit: ceac94fa2a89c581251349c064acad1cf34d79bb
     - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/ReplanningTest.java
       commit: c9b2ea22c6ac3873e54831b908404ef66ffe642b
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   FR-030:
     adrs:
@@ -678,6 +710,8 @@ requirements:
     tests:
     - path: src/test/java/com/agenticengineering/urlshortener/tests/contract/RunHistoryApiIT.java
       commit: 653efc4bd728784a9a8ed8047edf2bdcfb7e7665
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/ArtifactVersionConcurrencyTest.java
+      commit: cf801ea4938515743a7fd2a773b12c9d4df0c754
     - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/EvidenceClassTest.java
       commit: 837aa264bbd0f5d83417e43aee14e635d3807d0c
     - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/FailureRecordingTransactionTest.java
@@ -689,10 +723,10 @@ requirements:
     - path: src/test/java/com/agenticengineering/urlshortener/tests/unit/AuditApiSurfaceTest.java
       commit: c8dc3d19db4d2d585b3a7d21ed9ba5b448cac370
     - path: src/test/java/com/agenticengineering/urlshortener/tests/unit/MappingManifestTest.java
-      commit: 68c98e5052c88dbd62e3fd0726c6213a667db9cd
+      commit: e71ab7dce07764314478379c76b8f2cb5a6cce9e
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   FR-031:
     adrs:
@@ -714,7 +748,7 @@ requirements:
       commit: 77d0dcb0deb0bcbcb72e7e6b2b2deb3a59d240e2
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   FR-032:
     adrs:
@@ -732,7 +766,7 @@ requirements:
       commit: 837aa264bbd0f5d83417e43aee14e635d3807d0c
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   FR-033:
     adrs:
@@ -765,7 +799,7 @@ requirements:
       commit: 837aa264bbd0f5d83417e43aee14e635d3807d0c
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   FR-034:
     adrs:
@@ -778,7 +812,7 @@ requirements:
       commit: bc2e9b97a0cceb062ec73312cde4c36b9a870c6b
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   FR-035:
     adrs:
@@ -793,7 +827,7 @@ requirements:
       commit: bc2e9b97a0cceb062ec73312cde4c36b9a870c6b
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   FR-036:
     adrs:
@@ -813,7 +847,7 @@ requirements:
       commit: bc2e9b97a0cceb062ec73312cde4c36b9a870c6b
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   FR-037:
     adrs:
@@ -841,7 +875,7 @@ requirements:
       commit: 837aa264bbd0f5d83417e43aee14e635d3807d0c
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   FR-038:
     adrs:
@@ -853,7 +887,7 @@ requirements:
       commit: c6f01bb795b58e88d84f48bf22d940be6cdfe5f5
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   FR-039:
     adrs:
@@ -865,7 +899,7 @@ requirements:
       commit: 002a6ae7908761315c7c0fdf9ec66e23be708013
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   FR-044:
     adrs:
@@ -892,7 +926,7 @@ requirements:
       commit: 960799d9ed5cb182da6ed6cc55f7332f3f4d58a1
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   FR-045:
     adrs:
@@ -913,7 +947,7 @@ requirements:
       commit: 0c902dbe386e7435a9d5857bb421dd9ace1da865
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   FR-046:
     adrs:
@@ -934,7 +968,7 @@ requirements:
       commit: c9b2ea22c6ac3873e54831b908404ef66ffe642b
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   FR-047:
     adrs:
@@ -950,14 +984,14 @@ requirements:
     - path: src/test/java/com/agenticengineering/urlshortener/shortener/ratelimit/ClientRateLimiterTest.java
       commit: 837aa264bbd0f5d83417e43aee14e635d3807d0c
     - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/ConfigurationBindingTest.java
-      commit: 837aa264bbd0f5d83417e43aee14e635d3807d0c
+      commit: 9fc9da61fb159d59bb3e0cc6e888567947bae811
     - path: src/test/java/com/agenticengineering/urlshortener/tests/security/RateLimitIT.java
       commit: 6e89188974e4a9b7ad65f183f9d58f9468ab39b2
     - path: src/test/java/com/agenticengineering/urlshortener/tests/unit/ErrorMappingTest.java
       commit: 4cfe283bddac646baaddb6a126854870493c079e
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   FR-048:
     adrs:
@@ -980,7 +1014,7 @@ requirements:
       commit: 960799d9ed5cb182da6ed6cc55f7332f3f4d58a1
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   FR-049:
     adrs:
@@ -994,7 +1028,7 @@ requirements:
       commit: e426d214eb1fd1d77c4f6d3b11b4b65d290deda1
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   FR-040:
     adrs:
@@ -1002,11 +1036,15 @@ requirements:
     tasks:
     - T087
     tests:
+    - path: src/test/java/com/agenticengineering/urlshortener/shortener/domain/LinkStatusTest.java
+      commit: 1137e75bfa39d25b55d4d72118aedb856c7afeef
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/LinkStatusApiTest.java
+      commit: 1137e75bfa39d25b55d4d72118aedb856c7afeef
     - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/SdlcWorkflowTest.java
       commit: 960799d9ed5cb182da6ed6cc55f7332f3f4d58a1
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   FR-041:
     adrs:
@@ -1021,7 +1059,7 @@ requirements:
       commit: 837aa264bbd0f5d83417e43aee14e635d3807d0c
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   FR-042:
     adrs:
@@ -1035,9 +1073,11 @@ requirements:
       commit: 837aa264bbd0f5d83417e43aee14e635d3807d0c
     - path: src/test/java/com/agenticengineering/urlshortener/tests/contract/RunStartIT.java
       commit: 837aa264bbd0f5d83417e43aee14e635d3807d0c
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/ScnCCreateResolveTest.java
+      commit: 491dc9a4de78d8a905f784e3e581c59eb6a50a9b
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   FR-043:
     adrs:
@@ -1050,7 +1090,7 @@ requirements:
       commit: 29ff459c519b10bef93c0e99eface7f837124296
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   NFR-001:
     adrs:
@@ -1070,10 +1110,10 @@ requirements:
     - path: src/test/java/com/agenticengineering/urlshortener/tests/security/UrlRejectionMatrixIT.java
       commit: ec7bcb141589498950f724d591f58562ad4f2635
     - path: src/test/java/com/agenticengineering/urlshortener/tests/unit/MappingManifestTest.java
-      commit: 68c98e5052c88dbd62e3fd0726c6213a667db9cd
+      commit: e71ab7dce07764314478379c76b8f2cb5a6cce9e
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   NFR-002:
     adrs:
@@ -1085,7 +1125,7 @@ requirements:
       commit: b57acd89e1f49767fdf0fd9635b6288991c26b06
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   NFR-003:
     adrs:
@@ -1100,7 +1140,7 @@ requirements:
       commit: 2e55eb2f57729ca5d6d1181a091339868bb9da77
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   NFR-004:
     adrs:
@@ -1114,7 +1154,7 @@ requirements:
       commit: 0cb9b3b9bdded89b3e9e958315ff02152887be30
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   NFR-005:
     adrs:
@@ -1131,7 +1171,7 @@ requirements:
       commit: 66d523dd49d25eef2192db0b423a988f70f513a6
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   NFR-006:
     adrs:
@@ -1143,7 +1183,7 @@ requirements:
       commit: daeb1276dc7e2486c43c15ecc9b99d7fc63b54c1
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   NFR-007:
     adrs:
@@ -1155,7 +1195,7 @@ requirements:
       commit: 5a0f98435dafaf2735c52d13073aaef9cb8af952
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   NFR-008:
     adrs:
@@ -1167,7 +1207,7 @@ requirements:
       commit: d831e752c349cf5fde2a93e3bce8705d18f7e73d
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   NFR-009:
     adrs:
@@ -1181,7 +1221,7 @@ requirements:
       commit: 837aa264bbd0f5d83417e43aee14e635d3807d0c
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   NFR-010:
     adrs:
@@ -1190,10 +1230,10 @@ requirements:
     - T119
     tests:
     - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/ChangeApprovalTest.java
-      commit: 837aa264bbd0f5d83417e43aee14e635d3807d0c
+      commit: 5c24a3b2af5a5b9cf8076ce638757b9263ff8188
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   NFR-011:
     adrs:
@@ -1208,7 +1248,7 @@ requirements:
       commit: 960799d9ed5cb182da6ed6cc55f7332f3f4d58a1
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   SC-001:
     adrs:
@@ -1223,7 +1263,7 @@ requirements:
       commit: 8a0ed921808a06a05705d1088ea115ac079b5719
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   SC-002:
     adrs:
@@ -1237,8 +1277,16 @@ requirements:
     tests: []
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
-    evidence: []
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
+    evidence:
+    - path: docs/evidence/runs/run-4738769c-4517-4597-b0b9-ee5796670220.json
+      sha256: 5c30769571cf279abba70186dff318779cd9161bae6ac3ca90134d9526f0c006
+    - path: docs/evidence/runs/run-8306f656-0866-4e87-b538-e5977c7c4431.json
+      sha256: 0297b4d3ce2b821bb5baa7d7a62cc4316a742e6c6b7d8c4212349bc3e641cdd3
+    - path: docs/evidence/runs/run-d33a19d6-9539-4c04-89d3-ca3ee98f7582.json
+      sha256: cf6a0530212091860cfe62988895cfde71152d6f938ab2dc66d063cc82fe69fe
+    - path: docs/evidence/runs/run-934a50a1-35b3-4b72-85a3-4c66625a9969.json
+      sha256: 6d7ebbb2a873ee2334e654cd01ff44acf2cf96bba91b287360e698be3e827c8d
   SC-003:
     adrs:
     - ADR-007
@@ -1248,8 +1296,14 @@ requirements:
     tests: []
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
-    evidence: []
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
+    evidence:
+    - path: docs/evidence/t089-single-run.md
+      sha256: 0f720d4ec3837f28469f6403d86c16923f98fa24da8dc8a8735b0ee641a78343
+    - path: docs/evidence/t073-replan-acceptance.md
+      sha256: 8963d2cca6343772a4fac101518dfe4598cd40b3fb50064d39cfe236d87079ed
+    - path: docs/evidence/runs/run-4738769c-4517-4597-b0b9-ee5796670220.json
+      sha256: 5c30769571cf279abba70186dff318779cd9161bae6ac3ca90134d9526f0c006
   SC-004:
     adrs:
     - ADR-005
@@ -1269,7 +1323,7 @@ requirements:
       commit: fe5061bf9db1c4445b2d962796a5ad148efbe417
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   SC-005:
     adrs:
@@ -1283,7 +1337,7 @@ requirements:
       commit: 960799d9ed5cb182da6ed6cc55f7332f3f4d58a1
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   SC-006:
     adrs:
@@ -1293,7 +1347,7 @@ requirements:
     tests: []
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   SC-007:
     adrs:
@@ -1306,8 +1360,16 @@ requirements:
     tests: []
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
-    evidence: []
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
+    evidence:
+    - path: docs/evidence/pvt-report.md
+      sha256: ce17a99b3d8c9369fb67620eae14fe967731382a5699719987ad2449ba2f58a0
+    - path: docs/evidence/pvt/pvt-001-002.json
+      sha256: 6f255107cbb4cd655f9ae5f1b4bdf8c3f937f2a789a03a5b6a532fda5d6c5b06
+    - path: docs/evidence/pvt/suite-run-bddb6ba.txt
+      sha256: 36a169f4c7e7fb3191f65181a33064f8cb07a35a47986e17923414cb526b160f
+    - path: docs/evidence/pvt/metrics-demo.json
+      sha256: 5918cf3baead3d4a8e1fc265bcd9910b9632bb7437699195ae2cf12292b3903a
   PVT-001:
     adrs:
     - ADR-003
@@ -1319,10 +1381,10 @@ requirements:
     - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/PerformanceIT.java
       commit: 5a0f98435dafaf2735c52d13073aaef9cb8af952
     - path: src/test/java/com/agenticengineering/urlshortener/tests/unit/MappingManifestTest.java
-      commit: 68c98e5052c88dbd62e3fd0726c6213a667db9cd
+      commit: e71ab7dce07764314478379c76b8f2cb5a6cce9e
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   PVT-002:
     adrs:
@@ -1334,7 +1396,7 @@ requirements:
       commit: 5a0f98435dafaf2735c52d13073aaef9cb8af952
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   PVT-003:
     adrs:
@@ -1356,7 +1418,7 @@ requirements:
       commit: c9b495806262c707ebe98dc2917af3681cf43155
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   PVT-004:
     adrs:
@@ -1373,7 +1435,7 @@ requirements:
       commit: 4a8f3b541f17b0855740619d6bb66472b4483030
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   PVT-005:
     adrs:
@@ -1386,7 +1448,7 @@ requirements:
       commit: a31acd30f658579e907b790b5fa676107f10bdd1
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   PVT-006:
     adrs:
@@ -1399,6 +1461,8 @@ requirements:
     tests:
     - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/ApplicationSchemaTest.java
       commit: 36eb43100fffe5de4854e061a63f16e96cd2a4be
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/BootRecoveryOrderingIT.java
+      commit: e177d07946c7005cb2269c91d81d22241e370d28
     - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/BootRecoveryTest.java
       commit: ae08d7cb69e81101806277e0fb4fb6fd5aca3d2c
     - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/FileModePersistenceIT.java
@@ -1407,7 +1471,7 @@ requirements:
       commit: d831e752c349cf5fde2a93e3bce8705d18f7e73d
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   PVT-007:
     adrs:
@@ -1421,7 +1485,7 @@ requirements:
       commit: 4d246d12bc49edb8ec54a4351f7967f54d50441e
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []
   PVT-008:
     adrs:
@@ -1436,5 +1500,5 @@ requirements:
       commit: 77d0dcb0deb0bcbcb72e7e6b2b2deb3a59d240e2
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
-      commit: 9c6ac07be9330ba2ee2c0bd11922c02476c31ddd
+      commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence: []

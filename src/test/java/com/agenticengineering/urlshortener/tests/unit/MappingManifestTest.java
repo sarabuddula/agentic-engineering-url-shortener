@@ -58,24 +58,27 @@ class MappingManifestTest {
     }
 
     /**
-     * CHG-03 per run (human CHANGE_APPROVAL 2026-10-22, approvals/2026-10-22-chg03-demonstration-set.md): SC-002, SC-003,
-     * SC-006 and SC-007 are measured over the demonstration runs, so a single run's check defers them to the
-     * demonstration-set check; any other gap still fails, and the full report stays strict.
+     * CHG-03 per run (human CHANGE_APPROVAL 2026-10-22, approvals/2026-10-22-chg03-demonstration-set.md): the four
+     * success criteria measured over the demonstration runs are deferred to the demonstration-set check; any other gap
+     * still fails, and the full report stays strict. The criteria IDs are taken from the checker, never written here,
+     * so this test is not read as evidence for them by the manifest generator.
      */
     @Test
     void thePerRunViewDefersOnlyTheDemonstrationSetCriteria() {
-        ManifestChecker.Report onlyDeferred = new ManifestChecker.Report(List.of("SC-002", "SC-003", "SC-006", "SC-007"), List.of(),
-                List.of(), List.of(), List.of(), List.of());
+        List<String> deferred = ManifestChecker.DEMONSTRATION_SET_CRITERIA.stream().sorted().toList();
+        assertThat(deferred).hasSize(4);
+
+        ManifestChecker.Report onlyDeferred = new ManifestChecker.Report(deferred, List.of(), List.of(), List.of(), List.of(), List.of());
         assertThat(onlyDeferred.clean()).isFalse();
         assertThat(onlyDeferred.forRun().clean()).isTrue();
-        assertThat(onlyDeferred.forRun().deferredToDemonstrationSet()).containsExactly("SC-002", "SC-003", "SC-006", "SC-007");
+        assertThat(onlyDeferred.forRun().deferredToDemonstrationSet()).containsExactlyElementsOf(deferred);
 
-        ManifestChecker.Report otherGap = new ManifestChecker.Report(List.of("SC-002", "FR-001"), List.of(), List.of(), List.of(),
+        ManifestChecker.Report otherGap = new ManifestChecker.Report(List.of(deferred.get(0), "FR-001"), List.of(), List.of(), List.of(),
                 List.of(), List.of());
         assertThat(otherGap.forRun().clean()).isFalse();
         assertThat(otherGap.forRun().report().requirementsWithoutEvidence()).containsExactly("FR-001");
 
-        ManifestChecker.Report integrityGap = new ManifestChecker.Report(List.of("SC-003"), List.of(), List.of(), List.of(),
+        ManifestChecker.Report integrityGap = new ManifestChecker.Report(List.of(deferred.get(1)), List.of(), List.of(), List.of(),
                 List.of("docs/x.md"), List.of());
         assertThat(integrityGap.forRun().clean()).isFalse();
     }
