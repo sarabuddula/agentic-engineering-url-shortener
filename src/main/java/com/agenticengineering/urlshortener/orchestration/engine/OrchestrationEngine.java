@@ -231,7 +231,7 @@ public class OrchestrationEngine {
                 store.transitionNode(runId, node.getKey(), NodeStatus.AWAITING_APPROVAL, NodeStatus.RUNNING,
                         "approval " + approval.id() + " approved by " + approval.approverKeyId());
                 store.transitionNode(runId, node.getKey(), NodeStatus.RUNNING, NodeStatus.SUCCEEDED,
-                        approval.gate() + " passed with recorded approval " + approval.id());
+                        (approval.gate() != null ? approval.gate() : approval.kind().name()) + " passed with recorded approval " + approval.id());
                 progressed = true;
             } else if (approval.status() == ApprovalService.Decision.REJECTED) {
                 String reason = "approval " + approval.id() + " rejected at " + node.getKey() + " by " + approval.approverKeyId()
