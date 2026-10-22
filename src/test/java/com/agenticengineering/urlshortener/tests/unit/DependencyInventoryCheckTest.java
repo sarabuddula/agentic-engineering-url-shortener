@@ -13,6 +13,7 @@ import org.junit.jupiter.api.io.TempDir;
 /**
  * DEP-01 evidence source (T082): every non-test dependency declared in pom.xml must appear, with a pinned version, in
  * the license inventory docs/compliance/licenses.xml. Missing inputs fail closed.
+ * Requirements: FR-033 (DEP-01 policy check).
  */
 class DependencyInventoryCheckTest {
 

@@ -19,6 +19,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 /**
  * T109: the idempotency binding lives as long as the link row (ADR-006 amendment, human decision 2026-10-19): a replay
  * after the link has expired returns the original link unchanged with 200 - never 410, never a new link.
+ * Requirements: FR-007 (duplicate creation and idempotent replay).
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class IdempotencyAfterExpiryIT {

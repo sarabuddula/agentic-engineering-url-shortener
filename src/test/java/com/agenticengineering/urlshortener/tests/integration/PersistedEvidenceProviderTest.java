@@ -15,6 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
  * DEP-01 evaluates the real pom.xml and inventory and AUD-02 the run. Regression guard, not red-first: written after
  * T068 found that Spring resolves a relative Path against the classpath; the suspected defect did not occur for these
  * values (no classpath resource has their names), and the provider now takes Strings.
+ * Requirements: FR-032, FR-033 (versioned policy evaluation on real evidence).
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 class PersistedEvidenceProviderTest {

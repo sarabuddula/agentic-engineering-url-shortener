@@ -24,6 +24,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
  * T080: release readiness (FR-037, ADR-009). N12 records exactly one of READY, READY_WITH_ACCEPTED_LIMITATIONS or
  * NOT_READY with decision PENDING; the system only recommends. The human decision is the G7 approval by a distinct
  * RELEASE_OWNER, settled into RELEASE_DECISION (approver, time, evidence reference) and the run's terminal outcome.
+ * Requirements: US-004 (release-readiness determination).
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 @Import({PolicyRunFixture.class, CompletionEvidenceFixture.class})

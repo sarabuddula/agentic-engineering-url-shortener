@@ -7,7 +7,8 @@ import java.util.Collections;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
-/** Blocking reasons always fit RELEASE_DECISION.BLOCKING_REASONS (VARCHAR 2048) and never silently drop a count. */
+/** Blocking reasons always fit RELEASE_DECISION.BLOCKING_REASONS (VARCHAR 2048) and never silently drop a count. * Requirements: FR-037 (release-readiness blocking reasons).
+ */
 class BlockingReasonsFitTest {
 
     @Test

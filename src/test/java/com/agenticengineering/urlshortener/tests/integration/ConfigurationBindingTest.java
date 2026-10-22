@@ -15,7 +15,8 @@ import org.springframework.boot.test.context.ConfigDataApplicationContextInitial
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.context.annotation.Configuration;
 
-/** T008: application.yml binds every externalized limit, TTL and timeout (A-006, A-008, A-013 to A-018 bounds). */
+/** T008: application.yml binds every externalized limit, TTL and timeout (A-006, A-008, A-013 to A-018 bounds). * Requirements: FR-011 (default expiration), FR-047 (configurable limits).
+ */
 class ConfigurationBindingTest {
 
     @Configuration

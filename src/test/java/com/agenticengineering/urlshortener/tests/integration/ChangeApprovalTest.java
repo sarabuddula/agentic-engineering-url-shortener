@@ -31,6 +31,7 @@ import org.springframework.boot.test.context.SpringBootTest;
  * CHANGE_APPROVAL by an APPROVER other than the requester, requested at N04 with the impact analysis, before any
  * decomposition or implementation. Approval continues to the design gate; rejection ends the run; the decision enters
  * the lineage. Production executors for N01, N02, N04, N05 and the gates; N06, N09-N11, N14 are labelled fixtures.
+ * Requirements: US-003 (brownfield change under change approval).
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 class ChangeApprovalTest {

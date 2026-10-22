@@ -17,6 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest;
  * T127 (Constitution X, C-004): replayed and simulated evidence is never presented as live or human. The run's
  * execution class (LIVE, REPLAY) is in its creation event; every approval decision event and its lineage entry carry the
  * evidence class (HUMAN, SIMULATED), so the history shows which decisions a person actually made.
+ * Requirements: FR-030 (audit trail shows evidence classes).
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 class EvidenceClassTest {

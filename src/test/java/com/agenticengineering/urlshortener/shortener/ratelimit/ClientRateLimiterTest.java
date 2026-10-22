@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
  * T041: per-client token buckets (A-008a/b) with a bounded map. Eviction removes only clients idle long enough for a
  * full refill (removing them cannot restore restricted capacity); at the ceiling new clients are rejected and active
  * limits are kept (plan section 8).
+ * Requirements: FR-047 (creation and redirect rate limits).
  */
 class ClientRateLimiterTest {
 

@@ -23,6 +23,7 @@ import org.springframework.boot.test.web.server.LocalServerPort;
  * Defect found in the SCN-C demonstration (2026-10-22): POST /runs ingested the requirement but never started the run,
  * so it stayed RUNNING at N01. A created run must proceed on its own to its first gate - for SCN-C ("Add support for
  * links.") the quality check finds material ambiguity and the run suspends at the G1 clarification.
+ * Requirements: FR-042, SCN-C (ambiguity blocks implementation and opens the G1 clarification).
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class RunStartIT {

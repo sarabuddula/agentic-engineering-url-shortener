@@ -22,6 +22,7 @@ import org.springframework.context.annotation.Import;
  * T081: GET /api/v1/orchestrator/runs/{runId}/release-readiness (FR-037): RELEASE_OWNER or REVIEWER; recommendation,
  * one outcome per policy check, blocking reasons when NOT READY, and the human decision. 404 for an unknown run and
  * for a run that has no determination yet.
+ * Requirements: US-004 (release-readiness determination).
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(PolicyRunFixture.class)

@@ -16,6 +16,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 /**
  * Fifth governed change (2026-10-21, T066 a-b): approvals persist their kind, kinds without a gate can be stored, and a
  * policy exception references its G5 approval directly.
+ * Requirements: FR-024 (approval kinds), FR-033 (policy exceptions).
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 class ApprovalSchemaAdditionsTest {

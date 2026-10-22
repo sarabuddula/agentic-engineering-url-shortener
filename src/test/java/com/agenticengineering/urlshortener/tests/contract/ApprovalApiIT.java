@@ -22,6 +22,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 /**
  * T061 (API side): POST /runs/{runId}/approvals/{approvalId} and pending approvals in the run detail (FR-024, FR-046;
  * ADR-008 roles). Approvals are requested through the service on an API-created run so each case is isolated.
+ * Requirements: US-002 (human reviewer approves, rejects and governs).
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class ApprovalApiIT {

@@ -24,6 +24,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
  * Fifth governed change (2026-10-21, T066 c-d): POST /runs/{runId}/policy-exceptions (ENGINEER) opens a G5 approval;
  * a RELEASE_OWNER approving it through the approvals endpoint with the policy_exception payload records the
  * exception's approving authority, compensating control, approved_at and ISO-8601 expiry.
+ * Requirements: FR-033 (policy exceptions).
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class PolicyExceptionApiIT {

@@ -26,6 +26,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
  * the approval and the audit chain but never applied to the requirement, so N05 re-checked the original text, found the
  * same ambiguity and the run safe-stopped. An approved clarification must produce requirement version 2 (CONFIRMED,
  * referencing the approval) and the run must decompose from it and continue to the G2 design approval (plan section 11).
+ * Requirements: FR-042, SCN-C (recorded clarification updates the requirement and the run resumes).
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class ClarificationResumeIT {

@@ -31,6 +31,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 /**
  * T061 (engine side): human gates pause the graph and the run resumes from persisted state after the decision
  * (FR-024, FR-025, FR-028, SC-004). Gate nodes use the real GateExecutor; the other stages are labelled fixtures.
+ * Requirements: US-002 (human reviewer approves, rejects and governs).
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 @Import(CompletionEvidenceFixture.class)

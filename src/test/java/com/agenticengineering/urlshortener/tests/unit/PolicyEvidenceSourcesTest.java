@@ -21,6 +21,7 @@ import org.junit.jupiter.api.io.TempDir;
  * (PRV-02, LIC-02, DEP-02), the license inventory against approved licenses (LIC-01), the security and compliance test
  * suites the run executes (SEC-01, SEC-02, PRV-01, AUD-01, CMP-02) and a gitleaks secret scan (SEC-03). Every source
  * fails closed.
+ * Requirements: FR-032, FR-033 (policy evidence sources).
  */
 class PolicyEvidenceSourcesTest {
 

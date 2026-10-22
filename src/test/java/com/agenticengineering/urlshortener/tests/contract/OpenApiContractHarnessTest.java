@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 /**
  * T011: the contract-test harness loads {@code contracts/openapi.yaml} with the approved validator
  * (swagger-request-validator 2.44.8, research.md row 9) and the hand-written fallback assertions agree with it.
+ * Requirements: NFR-009 (contract-test category of the test strategy).
  */
 class OpenApiContractHarnessTest {
 

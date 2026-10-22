@@ -33,6 +33,7 @@ import org.springframework.boot.test.context.SpringBootTest;
  * (components, interfaces, data flows, tests, documentation, regression risks, rollout and rollback) at N04, stored with
  * its content hash, before any implementation work. N01, N02, N04, N05 and the N07 gate are the production executors;
  * stages not built yet are labelled fixtures.
+ * Requirements: US-003 (brownfield change).
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 class BrownfieldImpactTest {
