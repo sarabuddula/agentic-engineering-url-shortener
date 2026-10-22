@@ -2,6 +2,7 @@ package com.agenticengineering.urlshortener.orchestration.api;
 
 import com.agenticengineering.urlshortener.orchestration.approval.ApprovalService;
 import com.agenticengineering.urlshortener.orchestration.engine.OrchestrationEngine;
+import com.agenticengineering.urlshortener.orchestration.engine.RunDriver;
 import com.agenticengineering.urlshortener.orchestration.persistence.WorkflowStore;
 import com.agenticengineering.urlshortener.orchestration.policy.PolicySet;
 import com.agenticengineering.urlshortener.orchestration.security.KeyIdentity;
@@ -26,7 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * Control-plane run endpoints (T058; FR-020, FR-045, contracts/openapi.yaml). POST ingests the requirement (N01) and
  * creates the run under the current policy version; GET returns the run detail. Roles follow x-required-roles.
- * Driving the graph past N01 arrives with the approval gates (T059-T061).
+ * A created run is started off the request thread and proceeds to its first gate or outcome.
  */
 @RestController
 public class RunController {
@@ -38,14 +39,16 @@ public class RunController {
     private final RequirementIngestion ingestion;
     private final Roles roles;
     private final ApprovalService approvals;
+    private final RunDriver driver;
 
     public RunController(OrchestrationEngine engine, WorkflowStore store, RequirementIngestion ingestion, Roles roles,
-            ApprovalService approvals) {
+            ApprovalService approvals, RunDriver driver) {
         this.engine = engine;
         this.store = store;
         this.ingestion = ingestion;
         this.roles = roles;
         this.approvals = approvals;
+        this.driver = driver;
     }
 
     public record RunRequest(@JsonProperty("requirement_text") String requirementText,
@@ -67,6 +70,7 @@ public class RunController {
         }
         String runId = engine.createRun("api:" + keyId, POLICY_VERSION, executionClass);
         ingestion.ingest(runId, text);
+        driver.startAsync(runId); // the run proceeds on its own to its first gate; the 201 reports it as created
         return ResponseEntity.status(HttpStatus.CREATED).body(body(store.runDetail(runId).orElseThrow(), List.of(), false));
     }
 

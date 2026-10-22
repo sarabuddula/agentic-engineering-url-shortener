@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.agenticengineering.urlshortener.orchestration.approval.ApprovalKind;
 import com.agenticengineering.urlshortener.orchestration.approval.ApprovalService;
+import com.agenticengineering.urlshortener.orchestration.engine.OrchestrationEngine;
 import com.agenticengineering.urlshortener.tests.support.DemoKeyFixtures;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
@@ -38,14 +39,16 @@ class PolicyExceptionApiIT {
     @Autowired
     private JdbcTemplate jdbc;
 
+    @Autowired
+    private OrchestrationEngine engine;
+
     private String runId;
 
     @BeforeEach
     void setUp() {
         RestAssured.port = port;
-        runId = given().contentType(ContentType.JSON).header("X-API-Key", DemoKeyFixtures.rawKey("ENGINEER"))
-                .body("{\"requirement_text\":\"Change the default link TTL from 7 days to 24 hours.\"}")
-                .post("/api/v1/orchestrator/runs").jsonPath().getString("run_id");
+        // created without starting it, so no stage opens approvals of its own while the test counts them
+        runId = engine.createRun("api:test-engineer", "POL-2026-10-18-v1");
     }
 
     @Test

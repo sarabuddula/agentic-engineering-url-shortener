@@ -67,7 +67,8 @@ class RunApiIT {
             assertThat(detail.jsonPath().getString("run_id")).isEqualTo(runId);
             assertThat(detail.jsonPath().getInt("run_revision")).isZero();
             assertThat(detail.jsonPath().getString("execution_class")).isEqualTo("LIVE");
-            assertThat(detail.jsonPath().getList("pending_approvals")).isEmpty();
+            // the run starts on its own and may already wait at a gate; the list is present either way
+            assertThat(detail.jsonPath().getList("pending_approvals")).isNotNull();
         }
     }
 

@@ -31,6 +31,17 @@ public class RunDriver {
         });
     }
 
+    /** Starts a newly created run off the request thread: it proceeds to its first gate or outcome. */
+    public void startAsync(String runId) {
+        runner.submit(() -> {
+            try {
+                engine.execute(runId, registry.executors(), registry.taskExecutor());
+            } catch (RuntimeException e) {
+                LOG.error("start failed run_id={} type={}", runId, e.getClass().getName());
+            }
+        });
+    }
+
     /** Continues an authorized resumption off the request thread (T110). */
     public void continueAsync(String runId) {
         runner.submit(() -> {
