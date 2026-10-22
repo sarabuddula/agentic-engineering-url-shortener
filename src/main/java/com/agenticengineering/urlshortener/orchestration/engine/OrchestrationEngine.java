@@ -2,10 +2,14 @@ package com.agenticengineering.urlshortener.orchestration.engine;
 
 import com.agenticengineering.urlshortener.orchestration.approval.ApprovalKind;
 import com.agenticengineering.urlshortener.orchestration.approval.ApprovalService;
+import com.agenticengineering.urlshortener.orchestration.audit.AuditChain;
+import com.agenticengineering.urlshortener.orchestration.audit.AuditEntry;
+import com.agenticengineering.urlshortener.orchestration.audit.ChainVerification;
 import com.agenticengineering.urlshortener.orchestration.persistence.ReleaseDecisionStore;
 import com.agenticengineering.urlshortener.orchestration.persistence.TaskStore;
 import com.agenticengineering.urlshortener.orchestration.persistence.WorkflowStore;
 import com.agenticengineering.urlshortener.shared.port.IdGenerator;
+import com.agenticengineering.urlshortener.shared.port.TimeSource;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -32,10 +36,12 @@ public class OrchestrationEngine {
     private final IdGenerator ids;
     private final ApprovalService approvals;
     private final ReleaseDecisionStore releases;
+    private final AuditChain chain;
+    private final TimeSource clock;
 
     public OrchestrationEngine(WorkflowStore store, TaskStore tasks, @Qualifier("orchestrationStagePool") ExecutorService stagePool,
             @Qualifier("orchestrationTaskPool") ExecutorService taskPool, IdGenerator ids, ApprovalService approvals,
-            ReleaseDecisionStore releases) {
+            ReleaseDecisionStore releases, AuditChain chain, TimeSource clock) {
         this.store = store;
         this.tasks = tasks;
         this.stagePool = stagePool;
@@ -43,6 +49,8 @@ public class OrchestrationEngine {
         this.ids = ids;
         this.approvals = approvals;
         this.releases = releases;
+        this.chain = chain;
+        this.clock = clock;
     }
 
     public String createRun(String requirementRef, String policyVersion) {
@@ -57,7 +65,7 @@ public class OrchestrationEngine {
 
     /** Runs the graph from the run's persisted state until it completes, waits at a gate, or stops. */
     public RunOutcome execute(String runId, Map<String, StageExecutor> executors, TaskExecutor taskExecutor) {
-        return drive(runId, executors, taskExecutor);
+        return verifiedIfTerminal(runId, drive(runId, executors, taskExecutor));
     }
 
     /**
@@ -69,6 +77,29 @@ public class OrchestrationEngine {
         if (runStatus.isTerminal() || runStatus == RunStatus.SAFE_STOPPED) {
             return new RunOutcome(runStatus, "run is " + runStatus);
         }
+        return verifiedIfTerminal(runId, settleAndContinue(runId, runStatus, executors, taskExecutor));
+    }
+
+    /**
+     * T086 (FR-048, ADR-005): after a run turns terminal, re-verify the whole chain, terminal appends included, and append
+     * the result as the run's last event before the outcome is reported. The verification event itself is covered by
+     * any later GET /verify.
+     */
+    private RunOutcome verifiedIfTerminal(String runId, RunOutcome outcome) {
+        if (!outcome.runStatus().isTerminal()) {
+            return outcome;
+        }
+        ChainVerification verification = chain.verify(runId);
+        chain.append(runId, verification.intact()
+                ? new AuditEntry(AuditEntry.ActorType.SYSTEM, "CHAIN_VERIFIED", clock.now(), runId, "INTACT",
+                        "terminal re-verification: " + verification.eventCount() + " events intact; head " + chain.headHash(runId))
+                : new AuditEntry(AuditEntry.ActorType.SYSTEM, "CHAIN_VERIFICATION_FAILED", clock.now(), runId, "BROKEN",
+                        "terminal re-verification: broken at position " + verification.failedPosition() + " (" + verification.check() + ")"));
+        return outcome;
+    }
+
+    private RunOutcome settleAndContinue(String runId, RunStatus runStatus, Map<String, StageExecutor> executors,
+            TaskExecutor taskExecutor) {
         boolean progressed = false;
         for (Map.Entry<String, NodeStatus> node : store.nodeStatuses(runId).entrySet()) {
             if (node.getValue() != NodeStatus.AWAITING_APPROVAL) {
