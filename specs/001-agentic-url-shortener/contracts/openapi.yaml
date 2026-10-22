@@ -332,6 +332,37 @@ paths:
         '410':
           description: Approval window elapsed through escalation — affected path safe-stopped (PVT-005)
 
+  /api/v1/orchestrator/runs/{runId}/policy-exceptions:
+    post:
+      summary: Request a policy exception for a failing check (FR-033, Constitution VI; added 2026-10-21, T066)
+      description: 'Records the request without authority and opens a POLICY_EXCEPTION (G5) approval. Only a RELEASE_OWNER other than the requester can approve it, through the approvals endpoint with the policy_exception payload.'
+      security: [ { ApiKeyAuth: [] } ]
+      x-required-roles: [ENGINEER]
+      parameters:
+        - { name: runId, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PolicyExceptionRequest' }
+            examples:
+              dep01:
+                value: { policy_check_id: "DEP-01", reason: "transitive library pending license review", scope: "this run only" }
+      responses:
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '201':
+          description: Exception recorded and G5 approval opened
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PolicyExceptionCreated' }
+              examples:
+                created:
+                  value: { exception_id: "7", approval_id: "31", policy_check_id: "DEP-01", status: "PENDING_APPROVAL" }
+
   /api/v1/orchestrator/runs/{runId}/resume:
     post:
       summary: Controlled resumption after safe-stop (FR-028; requires recorded conditions)
@@ -587,7 +618,7 @@ components:
         head_hash: { type: string }
         event_count: { type: integer }
         failed_at_seq: { type: integer, description: 'Present only on failure (FR-048)' }
-        check: { type: string, description: 'Failure check: hash-mismatch | link-broken | sequence-gap | truncation' }
+        check: { type: string, description: 'Failure check: hash-mismatch | link-broken | sequence-gap | truncation | head-mismatch (chain consistent but disagreeing with the run''s retained head; added 2026-10-21, T066)' }
 
     ApprovalDecision:
       type: object
@@ -604,8 +635,25 @@ components:
             policy_check_id: { type: string }
             scope: { type: string }
             compensating_control: { type: string }
-            expiry_or_review_condition: { type: string }
+            expiry_or_review_condition: { type: string, format: date-time, description: 'ISO-8601 instant in the future when the exception expires (2026-10-21, T066); approving records it as the exception expiry' }
         accepted_limitation_text: { type: string, description: 'Required when approving an ACCEPTED_LIMITATION (G6): the disclosed limitation being accepted' }
+
+    PolicyExceptionRequest:
+      type: object
+      required: [policy_check_id, reason, scope]
+      properties:
+        policy_check_id: { type: string, description: 'A check of the run''s policy version, e.g. DEP-01' }
+        reason: { type: string }
+        scope: { type: string }
+
+    PolicyExceptionCreated:
+      type: object
+      required: [exception_id, approval_id, policy_check_id, status]
+      properties:
+        exception_id: { type: string }
+        approval_id: { type: string }
+        policy_check_id: { type: string }
+        status: { type: string, enum: [PENDING_APPROVAL] }
 
     ReleaseReadiness:
       type: object
