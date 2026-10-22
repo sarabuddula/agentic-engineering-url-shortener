@@ -21,11 +21,13 @@ public class PersistedEvidenceProvider implements PolicyEvidenceProvider {
     private final Path pom;
     private final Path inventory;
 
-    public PersistedEvidenceProvider(AuditChain chain, @Value("${app.policy.pom-file:pom.xml}") Path pom,
-            @Value("${app.policy.inventory-file:docs/compliance/licenses.xml}") Path inventory) {
+    // Strings, not Paths: Spring's Path conversion resolves a relative value against the classpath whenever a resource of
+    // that name exists there; these inputs are relative to the working directory
+    public PersistedEvidenceProvider(AuditChain chain, @Value("${app.policy.pom-file:pom.xml}") String pom,
+            @Value("${app.policy.inventory-file:docs/compliance/licenses.xml}") String inventory) {
         this.chain = chain;
-        this.pom = pom;
-        this.inventory = inventory;
+        this.pom = Path.of(pom);
+        this.inventory = Path.of(inventory);
     }
 
     @Override
