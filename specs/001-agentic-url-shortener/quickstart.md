@@ -45,7 +45,7 @@ Behavior: a target hostname present in the table resolves to the listed address 
 | `app.data-dir` | `./data` | H2 file database location (T026, ADR-003); state survives restarts |
 | `app.rate-limit.control-plane-per-key` | 120/min | A-008c - deferred 2026-10-21 (L-SC-01): configured but not enforced |
 | `app.rate-limit.failed-auth-per-ip` | 10/min, then 5-min block | A-008d + D-004 - deferred 2026-10-21 (L-SC-01): configured but not enforced |
-| `app.default-ttl-days` | 7 | A-006 |
+| `app.default-ttl-days` | 1 (24 hours) | A-006, amended 2026-10-22 (SCN-B; was 7) |
 | `app.approval-timeout-minutes` | 5 | PVT-005 (escalation re-issue, equal second window) |
 | `app.dns.lookup-timeout` | 3s | A-015; bounds `live` DNS lookups |
 | `app.rework-cap` | 2 | A-016; rework cycles per rejected gate before governed termination |

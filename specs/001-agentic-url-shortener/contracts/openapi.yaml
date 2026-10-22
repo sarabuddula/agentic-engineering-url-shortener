@@ -563,7 +563,7 @@ components:
       required: [target_url]
       properties:
         target_url: { type: string, format: uri, maxLength: 2048, description: 'HTTP/HTTPS only (A-007); internal/local addresses rejected (D-003)' }
-        expires_at: { type: string, format: date-time, description: 'Optional; default TTL 7 days applies when absent (A-006)' }
+        expires_at: { type: string, format: date-time, description: 'Optional; default TTL 24 hours applies when absent (A-006; 7 days until the SCN-B change of 2026-10-22)' }
 
     ShortLinkResponse:
       type: object
