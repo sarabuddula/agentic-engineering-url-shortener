@@ -67,4 +67,13 @@ public class LinkService {
         }
         return new Resolution.Redirect(link.get().target(), link.get());
     }
+
+    /** Read-only status lookup (SCN-A): the same expiry rule as {@link #resolve}, without redirecting. */
+    public LinkStatus status(String rawCode) {
+        return switch (resolve(rawCode)) {
+            case Resolution.Redirect active -> new LinkStatus(rawCode, LinkStatus.State.ACTIVE, active.link().expiresAt());
+            case Resolution.Expired expired -> new LinkStatus(rawCode, LinkStatus.State.EXPIRED, expired.link().expiresAt());
+            case Resolution.NotFound unknown -> new LinkStatus(rawCode, LinkStatus.State.UNKNOWN, null);
+        };
+    }
 }
