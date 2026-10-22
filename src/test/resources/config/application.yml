@@ -4,3 +4,10 @@ app:
   data-dir: ./target/test-data/${random.uuid}
   security:
     key-file: src/test/resources/fixtures/demo-keys.test.yml   # test-only fixture keys (T012), hashes only
+  policy:
+    # N12 evidence (option (a)): the suite run and the secret scan would start Maven and gitleaks against this workspace
+    # during its own build, so they are off here; their checks fail closed. Production runs have them on.
+    evidence-suite:
+      enabled: false
+    secret-scan:
+      enabled: false
