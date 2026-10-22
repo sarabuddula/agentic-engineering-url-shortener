@@ -24,3 +24,13 @@ each task either points at the existing implementation or adds only what was mis
 | t5 | Documentation: API notes and quickstart | This file |
 
 Tasks t1-t3 are recorded as marker commits with no file changes, so their CODE artifacts list no files.
+
+## Second REPLAY run (after the CHG-03 governed change)
+Run `run-d33a19d6-9539-4c04-89d3-ca3ee98f7582`, execution class **REPLAY**, on build e5a2155. The first run above ended
+NOT READY on CHG-03 before the per-run traceability change (CHANGE_APPROVAL 2026-10-22); this run repeats the scenario
+so it can complete.
+- G1 clarification, approval 13 by demo-approver (HUMAN): the same answer as approval 4; requirement version 2.
+- G2 design approval, approval 14 by demo-approver (HUMAN): "design approved for REPLAY of existing create + resolve;
+  template greenfield wording noted".
+- Tasks t1-t4 need no new work: t1-t3 as in the table above; t4 is `ScnCCreateResolveTest` (commit 491dc9a), which
+  N09 executes. t5 is this section.
