@@ -30,9 +30,8 @@ public class ControlPlaneExceptionHandler {
     }
 
     @ExceptionHandler(ReplanConflictException.class)
-    ResponseEntity<Void> replanConflict(ReplanConflictException e) {
-        // the contract's 409 for /replan defines no body; the reason is in the run's audit history
-        return ResponseEntity.status(HttpStatus.CONFLICT).build();
+    ResponseEntity<Map<String, Object>> replanConflict(ReplanConflictException e, HttpServletRequest request) {
+        return respond(HttpStatus.CONFLICT, "REPLAN_CONFLICT", "Replan not possible: " + e.getMessage(), request);
     }
 
     @ExceptionHandler(ApprovalExpiredException.class)
