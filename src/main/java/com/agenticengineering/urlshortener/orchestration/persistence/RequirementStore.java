@@ -45,6 +45,11 @@ public class RequirementStore {
         return jdbc.queryForObject("SELECT REQUIREMENT_REF FROM WORKFLOW_RUN WHERE ID = ?", String.class, runId);
     }
 
+    public java.util.Optional<String> qualityReport(String runId) {
+        return jdbc.queryForList("SELECT CAST(QUALITY_REPORT AS VARCHAR) FROM REQUIREMENT_ARTIFACT WHERE RUN_ID = ? ORDER BY VERSION DESC LIMIT 1",
+                String.class, runId).stream().filter(java.util.Objects::nonNull).findFirst();
+    }
+
     public String content(String runId) {
         return jdbc.queryForObject("SELECT CONTENT FROM REQUIREMENT_ARTIFACT WHERE RUN_ID = ? ORDER BY VERSION DESC LIMIT 1",
                 String.class, runId);

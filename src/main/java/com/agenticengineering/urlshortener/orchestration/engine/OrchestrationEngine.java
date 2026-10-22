@@ -380,9 +380,12 @@ public class OrchestrationEngine {
             return StageResult.failed("no decomposed tasks to implement");
         }
         Map<String, StageTask> work = new HashMap<>();
-        taskGraph.nodes().forEach(key -> work.put(key, ctx -> taskExecutor.execute(key)));
+        taskGraph.nodes().forEach(key -> work.put(key, ctx -> taskExecutor.execute(runId, key)));
+        // a resumed N08 keeps succeeded tasks and restarts the others from PENDING
+        Map<String, NodeStatus> initial = new HashMap<>();
+        tasks.resetUnfinished(runId).forEach(key -> initial.put(key, NodeStatus.SUCCEEDED));
         GraphScheduler.RunResult result = new GraphScheduler(taskPool,
-                (key, from, to, reason) -> tasks.transitionTask(runId, key, from.name(), to.name(), reason)).execute(taskGraph, work);
+                (key, from, to, reason) -> tasks.transitionTask(runId, key, from.name(), to.name(), reason)).execute(taskGraph, work, initial);
         return result.succeeded() ? StageResult.succeeded()
                 : StageResult.failed("tasks failed: " + String.join(", ", result.failedNodes()));
     }

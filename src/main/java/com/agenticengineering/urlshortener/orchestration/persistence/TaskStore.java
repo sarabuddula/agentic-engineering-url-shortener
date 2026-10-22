@@ -90,6 +90,32 @@ public class TaskStore {
         });
     }
 
+    /** Task keys with titles, in decomposition order. */
+    public Map<String, String> titles(String runId) {
+        Map<String, String> titles = new java.util.LinkedHashMap<>();
+        jdbc.query("SELECT TITLE FROM TASK WHERE RUN_ID = ? ORDER BY ID", rs -> {
+            String title = rs.getString("TITLE");
+            titles.put(keyOf(title), title.substring(title.indexOf(':') + 1).trim());
+        }, runId);
+        return titles;
+    }
+
+    /** Resets every unfinished task of the run to PENDING (resumed N08) and returns the keys of the succeeded ones. */
+    public java.util.Set<String> resetUnfinished(String runId) {
+        Map<String, String> current = statuses(runId);
+        java.util.Set<String> succeeded = new java.util.HashSet<>();
+        current.forEach((key, status) -> {
+            if (status.equals("SUCCEEDED")) {
+                succeeded.add(key);
+            } else if (!status.equals("PENDING")) {
+                jdbc.update("UPDATE TASK SET STATUS = 'PENDING' WHERE RUN_ID = ? AND TITLE LIKE ?", runId, key + ":%");
+                audit.append(runId, new AuditEntry(AuditEntry.ActorType.SYSTEM, "TASK_TRANSITION", clock.now(), key, status + "->PENDING",
+                        "task restarted by a resumed N08"));
+            }
+        });
+        return succeeded;
+    }
+
     public Map<String, String> statuses(String runId) {
         Map<String, String> statuses = new LinkedHashMap<>();
         jdbc.query("SELECT TITLE, STATUS FROM TASK WHERE RUN_ID = ? ORDER BY ID",

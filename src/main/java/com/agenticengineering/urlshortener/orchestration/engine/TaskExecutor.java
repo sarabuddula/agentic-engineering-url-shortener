@@ -5,4 +5,9 @@ package com.agenticengineering.urlshortener.orchestration.engine;
 public interface TaskExecutor {
 
     StageResult execute(String taskKey) throws Exception;
+
+    /** The engine calls this form; executors that need the run (implementation evidence) override it. */
+    default StageResult execute(String runId, String taskKey) throws Exception {
+        return execute(taskKey);
+    }
 }

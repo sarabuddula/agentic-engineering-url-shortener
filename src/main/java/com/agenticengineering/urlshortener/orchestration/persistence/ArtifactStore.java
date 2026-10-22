@@ -92,6 +92,14 @@ public class ArtifactStore {
         return artifact;
     }
 
+    /** Every version of the type for the run, oldest first. */
+    public List<Artifact> all(String runId, String type) {
+        return jdbc.query("SELECT * FROM ARTIFACT WHERE RUN_ID = ? AND TYPE = ? ORDER BY VERSION",
+                (rs, i) -> new Artifact(rs.getLong("ID"), rs.getString("RUN_ID"), rs.getString("TYPE"), rs.getInt("VERSION"),
+                        rs.getString("CONTENT_HASH"), rs.getString("PROVENANCE"), rs.getTimestamp("CREATED_AT").toInstant(),
+                        content(rs.getString("CONTENT_HASH"))), runId, type);
+    }
+
     public Optional<Artifact> latest(String runId, String type) {
         List<Artifact> rows = jdbc.query("SELECT * FROM ARTIFACT WHERE RUN_ID = ? AND TYPE = ? ORDER BY VERSION DESC LIMIT 1",
                 (rs, i) -> new Artifact(rs.getLong("ID"), rs.getString("RUN_ID"), rs.getString("TYPE"), rs.getInt("VERSION"),

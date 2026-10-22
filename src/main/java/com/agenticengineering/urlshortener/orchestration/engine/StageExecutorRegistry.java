@@ -5,7 +5,11 @@ import com.agenticengineering.urlshortener.orchestration.persistence.Requirement
 import com.agenticengineering.urlshortener.orchestration.policy.PersistedEvidenceProvider;
 import com.agenticengineering.urlshortener.orchestration.stages.PolicyStageExecutor;
 import com.agenticengineering.urlshortener.orchestration.stages.DecompositionStageExecutor;
+import com.agenticengineering.urlshortener.orchestration.stages.DesignStageExecutor;
+import com.agenticengineering.urlshortener.orchestration.stages.DocumentationStageExecutor;
+import com.agenticengineering.urlshortener.orchestration.stages.EvidenceStageExecutor;
 import com.agenticengineering.urlshortener.orchestration.stages.ImpactAnalysisStageExecutor;
+import com.agenticengineering.urlshortener.orchestration.stages.ImplementationTaskExecutor;
 import com.agenticengineering.urlshortener.orchestration.stages.TestExecutionStageExecutor;
 import com.agenticengineering.urlshortener.orchestration.stages.QualityStageExecutor;
 import java.util.HashMap;
@@ -19,9 +23,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class StageExecutorRegistry {
 
-    private static final Map<String, String> NOT_YET_BUILT = Map.of(
-            "N06", "the design executor (T087 scenario work)",             "N10", "the documentation executor (T087 scenario work)", "N11", "T085/T094 evidence assembly",
-            "N14", "T091 engineering summary");
+    private static final Map<String, String> NOT_YET_BUILT = Map.of("N14", "T091 engineering summary");
 
     private final RequirementStore requirements;
     private final QualityStageExecutor quality;
@@ -30,10 +32,16 @@ public class StageExecutorRegistry {
     private final PolicyStageExecutor policy;
     private final ImpactAnalysisStageExecutor impact;
     private final TestExecutionStageExecutor tests;
+    private final DesignStageExecutor design;
+    private final DocumentationStageExecutor documentation;
+    private final EvidenceStageExecutor evidenceAssembly;
+    private final ImplementationTaskExecutor implementation;
 
     public StageExecutorRegistry(RequirementStore requirements, QualityStageExecutor quality,
             DecompositionStageExecutor decomposition, GateExecutor.Factory gates, PolicyStageExecutor.Factory policies,
-            PersistedEvidenceProvider evidence, ImpactAnalysisStageExecutor impact, TestExecutionStageExecutor.Factory tests) {
+            PersistedEvidenceProvider evidence, ImpactAnalysisStageExecutor impact, TestExecutionStageExecutor.Factory tests,
+            DesignStageExecutor design, DocumentationStageExecutor.Factory documentation, EvidenceStageExecutor evidenceAssembly,
+            ImplementationTaskExecutor.Factory implementation) {
         this.requirements = requirements;
         this.quality = quality;
         this.decomposition = decomposition;
@@ -41,6 +49,10 @@ public class StageExecutorRegistry {
         this.policy = policies.withEvidence(evidence);
         this.impact = impact;
         this.tests = tests.production();
+        this.design = design;
+        this.documentation = documentation.production();
+        this.evidenceAssembly = evidenceAssembly;
+        this.implementation = implementation.production();
     }
 
     public Map<String, StageExecutor> executors() {
@@ -51,7 +63,10 @@ public class StageExecutorRegistry {
         executors.put("N03", gates.gate(ApprovalKind.CLARIFICATION));
         executors.put("N04", impact);
         executors.put("N05", decomposition);
+        executors.put("N06", design);
         executors.put("N09", tests); // T128: real test execution
+        executors.put("N10", documentation);
+        executors.put("N11", evidenceAssembly);
         executors.put("N07", gates.gate(ApprovalKind.DESIGN_APPROVAL));
         executors.put("N12", policy); // production evidence is partial: unverified checks fail closed (NOT READY)
         executors.put("N13", gates.gate(ApprovalKind.RELEASE_AUTHORIZATION));
@@ -61,6 +76,6 @@ public class StageExecutorRegistry {
     }
 
     public TaskExecutor taskExecutor() {
-        return task -> StageResult.failed("permanent: task execution not built yet (T087/T128)");
+        return implementation; // N08: the task's marked commit in the workspace is the implementation evidence
     }
 }
