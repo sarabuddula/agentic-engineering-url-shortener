@@ -41,7 +41,7 @@ class ConfigurationBindingTest {
             assertThat(app.rateLimit().creationPerIp().burst()).isEqualTo(100);
             assertThat(app.rateLimit().redirectPerIp().requestsPerMinute()).isEqualTo(600);
             assertThat(app.rateLimit().redirectPerIp().burst()).isEqualTo(200);
-            assertThat(app.defaultTtlDays()).isEqualTo(7);
+            assertThat(app.defaultTtlDays()).isEqualTo(1); // A-006: 24 hours (SCN-B CHANGE_APPROVAL 2026-10-22; was 7)
         });
     }
 

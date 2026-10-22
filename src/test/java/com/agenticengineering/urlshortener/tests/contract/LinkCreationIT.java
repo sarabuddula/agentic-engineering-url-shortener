@@ -50,7 +50,8 @@ class LinkCreationIT {
         assertThat(response.jsonPath().getString("short_code")).matches("[A-Za-z0-9]{8}");
         assertThat(response.jsonPath().getString("target_url")).isEqualTo("https://example.com/docs");
         Instant created = Instant.parse(response.jsonPath().getString("created_at"));
-        assertThat(Instant.parse(response.jsonPath().getString("expires_at"))).isEqualTo(created.plus(Duration.ofDays(7)));
+        // A-006 default TTL 24 hours (SCN-B CHANGE_APPROVAL 2026-10-22; was 7 days)
+        assertThat(Instant.parse(response.jsonPath().getString("expires_at"))).isEqualTo(created.plus(Duration.ofHours(24)));
     }
 
     @Test
