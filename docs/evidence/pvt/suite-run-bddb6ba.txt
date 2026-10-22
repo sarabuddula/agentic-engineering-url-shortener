@@ -1,0 +1,14 @@
+PVT suite run at commit bddb6ba, 2026-10-22: mvn verify -Dit.test='PerformanceIT,Pvt003ConcurrencyIT,KillRestartIT,BootRecoveryOrderingIT' -Dtest='ReliabilityTest,ReliabilityEngineTest,ApprovalLifecycleTest,AuditChainTest,TerminalVerificationTest,MttrTest,ResumeTest,BootRecoveryTest,ArtifactVersionConcurrencyTest' -> exit 0
+Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.187 s -- in com.agenticengineering.urlshortener.tests.unit.MttrTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.780 s -- in com.agenticengineering.urlshortener.tests.integration.ArtifactVersionConcurrencyTest
+Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.318 s -- in com.agenticengineering.urlshortener.tests.integration.ResumeTest
+Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.399 s -- in com.agenticengineering.urlshortener.tests.integration.ApprovalLifecycleTest
+Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.103 s -- in com.agenticengineering.urlshortener.tests.integration.BootRecoveryTest
+Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.909 s -- in com.agenticengineering.urlshortener.tests.integration.TerminalVerificationTest
+Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.684 s -- in com.agenticengineering.urlshortener.tests.integration.ReliabilityEngineTest
+Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.318 s -- in com.agenticengineering.urlshortener.tests.integration.AuditChainTest
+Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.441 s -- in com.agenticengineering.urlshortener.tests.orchestration.ReliabilityTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 9.079 s -- in com.agenticengineering.urlshortener.tests.integration.PerformanceIT
+Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.685 s -- in com.agenticengineering.urlshortener.tests.integration.Pvt003ConcurrencyIT
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.529 s -- in com.agenticengineering.urlshortener.tests.integration.BootRecoveryOrderingIT
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 11.46 s -- in com.agenticengineering.urlshortener.tests.reliability.KillRestartIT

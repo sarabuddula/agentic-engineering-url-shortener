@@ -1,0 +1,13 @@
+{
+    "measurement_class": "DEMONSTRATION",
+    "workflow_success_rate": 0.42857142857142855,
+    "retry_count": 0,
+    "rollback_count": 0,
+    "compensation_count": 0,
+    "mttr_ms": 382,
+    "recovered_failure_events": 3,
+    "unrecovered_failure_events": 4,
+    "governance_wait_ms_total": 683238,
+    "mttr_incl_governance_wait_ms": 228128,
+    "end_to_end_latency_ms": 1847867.0
+}

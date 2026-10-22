@@ -1,0 +1,27 @@
+{
+  "measurement_class" : "DEMONSTRATION",
+  "measured_at" : "2026-10-22T22:28:29.482954Z",
+  "pvts" : [ "PVT-001", "PVT-002" ],
+  "workload" : {
+    "population_valid_active_links" : 50,
+    "warm_up_requests_excluded" : 100,
+    "measured_requests" : 1000,
+    "client" : "one sequential java.net.http client over loopback; latency measured client-side"
+  },
+  "results" : {
+    "pvt_001_success_rate" : 1.0,
+    "pvt_002_share_within_200_ms" : 1.0,
+    "latency_ms_p50" : 2.846,
+    "latency_ms_p95" : 3.638,
+    "latency_ms_p99" : 4.571,
+    "latency_ms_max" : 11.012
+  },
+  "environment" : {
+    "os" : "Mac OS X 13.7.8 x86_64",
+    "available_processors" : 8,
+    "jvm_max_heap_mb" : 4096,
+    "physical_memory_mb" : 16384,
+    "jdk" : "Eclipse Adoptium 21.0.12.1",
+    "database" : "H2 file mode, same JVM"
+  }
+}
