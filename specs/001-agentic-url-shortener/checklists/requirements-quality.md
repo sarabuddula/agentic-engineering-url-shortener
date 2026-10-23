@@ -20,7 +20,7 @@
 
 - [x] CHK008 — Is each requirement stated so it has exactly one reading, with no undefined terms? [Clarity — Spec FR-001..FR-049]
 - [x] CHK009 — Are spec-defined terms (request identity, approval, operation, policy check outcome) defined once and used consistently across spec, plan, and contracts? [Consistency — Spec/Plan/contracts]
-- [ ] CHK010 — Are MUST/SHOULD/MAY levels used consistently between the spec and the plan sections that enforce them? [Consistency — Spec/Plan] <!-- disposition 2026-10-19: accepted; the plan is descriptive, normative MUST/SHOULD levels are carried by the spec -->
+- [ ] CHK010 — Are MUST/SHOULD/MAY levels used consistently between the spec and the plan sections that enforce them? [Consistency — Spec/Plan] *(accepted 2026-10-19, human disposition, re-confirmed at T096: the plan is descriptive, normative MUST/SHOULD levels are carried by the spec)*
 
 ## Traceability
 
