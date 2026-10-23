@@ -70,7 +70,7 @@ T074-T078 -> T087-T089 -> T084 -> T090-T094 -> T099 -> T100.
 |---|---|
 | T112 coverage map | T090 traceability matrix (coverage section) |
 | T116 mid-run ambiguity on one path | T089 single-run demonstration |
-| T114 red-first audit | Applied as a rule in every implementation task (red test committed first, expected failure recorded) |
+| T114 red-first audit | Applied as a rule in every implementation task (red test committed first, expected failure recorded); closed 2026-10-22 by the human candidate against `docs/evidence/red-first-audit.md` |
 
 ### Reduced
 
