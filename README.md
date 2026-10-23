@@ -65,6 +65,8 @@ python3 scripts/reconstruct-run.py docs/evidence/runs/run-4738769c-4517-4597-b0b
   parallel path (SCN-A.4, US-002 scenario 4).
 - DEP-02 vulnerability scanning runs without an NVD key: degraded to a signed attestation based on an OSV.dev review;
   two spring-webmvc advisories remain, judged not applicable and disclosed.
+- The per-stage operation whitelist is enforced since 0bc2f00 (2026-10-22); the eight demonstration runs predate it, so
+  enforcement is evidenced by the test suite, not by a demonstration run.
 - Spring Boot 3.5 is past its open-source support date (research.md); the upgrade path is Spring Boot 4 under change
   control.
 

@@ -51,5 +51,12 @@ traceability check CLEAN.
 | T106 | DEP-02 wired; online scan never ran (no NVD key) - degraded path approved earlier; DEP-02 attestation signed |
 | T107 | docs/attestations: PRV-02, LIC-02, DEP-02 ATTESTED at b28f515 |
 
+## Note on the executor whitelist
+The per-node whitelist has been enforced in code since 0bc2f00 (CHK047, human decision 2026-10-22). All eight
+demonstration runs executed before that commit: they remain valid evidence of the behaviour at their own commits, but no
+demonstration run has executed under the enforced whitelist - enforcement is evidenced by the test suite
+(OperationWhitelistTest and every engine test running stages through it). A live run would only be needed for live
+evidence of enforcement.
+
 ## Not part of this acceptance
 T084 itself (this checkpoint), T099 (final release decision), T100 (G8 submission tag).
