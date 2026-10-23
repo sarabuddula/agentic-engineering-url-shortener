@@ -67,6 +67,9 @@ Then follow the walkthrough in the quickstart.
 | [`t093-accepted-limitations.md`](docs/evidence/t093-accepted-limitations.md) | Six limitations individually accepted at G6; READY WITH ACCEPTED LIMITATIONS |
 | [`pvt-report.md`](docs/evidence/pvt-report.md) | Validation targets PVT-001..008 per demonstration run (demonstration-grade, C-004) |
 | [`t092-reviewer-walkthrough.md`](docs/evidence/t092-reviewer-walkthrough.md) | Reviewer steps executed from a fresh clone; independent reconstruction |
+| [`n09-test-outcomes.md`](docs/evidence/n09-test-outcomes.md) | Test cases each demonstration run executed and their results |
+| [`scenario-evidence-review.md`](docs/evidence/scenario-evidence-review.md) | Three-scenario evidence review (guide section 21): readiness matrix, missing evidence |
+| [`final-independent-assessment.md`](docs/evidence/final-independent-assessment.md) | Final independent assessment (guide section 23): 30 scored dimensions, verdict, concerns |
 | [`red-first-audit.md`](docs/evidence/red-first-audit.md) | Failing test committed before implementation, task by task, with the deviations |
 
 To reconstruct any run from the repository alone (the audit hash chain is recomputed from the export):

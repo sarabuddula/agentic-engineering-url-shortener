@@ -20,7 +20,7 @@ below was made by the human candidate (evidence class HUMAN). Reconstruct either
 | N08 implementation | first attempt: no task commits yet, the run safe-stopped (cause FAILURE) - code is never assumed | #37 |
 | Implementation, red first | 1137e75 test t4 (LinkStatusTest, LinkStatusApiTest - failing first), 0a78fee contract t1, 0bcc30d domain and controller t2, 64943ad no persistence change t3, 6a0f5c5 quickstart t5 | commits |
 | Resume | demo-engineer resumed the failure stop; N08 recorded the five commits as CODE artifacts | #45 |
-| N09 tests | the real suite ran (Maven subprocess) and passed | #75 |
+| N09 tests | the real suite ran (Maven subprocess): 326 test cases, all passed | #75 (exit criteria met); outcomes in `n09-test-outcomes.md` |
 | N12 policy | 16 checks; CHG-03 covered by policy exception 1 (G5, approval 8 by demo-release-owner, compensating control: SC-002/003/006/007 are measured on the demonstration runs and recorded by T092/T094); recommendation READY | #39-40, #83 |
 | N13 G7 | release authorized by demo-release-owner (approval 9), the CHG-03 exception and the rate-limit limitation disclosed | #90 |
 | N14 summary | engineering summary written | #99 |
