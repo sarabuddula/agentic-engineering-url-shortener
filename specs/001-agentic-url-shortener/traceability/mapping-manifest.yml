@@ -406,7 +406,7 @@ requirements:
     - path: src/test/java/com/agenticengineering/urlshortener/tests/e2e/AppPlaneE2EIT.java
       commit: 8a0ed921808a06a05705d1088ea115ac079b5719
     - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/ApprovalLifecycleTest.java
-      commit: a31acd30f658579e907b790b5fa676107f10bdd1
+      commit: 0bc2f0034fe9fc92d6dd191b9b8ec2a637c5fbc3
     - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/LinkStatusApiTest.java
       commit: 1137e75bfa39d25b55d4d72118aedb856c7afeef
     - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/RedirectEventFieldsTest.java
@@ -488,6 +488,8 @@ requirements:
       commit: 0948f4821b0475faa1b3399f672702ecd62ddab4
     - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/ControlPlaneSchemaTest.java
       commit: 36eb43100fffe5de4854e061a63f16e96cd2a4be
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/OperationWhitelistTest.java
+      commit: 3458802cbb7bdeb2abb045cd7528cd69c741a211
     - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/TestExecutionIT.java
       commit: 1b4eb446bf825e5f2690331e36bc54a8d19bdebd
     - path: src/test/java/com/agenticengineering/urlshortener/tests/orchestration/GraphSchedulerTest.java
@@ -564,7 +566,7 @@ requirements:
     - path: src/test/java/com/agenticengineering/urlshortener/tests/contract/ApprovalApiIT.java
       commit: 837aa264bbd0f5d83417e43aee14e635d3807d0c
     - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/ApprovalLifecycleTest.java
-      commit: a31acd30f658579e907b790b5fa676107f10bdd1
+      commit: 0bc2f0034fe9fc92d6dd191b9b8ec2a637c5fbc3
     - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/ApprovalSchemaAdditionsTest.java
       commit: 837aa264bbd0f5d83417e43aee14e635d3807d0c
     - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/ChangeApprovalTest.java
@@ -590,7 +592,7 @@ requirements:
     - T126
     tests:
     - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/ApprovalLifecycleTest.java
-      commit: a31acd30f658579e907b790b5fa676107f10bdd1
+      commit: 0bc2f0034fe9fc92d6dd191b9b8ec2a637c5fbc3
     - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/GateIntegrationTest.java
       commit: 837aa264bbd0f5d83417e43aee14e635d3807d0c
     - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/ReliabilityEngineTest.java
@@ -716,6 +718,8 @@ requirements:
       commit: 837aa264bbd0f5d83417e43aee14e635d3807d0c
     - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/FailureRecordingTransactionTest.java
       commit: c4ff22ad64310706014a76eb62662f68f5819546
+    - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/OperationWhitelistTest.java
+      commit: 3458802cbb7bdeb2abb045cd7528cd69c741a211
     - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/TestExecutionIT.java
       commit: 1b4eb446bf825e5f2690331e36bc54a8d19bdebd
     - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/WorkflowLifecycleTest.java
@@ -761,7 +765,7 @@ requirements:
     - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/PersistedEvidenceProviderTest.java
       commit: 837aa264bbd0f5d83417e43aee14e635d3807d0c
     - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/PolicyRecordTest.java
-      commit: 91fe2ba908fcd03eea4038d5633709338c6a1bba
+      commit: 0bc2f0034fe9fc92d6dd191b9b8ec2a637c5fbc3
     - path: src/test/java/com/agenticengineering/urlshortener/tests/orchestration/PolicyEvaluatorTest.java
       commit: 002a6ae7908761315c7c0fdf9ec66e23be708013
     - path: src/test/java/com/agenticengineering/urlshortener/tests/unit/PolicyEvidenceSourcesTest.java
@@ -965,7 +969,7 @@ requirements:
     - path: src/test/java/com/agenticengineering/urlshortener/tests/contract/ApprovalApiIT.java
       commit: 837aa264bbd0f5d83417e43aee14e635d3807d0c
     - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/ApprovalLifecycleTest.java
-      commit: a31acd30f658579e907b790b5fa676107f10bdd1
+      commit: 0bc2f0034fe9fc92d6dd191b9b8ec2a637c5fbc3
     - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/ControlPlaneSchemaTest.java
       commit: 36eb43100fffe5de4854e061a63f16e96cd2a4be
     - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/ReplanningTest.java
@@ -1320,7 +1324,7 @@ requirements:
     - T090
     tests:
     - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/ApprovalLifecycleTest.java
-      commit: a31acd30f658579e907b790b5fa676107f10bdd1
+      commit: 0bc2f0034fe9fc92d6dd191b9b8ec2a637c5fbc3
     - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/GateIntegrationTest.java
       commit: 837aa264bbd0f5d83417e43aee14e635d3807d0c
     - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/WorkflowLifecycleTest.java
@@ -1457,7 +1461,7 @@ requirements:
     - T117
     tests:
     - path: src/test/java/com/agenticengineering/urlshortener/tests/integration/ApprovalLifecycleTest.java
-      commit: a31acd30f658579e907b790b5fa676107f10bdd1
+      commit: 0bc2f0034fe9fc92d6dd191b9b8ec2a637c5fbc3
     docs:
     - path: specs/001-agentic-url-shortener/spec.md
       commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3

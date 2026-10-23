@@ -35,7 +35,7 @@ unknown commits: []
 | FR-013 | T015, T016, T029, T031 | ADR-001, ADR-002 | UrlValidationTest, LinkCreationIT, SharedValueObjectsTest | - | covered |
 | FR-014 | T027, T037, T108 | ADR-001, ADR-002, ADR-003 | LinkDomainTest, RedirectIT, UnknownCodeAnalyticsIT | - | covered |
 | FR-015 | T018, T039 | ADR-003 | AnalyticsCaptureTest, AnalyticsSummaryIT, RedirectEventFieldsTest | - | covered |
-| FR-020 | T019, T051, T052, T058, T128 | ADR-005, ADR-007, ADR-008 | RunApiIT, ControlPlaneSchemaTest, TestExecutionIT, GraphSchedulerTest, NodeTransitionTest | - | covered |
+| FR-020 | T019, T051, T052, T058, T128 | ADR-005, ADR-007, ADR-008 | RunApiIT, ControlPlaneSchemaTest, OperationWhitelistTest, TestExecutionIT, GraphSchedulerTest, NodeTransitionTest | - | covered |
 | FR-021 | T051 | ADR-007 | NodeTransitionTest | - | covered |
 | FR-022 | T019, T026, T053 | ADR-003, ADR-005, ADR-007 | ControlPlaneSchemaTest, FileModePersistenceIT, WorkflowLifecycleTest | - | covered |
 | FR-023 | T085, T118 | ADR-005 | RunHistoryApiIT, ArtifactVersionConcurrencyTest, DecisionLineageTest | - | covered |
@@ -45,7 +45,7 @@ unknown commits: []
 | FR-027 | T076, T077, T123 | ADR-005, ADR-009 | CompensationTest, FailureRecordingTransactionTest, RollbackTest | - | covered |
 | FR-028 | T078, T110, T122 | ADR-007, ADR-008, ADR-009 | ResumeApiIT, BootRecoveryOrderingIT, BootRecoveryTest, FileModePersistenceIT, GateIntegrationTest, ResumeTest, KillRestartIT | - | covered |
 | FR-029 | T071, T072, T073, T110, T118, T120, T121 | ADR-005, ADR-007, ADR-008 | DesignRevisionApiIT, ReplanApiIT, DecisionLineageTest, DesignReadRecordingTest, ReplanningTest | - | covered |
-| FR-030 | T053, T085, T090, T105, T123, T128 | ADR-005, ADR-007, ADR-009 | RunHistoryApiIT, ArtifactVersionConcurrencyTest, EvidenceClassTest, FailureRecordingTransactionTest, TestExecutionIT, WorkflowLifecycleTest, AuditApiSurfaceTest, MappingManifestTest, TraceabilityMatrixTest | - | covered |
+| FR-030 | T053, T085, T090, T105, T123, T128 | ADR-005, ADR-007, ADR-009 | RunHistoryApiIT, ArtifactVersionConcurrencyTest, EvidenceClassTest, FailureRecordingTransactionTest, OperationWhitelistTest, TestExecutionIT, WorkflowLifecycleTest, AuditApiSurfaceTest, MappingManifestTest, TraceabilityMatrixTest | - | covered |
 | FR-031 | T048, T079, T083, T094, T104 | ADR-009 | DemoMetricsApiIT, FailureRecorderTest, ReliabilityEngineTest, MttrTest | - | covered |
 | FR-032 | T057 | ADR-005 | PersistedEvidenceProviderTest, PolicyRecordTest, PolicyEvaluatorTest, PolicyEvidenceSourcesTest | - | covered |
 | FR-033 | T057, T062, T063, T082 | ADR-005, ADR-008, ADR-009 | PolicyExceptionApiIT, ApprovalSchemaAdditionsTest, DependencyPolicyDemonstrationTest, PersistedEvidenceProviderTest, PolicyBlockingTest, PolicyExceptionTest, PolicyEvaluatorTest, DependencyInventoryCheckTest, PolicyEvidenceSourcesTest | - | covered |
@@ -185,6 +185,7 @@ unknown commits: []
 | `src/test/java/com/agenticengineering/urlshortener/tests/integration/JdbcLinkRepositoryTest.java` | FR-007, FR-016 |
 | `src/test/java/com/agenticengineering/urlshortener/tests/integration/KeyIdentityStoreTest.java` | FR-045 |
 | `src/test/java/com/agenticengineering/urlshortener/tests/integration/LinkStatusApiTest.java` | FR-006, FR-012, FR-040, SCN-A |
+| `src/test/java/com/agenticengineering/urlshortener/tests/integration/OperationWhitelistTest.java` | FR-020, FR-030 |
 | `src/test/java/com/agenticengineering/urlshortener/tests/integration/PerformanceIT.java` | NFR-007, PVT-001, PVT-002 |
 | `src/test/java/com/agenticengineering/urlshortener/tests/integration/PersistedEvidenceProviderTest.java` | FR-032, FR-033 |
 | `src/test/java/com/agenticengineering/urlshortener/tests/integration/PolicyBlockingTest.java` | FR-033, FR-037 |

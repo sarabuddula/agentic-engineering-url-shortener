@@ -1,10 +1,10 @@
 # T096 - Checklist convergence re-run (2026-10-22)
 
 The four requirements-quality checklists were re-run against the final document set (spec, plan, data model, contract,
-quickstart, ADRs, research, scope control) at the end of implementation. Results: 112 PASS, 2 ACCEPTED, 1 open finding.
+quickstart, ADRs, research, scope control) at the end of implementation. Results: 113 PASS, 2 ACCEPTED, 0 open findings (CHK047 was open at the re-run and resolved the same day).
 Fixed during the re-run: the C-005 contract-delta record (plan section 2) and the stale "planned demonstration" text
 (plan section 8). Checklist items CHK011, CHK025 and CHK026, deferred on 2026-10-19 to the coverage matrix, are closed.
-The open finding (CHK047) goes to the human checkpoint T084.
+The finding CHK047 was decided by the human candidate and resolved the same day (whitelist amended and enforced).
 
 | Item | Checklist | Result | Note |
 |---|---|---|---|
@@ -54,7 +54,7 @@ The open finding (CHK047) goes to the human checkpoint T084.
 | CHK044 | architecture-orchestration | PASS | unchanged since the pre-implementation run; holds for the final document set |
 | CHK045 | architecture-orchestration | PASS | unchanged since the pre-implementation run; holds for the final document set |
 | CHK046 | architecture-orchestration | PASS | staged revision and HELD nodes deferred (L-SC-03), disclosed |
-| CHK047 | architecture-orchestration | FINDING - OPEN | per-node executor whitelist is defined (plan section 3) but not enforced in code; two executors step outside it: N04 requests CHANGE_APPROVAL (AQ; N04 lists AR, AW) and N12 runs the evidence test suite (TS; N12 lists AR, PE). Needs a human decision at T084: amend the whitelist and enforce it, or accept as a disclosed limitation |
+| CHK047 | architecture-orchestration | PASS | resolved 2026-10-22 by human decision (approvals/2026-10-22-chk047-whitelist.md): whitelist amended (N04 +AQ, N12 +TS) and enforced in code; OperationWhitelistTest |
 | CHK048 | architecture-orchestration | PASS | T092: all eight runs reconstructed from committed exports, hash chains recomputed |
 | CHK049 | architecture-orchestration | PASS | unchanged since the pre-implementation run; holds for the final document set |
 | CHK050 | architecture-orchestration | PASS | unchanged since the pre-implementation run; holds for the final document set |
