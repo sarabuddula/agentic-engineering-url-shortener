@@ -22,7 +22,7 @@ Amendment Appendix C and here.
 ## 3. Confirmed requirements, assumptions, exclusions, deferred scope
 `spec.md`: FR-001..FR-049 [C], NFR-001..011, SC-001..007, PVT-001..008, assumptions A-001..A-018 with approval state,
 exclusions E-001..E-005. Amended by governed decision: A-006 default link TTL 7 days -> 24 hours (SCN-B, 2026-10-22);
-A-018 join-wait bound cut (L-SC-07). Deferred scope [D]: `docs/scope-control.md` (12 tasks).
+A-018 join-wait bound cut (L-SC-07). Deferred scope [D]: `docs/scope-control.md` (11 tasks; T097 was completed on 2026-10-22).
 
 ## 4. Architecture overview and accepted ADRs
 `docs/architecture.md` (diagrams of both planes and the N01-N14 graph). ADR-001..009 accepted by the candidate

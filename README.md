@@ -26,6 +26,7 @@ limitations, release. In short: the system orchestrates, verifies and governs th
 |---|---|
 | **Final engineering summary** (outcome, decisions, evidence, limitations) | [`docs/final-engineering-summary.md`](docs/final-engineering-summary.md) |
 | **Architecture overview** (planes, stage graph diagram, testing approach, trade-offs) | [`docs/architecture.md`](docs/architecture.md) |
+| **Reviewer guide** (25 checks: where, command, expected result) | [`docs/reviewer-guide.md`](docs/reviewer-guide.md) |
 | Build, run, demonstration walkthrough, reviewer steps | [`specs/001-agentic-url-shortener/quickstart.md`](specs/001-agentic-url-shortener/quickstart.md) |
 | Requirements (FR, NFR, SC, PVT, scenarios) and amendments | [`spec.md`](specs/001-agentic-url-shortener/spec.md) |
 | Architecture, stage graph, failure semantics, policy set | [`plan.md`](specs/001-agentic-url-shortener/plan.md), [`data-model.md`](specs/001-agentic-url-shortener/data-model.md), [`docs/adr/adrs.md`](docs/adr/adrs.md) |
@@ -40,6 +41,10 @@ limitations, release. In short: the system orchestrates, verifies and governs th
 | Demonstration evidence | [`docs/evidence/`](docs/evidence/) — see below |
 
 ## Quick start
+
+**Needs:** Java 21, Maven 3.9+, git, and `gitleaks` 8.x on the PATH (the service runs Maven and gitleaks in its test and
+policy stages), plus demo keys from `scripts/generate-demo-keys.sh` (without them the control plane answers 401). Start
+the service from the repository root.
 
 ```bash
 mvn clean verify                              # every suite: unit, contract, integration, security, reliability, e2e

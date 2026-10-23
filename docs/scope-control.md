@@ -56,7 +56,7 @@ T074-T078 -> T087-T089 -> T084 -> T090-T094 -> T099 -> T100.
 | T043 | Custom storage health check | Actuator default DataSource indicator (FR-010 still met; plan tier 1) | FR-010 |
 | T049 | Separate quickstart walkthrough update | Quickstart brought current once, in T095 | US-001 |
 | T065 | Control-plane role-matrix security tests | 401, 403 and self-approval tests in T059-T061 | FR-045, L-SC-06 |
-| T097 | ADR evidence pass | ADR validation covered by the suite and traceability (T090) | ADR-001..009 |
+| T097 | ADR evidence pass | Done 2026-10-22 after all (evidence lines in `docs/adr/adrs.md`); no longer deferred | ADR-001..009 |
 | T103 | Per-key control-plane rate limit (A-008c) | Per-IP creation and redirect limits (A-008a/b) | FR-047, L-SC-01 |
 | T111 | Bucket4j capacity-pressure test | Bounded bucket map implemented in T041 | FR-047, L-SC-01 |
 | T115 | Dedicated concurrent-resolution test | Concurrent creation and duplicate tests (T035) | FR-008, L-SC-02 |

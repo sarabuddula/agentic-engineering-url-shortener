@@ -27,6 +27,7 @@
 **Traceability**: C-001, C-006, NFR-004; plan §12, §14 (engineering-baseline task); research.md row 1.
 
 **Validation**: `mvn clean verify` executes on JDK 21 at the engineering-baseline task (planned, not yet executed).
+**Evidence (T097, 2026-10-22)**: `mvn clean verify` runs on Java 21.0.12 and exits 0 (302 unit, 122 integration tests): `docs/evidence/t092-reviewer-walkthrough.md`. All executed and passing.
 
 ---
 
@@ -56,6 +57,7 @@
 **Traceability**: C-002, constitution IV/VII; plan §2, §10, §12; research.md row 2.
 
 **Validation**: Contract and integration suites run under Spring Boot Test (planned).
+**Evidence (T097, 2026-10-22)**: `OpenApiContractHarnessTest` (responses validated against `contracts/openapi.yaml`), `LinkCreationIT`, `RedirectIT`, `AppPlaneContractIT`, `RunApiIT`, `ApprovalApiIT`, `AppPlaneE2EIT`. All executed and passing.
 
 ---
 
@@ -84,6 +86,7 @@
 **Traceability**: A-001, FR-016, FR-028, PVT-003/PVT-006; plan §2, §12, data-model.md; research.md row 3.
 
 **Validation**: Persistence test category and PVT-003/PVT-006 suites (planned).
+**Evidence (T097, 2026-10-22)**: `JdbcLinkRepositoryTest`, `FileModePersistenceIT`, `ApplicationSchemaTest`, `ControlPlaneSchemaTest`; PVT-003 `Pvt003ConcurrencyIT`; PVT-006 `KillRestartIT`, `BootRecoveryOrderingIT`; results in `docs/evidence/pvt-report.md`. All executed and passing.
 
 ---
 
@@ -111,6 +114,7 @@
 **Traceability**: C-002, A-004, US-005, SC-006; plan §3 (Project Structure), §12; research.md row 5.
 
 **Validation**: `java -jar` boots both planes; ArchUnit suite passes; kill-restart test (planned).
+**Evidence (T097, 2026-10-22)**: `KillRestartIT` starts, halts and restarts the real jar; `WalkingSkeletonIT` boots both planes; `ArchitectureRulesTest` (plane separation); the jar was started from a fresh clone in `docs/evidence/t092-reviewer-walkthrough.md`. All executed and passing.
 
 ---
 
@@ -139,6 +143,7 @@
 **Traceability**: Constitution II/IX/X, FR-023, FR-030, FR-048, PVT-006/PVT-007, A-005, A-011; plan §4, §7, data-model.md (PLATFORM_AUDIT_HEAD, AUDIT_EVENT, STAGE_EDGE, TASK_DEPENDENCY).
 
 **Validation**: Tamper-detection test (altered/removed/reordered event → verification fails at identified position); N14 re-verification test (planned).
+**Evidence (T097, 2026-10-22)**: `AuditChainTest`, `VerifyApiIT` (altered, removed and reordered events reported at their position), `TerminalVerificationTest` (N14 re-verification); all eight run exports recomputed by `scripts/reconstruct-run.py` (`t092-reviewer-walkthrough.md`). All executed and passing.
 
 ---
 
@@ -168,6 +173,7 @@
 **Traceability**: FR-004, FR-007, FR-016, AMB-2, PVT-003, SCN-A; plan §2, contracts/openapi.yaml (`/api/v1/links`), data-model.md (SHORT_LINK).
 
 **Validation**: PVT-003 suite; idempotency tests (replay 200, conflict 409, independent same-URL links); reserved-word generation test (planned).
+**Evidence (T097, 2026-10-22)**: `Pvt003ConcurrencyIT`; `IdempotencyTest`, `LinkCreationIT` (replay 200, conflict 409, independent same-URL links), `IdempotencyAfterExpiryIT`; `ShortCodeGeneratorTest` (reserved words). All executed and passing.
 
 ---
 
@@ -195,6 +201,7 @@
 **Traceability**: Constitution II, FR-025..FR-029, FR-046, D-006, PVT-004/PVT-006/PVT-007; plan §3, §4, data-model.md (WORKFLOW_RUN, STAGE_EDGE, TASK_DEPENDENCY).
 
 **Validation**: Transition tests (every legal/illegal transition), replanning acceptance/rejection tests, PVT-004/PVT-006 (planned).
+**Evidence (T097, 2026-10-22)**: `NodeTransitionTest`, `WorkflowLifecycleTest` (legal and illegal transitions), `GraphSchedulerTest`, `ReplanningTest`, `ReplanApiIT` (acceptance, rejection, expiry); PVT-004 `ReliabilityTest`; PVT-006 `KillRestartIT`; demonstration run: `docs/evidence/t089-single-run.md`, `t073-replan-acceptance.md`. All executed and passing.
 
 ---
 
@@ -222,6 +229,7 @@
 **Traceability**: FR-045, FR-046, FR-047, A-008c/d, A-009, D-004, PVT-005; plan §5, §8, contracts/openapi.yaml (x-required-roles), quickstart.md.
 
 **Validation**: 401/403 authz tests, self-approval 403 test, timeout/escalation/safe-stop tests (PVT-005) (planned).
+**Evidence (T097, 2026-10-22)**: `RunApiIT`, `RunHistoryApiIT` (401, 403), `ApprovalApiIT`, `ApprovalLifecycleTest` (self-approval 403, expiry, escalation, safe-stop); PVT-005 in demonstration runs: `docs/evidence/pvt-report.md`. All executed and passing.
 
 ---
 
@@ -249,6 +257,7 @@
 **Traceability**: Constitution VIII, D-001, D-005, FR-025..FR-028, FR-031, FR-037, PVT-004/PVT-005/PVT-006/PVT-008; plan §6, data-model.md (OPERATION_RECORD, FAILURE_EVENT, rollback/compensation table).
 
 **Validation**: Retry-exhaustion, fallback, safe-stop, kill-and-restart (PVT-006), forced-FAIL NOT READY demonstration, and MTTR computation tests (planned).
+**Evidence (T097, 2026-10-22)**: `ReliabilityTest`, `ReliabilityEngineTest` (retry exhaustion, fallback, safe-stop), `KillRestartIT` (PVT-006), `DependencyPolicyDemonstrationTest` (forced FAIL gives NOT_READY), `MttrTest`, `RollbackTest`, `CompensationTest`. All executed and passing.
 
 ---
 
