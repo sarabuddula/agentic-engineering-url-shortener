@@ -35,6 +35,7 @@ limitations, release. In short: the system orchestrates, verifies and governs th
 | Scope control and disclosed limitations | [`docs/scope-control.md`](docs/scope-control.md) |
 | Attestations (PRV-02, LIC-02, DEP-02) | [`docs/attestations/`](docs/attestations/) |
 | Licenses and notices | [`docs/compliance/`](docs/compliance/) |
+| Security policy and controls; how to contribute | [`SECURITY.md`](SECURITY.md), [`CONTRIBUTING.md`](CONTRIBUTING.md) |
 | Traceability (manifest and matrix) | [`specs/001-agentic-url-shortener/traceability/`](specs/001-agentic-url-shortener/traceability/) |
 | Demonstration evidence | [`docs/evidence/`](docs/evidence/) — see below |
 

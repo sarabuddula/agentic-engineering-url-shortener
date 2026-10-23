@@ -7,7 +7,7 @@ check. Legend: **[C]** confirmed requirement, **[A]** approved assumption, **[M]
 
 ## 1. Executive outcome and release readiness
 Final human release decision (T099, 2026-10-22): **READY WITH ACCEPTED LIMITATIONS**, based on run run-85f0038b
-(system recommendation READY_WITH_ACCEPTED_LIMITATIONS, G7 by the release owner, COMPLETED, chain verified). Six
+(REPLAY: the SCN-A requirement re-executed on code a LIVE run had built; system recommendation READY_WITH_ACCEPTED_LIMITATIONS, G7 by the release owner, COMPLETED, chain verified). Six
 limitations were accepted individually at G6 and apply to the product (section 19). Record:
 `specs/001-agentic-url-shortener/approvals/2026-10-22-t084-t099-checkpoint-and-release.md`. Build: `mvn clean verify`
 exit 0, 424 tests (302 unit, 122 integration). Traceability: `scripts/trace-manifest.sh check` CLEAN.
