@@ -8,6 +8,8 @@ import com.agenticengineering.urlshortener.shared.port.TimeSource;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.List;
+import com.agenticengineering.urlshortener.orchestration.engine.OperationGuard;
+import com.agenticengineering.urlshortener.orchestration.engine.OperationWhitelist;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -21,12 +23,15 @@ import org.springframework.transaction.support.TransactionTemplate;
 @Component
 public class PolicyStore {
 
+    private final OperationGuard guard;
+
     private final JdbcTemplate jdbc;
     private final AuditChain audit;
     private final TimeSource clock;
     private final TransactionTemplate tx;
 
-    public PolicyStore(JdbcTemplate jdbc, AuditChain audit, TimeSource clock, PlatformTransactionManager transactions) {
+    public PolicyStore(JdbcTemplate jdbc, AuditChain audit, TimeSource clock, PlatformTransactionManager transactions, OperationGuard guard) {
+        this.guard = guard;
         this.jdbc = jdbc;
         this.audit = audit;
         this.clock = clock;
@@ -41,6 +46,7 @@ public class PolicyStore {
     }
 
     public void record(String runId, PolicyResult result) {
+        guard.require(OperationWhitelist.Op.PE);
         tx.executeWithoutResult(status -> {
             Map<PolicyOutcome, Integer> counts = new EnumMap<>(PolicyOutcome.class);
             for (PolicyOutcome outcome : PolicyOutcome.values()) {

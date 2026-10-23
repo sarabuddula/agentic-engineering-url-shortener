@@ -1,5 +1,7 @@
 package com.agenticengineering.urlshortener.orchestration.stages;
 
+import com.agenticengineering.urlshortener.orchestration.engine.OperationGuard;
+import com.agenticengineering.urlshortener.orchestration.engine.OperationWhitelist;
 import com.agenticengineering.urlshortener.orchestration.engine.RunContext;
 import com.agenticengineering.urlshortener.orchestration.engine.StageExecutor;
 import com.agenticengineering.urlshortener.orchestration.engine.StageResult;
@@ -49,9 +51,11 @@ public final class TestExecutionStageExecutor implements StageExecutor {
     private final Duration timeout;
     private final JdbcTemplate jdbc;
     private final OperationLog operations;
+    private final OperationGuard guard;
 
     private TestExecutionStageExecutor(Path workDir, String maven, Function<String, String> patternForRun, Duration timeout,
-            JdbcTemplate jdbc, OperationLog operations) {
+            JdbcTemplate jdbc, OperationLog operations, OperationGuard guard) {
+        this.guard = guard;
         this.workDir = workDir;
         this.maven = maven;
         this.patternForRun = patternForRun;
@@ -62,6 +66,7 @@ public final class TestExecutionStageExecutor implements StageExecutor {
 
     @Override
     public StageResult execute(RunContext context) throws Exception {
+        guard.require(OperationWhitelist.Op.TS);
         String runId = context.runId();
         String pattern = patternForRun.apply(runId);
         if (pattern == null || !ALLOWED.matcher(pattern).matches()) {
@@ -167,14 +172,16 @@ public final class TestExecutionStageExecutor implements StageExecutor {
         private final String defaultPattern;
         private final Duration timeout;
         private final ObjectMapper json = new ObjectMapper();
+        private final OperationGuard guard;
 
-        public Factory(JdbcTemplate jdbc, OperationLog operations, ArtifactStore artifacts,
+        public Factory(JdbcTemplate jdbc, OperationLog operations, ArtifactStore artifacts, OperationGuard guard,
                 @Value("${app.test-execution.working-dir:.}") String workDir, @Value("${app.test-execution.maven-command:mvn}") String maven,
                 @Value("${app.test-execution.default-pattern:*Test}") String defaultPattern,
                 @Value("${app.test-execution.timeout-seconds:180}") long timeoutSeconds) {
             this.jdbc = jdbc;
             this.operations = operations;
             this.artifacts = artifacts;
+            this.guard = guard;
             this.workDir = workDir;
             this.maven = maven;
             this.defaultPattern = defaultPattern;
@@ -182,12 +189,12 @@ public final class TestExecutionStageExecutor implements StageExecutor {
         }
 
         public TestExecutionStageExecutor create(Path workDir, String maven, String pattern, Duration timeout) {
-            return new TestExecutionStageExecutor(workDir, maven, runId -> pattern, timeout, jdbc, operations);
+            return new TestExecutionStageExecutor(workDir, maven, runId -> pattern, timeout, jdbc, operations, guard);
         }
 
         /** Production N09: a brownfield run tests the classes its impact analysis lists; any other run the default pattern. */
         public TestExecutionStageExecutor production() {
-            return new TestExecutionStageExecutor(Path.of(workDir).toAbsolutePath().normalize(), maven, this::patternFor, timeout, jdbc, operations);
+            return new TestExecutionStageExecutor(Path.of(workDir).toAbsolutePath().normalize(), maven, this::patternFor, timeout, jdbc, operations, guard);
         }
 
         private String patternFor(String runId) {

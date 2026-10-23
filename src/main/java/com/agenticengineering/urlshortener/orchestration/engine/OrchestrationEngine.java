@@ -345,9 +345,10 @@ public class OrchestrationEngine {
                     throw new IllegalArgumentException("no executor registered for " + node);
                 }
                 StageExecutor primary = executor instanceof StageExecutor.WithFallback f ? f.primary() : executor;
-                stageTasks.put(node, ctx -> primary.execute(new RunContext(runId, node)));
+                // the executor runs as its node, so the guarded operations can check the node's whitelist (plan section 3)
+                stageTasks.put(node, ctx -> OperationWhitelist.within(runId, node, () -> primary.execute(new RunContext(runId, node))));
                 if (executor instanceof StageExecutor.WithFallback f) {
-                    fallbacks.put(node, ctx -> f.fallback().execute(new RunContext(runId, node)));
+                    fallbacks.put(node, ctx -> OperationWhitelist.within(runId, node, () -> f.fallback().execute(new RunContext(runId, node))));
                 }
             }
         }
@@ -402,7 +403,8 @@ public class OrchestrationEngine {
             return StageResult.failed("no decomposed tasks to implement");
         }
         Map<String, StageTask> work = new HashMap<>();
-        taskGraph.nodes().forEach(key -> work.put(key, ctx -> taskExecutor.execute(runId, key)));
+        taskGraph.nodes().forEach(key -> work.put(key, ctx -> OperationWhitelist.within(runId, SdlcWorkflow.IMPLEMENTATION_NODE,
+                () -> taskExecutor.execute(runId, key))));
         // a resumed N08 keeps succeeded tasks and restarts the others from PENDING
         Map<String, NodeStatus> initial = new HashMap<>();
         tasks.resetUnfinished(runId).forEach(key -> initial.put(key, NodeStatus.SUCCEEDED));

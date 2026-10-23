@@ -15,6 +15,8 @@ import java.time.Instant;
 import java.util.HexFormat;
 import java.util.List;
 import java.util.Optional;
+import com.agenticengineering.urlshortener.orchestration.engine.OperationGuard;
+import com.agenticengineering.urlshortener.orchestration.engine.OperationWhitelist;
 import com.agenticengineering.urlshortener.orchestration.reliability.FaultInjection;
 import com.agenticengineering.urlshortener.orchestration.reliability.OperationLog;
 import org.springframework.beans.factory.annotation.Value;
@@ -42,10 +44,12 @@ public class ArtifactStore {
     private final Path directory;
     private final OperationLog operations;
     private final FaultInjection faults;
+    private final OperationGuard guard;
 
     public ArtifactStore(JdbcTemplate jdbc, AuditChain audit, TimeSource clock, PlatformTransactionManager transactions,
-            @Value("${app.data-dir}") Path dataDir, @org.springframework.context.annotation.Lazy OperationLog operations, FaultInjection faults) {
+            @Value("${app.data-dir}") Path dataDir, @org.springframework.context.annotation.Lazy OperationLog operations, FaultInjection faults, OperationGuard guard) {
         this.operations = operations;
+        this.guard = guard;
         this.faults = faults;
         this.jdbc = jdbc;
         this.audit = audit;
@@ -56,6 +60,7 @@ public class ArtifactStore {
 
     /** Stores the content, adds the next version of the type for the run, and audits it against the producing node. */
     public Artifact record(String runId, String type, String content, String provenance, String node) {
+        guard.require(OperationWhitelist.Op.AW);
         String hash = sha256(content);
         try {
             Files.createDirectories(directory);
@@ -97,6 +102,7 @@ public class ArtifactStore {
      * content hash at read (NODE_INPUT, role INPUT): what a replan re-validates against.
      */
     public Artifact read(String runId, String type, String node) {
+        guard.require(OperationWhitelist.Op.AR);
         Artifact artifact = latest(runId, type).orElseThrow(() -> new IllegalStateException("no " + type + " artifact in run " + runId));
         jdbc.update("MERGE INTO NODE_INPUT (NODE_ID, ARTIFACT_ID, ARTIFACT_VERSION, CONTENT_HASH_AT_READ, ROLE, RECORDED_AT)"
                 + " KEY (NODE_ID, ARTIFACT_ID, ARTIFACT_VERSION) SELECT n.ID, ?, ?, ?, 'INPUT', ? FROM STAGE_NODE n JOIN WORKFLOW_RUN r"

@@ -2,6 +2,8 @@ package com.agenticengineering.urlshortener.orchestration.approval;
 
 import com.agenticengineering.urlshortener.orchestration.audit.AuditChain;
 import com.agenticengineering.urlshortener.orchestration.audit.AuditEntry;
+import com.agenticengineering.urlshortener.orchestration.engine.OperationGuard;
+import com.agenticengineering.urlshortener.orchestration.engine.OperationWhitelist;
 import com.agenticengineering.urlshortener.orchestration.security.KeyIdentity;
 import com.agenticengineering.urlshortener.shared.api.ForbiddenException;
 import com.agenticengineering.urlshortener.shared.api.ResourceNotFoundException;
@@ -29,6 +31,8 @@ import org.springframework.transaction.support.TransactionTemplate;
 @Component
 public class ApprovalService {
 
+    private final OperationGuard guard;
+
     public enum Decision { PENDING, APPROVED, REJECTED, ESCALATED }
 
     /** An APPROVAL row; node is the stage that waits on it (stored as SCOPE "node=Nxx"). */
@@ -51,7 +55,8 @@ public class ApprovalService {
     private final TransactionTemplate tx;
 
     public ApprovalService(JdbcTemplate jdbc, AuditChain audit, TimeSource clock,
-            @Value("${app.approval-timeout-minutes:5}") int windowMinutes, PlatformTransactionManager transactions) {
+            @Value("${app.approval-timeout-minutes:5}") int windowMinutes, PlatformTransactionManager transactions, OperationGuard guard) {
+        this.guard = guard;
         this.jdbc = jdbc;
         this.audit = audit;
         this.clock = clock;
@@ -60,6 +65,7 @@ public class ApprovalService {
     }
 
     public Approval request(String runId, ApprovalKind kind, String node, String requesterKeyId, String reason) {
+        guard.require(OperationWhitelist.Op.AQ); // inside a stage executor only nodes listing AQ may request approvals
         return tx.execute(status -> {
             Instant now = clock.now();
             jdbc.update("INSERT INTO APPROVAL (RUN_ID, KIND, GATE, REQUESTER_KEY_ID, DECISION, SCOPE, TIMEOUT_AT, REASON, EVIDENCE_CLASS)"

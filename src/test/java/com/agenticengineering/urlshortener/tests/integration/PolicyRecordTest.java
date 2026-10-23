@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.agenticengineering.urlshortener.ClockConfiguration;
 import com.agenticengineering.urlshortener.orchestration.audit.AuditChain;
+import com.agenticengineering.urlshortener.orchestration.engine.OperationGuard;
 import com.agenticengineering.urlshortener.orchestration.engine.SdlcWorkflow;
 import com.agenticengineering.urlshortener.orchestration.persistence.PolicyStore;
 import com.agenticengineering.urlshortener.orchestration.persistence.WorkflowStore;
@@ -19,7 +20,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 /** T057: every run records the evaluated policy version and one POLICY_EVALUATION row per check, audited (FR-032). */
 @JdbcTest
-@Import({PolicyStore.class, WorkflowStore.class, AuditChain.class, ClockConfiguration.class})
+@Import({PolicyStore.class, WorkflowStore.class, AuditChain.class, OperationGuard.class, ClockConfiguration.class})
 class PolicyRecordTest {
 
     @Autowired

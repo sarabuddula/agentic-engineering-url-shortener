@@ -10,6 +10,7 @@ import com.agenticengineering.urlshortener.orchestration.approval.ApprovalServic
 import com.agenticengineering.urlshortener.orchestration.approval.ApprovalService.Decision;
 import com.agenticengineering.urlshortener.orchestration.approval.SelfApprovalDeniedException;
 import com.agenticengineering.urlshortener.orchestration.audit.AuditChain;
+import com.agenticengineering.urlshortener.orchestration.engine.OperationGuard;
 import com.agenticengineering.urlshortener.orchestration.audit.AuditEntry;
 import com.agenticengineering.urlshortener.orchestration.engine.SdlcWorkflow;
 import com.agenticengineering.urlshortener.orchestration.persistence.WorkflowStore;
@@ -36,7 +37,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
  * self-approval and agent approval denied, audited, approval left pending; silence is never approval.
  */
 @JdbcTest
-@Import({ApprovalService.class, WorkflowStore.class, AuditChain.class, ApprovalLifecycleTest.Clock.class})
+@Import({ApprovalService.class, WorkflowStore.class, AuditChain.class, OperationGuard.class, ApprovalLifecycleTest.Clock.class})
 class ApprovalLifecycleTest {
 
     private static final Instant T0 = Instant.parse("2026-10-22T09:00:00Z");
