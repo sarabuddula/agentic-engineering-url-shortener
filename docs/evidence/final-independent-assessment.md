@@ -106,7 +106,7 @@ rewritten (`t098-history-review.md`). Two tags will exist: `v1.0-submission` (ea
 ## Convergence (guide section 22)
 Convergence was covered by T090 (traceability), T096 (checklists: 113 PASS, 2 ACCEPTED), the final engineering summary
 and this assessment, not by a separate `/speckit.converge` run. That command appends unbuilt work as tasks. The only
-unbuilt work is the 11 deferred tasks already listed in `tasks.md` and `docs/scope-control.md`, accepted at G6. Release
+unbuilt work is the 10 deferred tasks already listed in `tasks.md` and `docs/scope-control.md`, accepted at G6. Release
 decision: READY WITH ACCEPTED LIMITATIONS (T099, human).
 
 ## Likely reviewer questions
