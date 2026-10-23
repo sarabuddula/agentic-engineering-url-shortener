@@ -47,3 +47,23 @@ record and the reconstruction tool are its evidence (manifest updated in the sam
   `/resume` needs an APPROVER key (the quickstart showed the ENGINEER key) - corrected in T095.
 - run-934a50a1 (SCN-A) shows release recommendation READY with an approved decision but status SAFE_STOPPED: the
   completion gate stopped it (its evidence is in docs/evidence/pvt-report.md); it is not reported as completed.
+
+## Re-run on the final documentation commit (2026-10-22)
+The record above ran at cd56c14, before the executor whitelist (3458802, 0bc2f00). Re-run with the same steps:
+`git clone` of the repository at 1660823 into a scratch directory; Java 21.0.12.1, Maven 3.9.16, gitleaks 8.30.1.
+1660823 was then re-committed as c6dc9f9 with only the commit message changed (tree identical), so these results
+hold for c6dc9f9.
+
+1. `mvn clean verify`: exit 0 in 137 s - 302 unit tests (Surefire) and 122 integration tests (Failsafe), 0 failures,
+   0 errors, 0 skipped.
+2-3. The cloned jar on a copy of the demonstration database (the original was not modified), demo keys generated in
+   the clone, reviewer key: `/actuator/health` UP; a control-plane read without a key 401. For all eight runs, status,
+   history length, /verify and release readiness are identical to the committed exports and to the table above. The
+   two runs without a determination (run-10190a85, run-579bebe4) answer RELEASE_NOT_DETERMINED; their bodies differ
+   from the exports only in request_id, which is new per request. `/api/v1/metrics/demo` values are unchanged.
+4. `scripts/reconstruct-run.py` on all eight exports: recomputed head equals the exported /verify head for every run.
+5. `scripts/trace-manifest.sh check`: CLEAN.
+
+Commands in `docs/reviewer-guide.md`, run as written in the clone, all exit 0: ReliabilityTest and
+ReliabilityEngineTest 10 tests; RollbackTest and CompensationTest 6; UrlRejectionMatrixIT and RateLimitIT 35;
+OpenApiContractHarnessTest 4; MttrTest 3. Run by Claude Code at the human candidate's direction; results as printed.

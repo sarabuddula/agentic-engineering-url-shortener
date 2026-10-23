@@ -1360,7 +1360,7 @@ requirements:
       commit: bce05c5afb1506f5a0d2f7abf51fea78be2147b3
     evidence:
     - path: docs/evidence/t092-reviewer-walkthrough.md
-      sha256: bc63e40fccd74c2a6b72a0609f1587e038274928ee7e413c18ee1bca1f887d39
+      sha256: b14907037a6644fe3e22a740099afc88fb7f13d881f2344cd34f99538e0f6159
     - path: docs/evidence/t092-reconstruction-run-4738769c.txt
       sha256: e346f8c9e3224e27f1796283326b78518384716a8afd5882bf5acd763474cf99
     - path: scripts/reconstruct-run.py
