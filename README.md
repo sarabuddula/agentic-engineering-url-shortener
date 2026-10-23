@@ -11,10 +11,21 @@ A locally runnable prototype in two strictly separated planes, delivered as one 
 
 Specification, plan and tasks were produced with the SpecKit workflow and implemented gate by gate, failing test first.
 
+**What the agents do at runtime, and what the human does.** The stage executors are deterministic, rule-based agents
+with bounded autonomy (an enforced per-stage operation whitelist): they check requirement quality and stop on material
+ambiguity, scan the codebase for the impact of a change, decompose work into tasks, assemble design, documentation,
+evidence and the engineering summary, run the real test suites, and evaluate 16 policy checks that can block release.
+They call no language model at runtime, so every step is reproducible from the audit trail. Design text and code are
+written by the engineer with AI assistance (Claude Code) outside the runtime; a run accepts code only as a commit marked
+with its run and task. Humans decide every gate: clarification, design, change, policy exceptions, accepted
+limitations, release. In short: the system orchestrates, verifies and governs the work; it does not write the code.
+
 ## Start here
 
 | What | Where |
 |---|---|
+| **Final engineering summary** (outcome, decisions, evidence, limitations) | [`docs/final-engineering-summary.md`](docs/final-engineering-summary.md) |
+| **Architecture overview** (planes, stage graph diagram, testing approach, trade-offs) | [`docs/architecture.md`](docs/architecture.md) |
 | Build, run, demonstration walkthrough, reviewer steps | [`specs/001-agentic-url-shortener/quickstart.md`](specs/001-agentic-url-shortener/quickstart.md) |
 | Requirements (FR, NFR, SC, PVT, scenarios) and amendments | [`spec.md`](specs/001-agentic-url-shortener/spec.md) |
 | Architecture, stage graph, failure semantics, policy set | [`plan.md`](specs/001-agentic-url-shortener/plan.md), [`data-model.md`](specs/001-agentic-url-shortener/data-model.md), [`docs/adr/adrs.md`](docs/adr/adrs.md) |
@@ -42,6 +53,7 @@ Then follow the walkthrough in the quickstart.
 | Record | What it shows |
 |---|---|
 | [`docs/evidence/runs/`](docs/evidence/runs/) | Exports (run, history, verify, release readiness) of the eight demonstration runs |
+| [`scn-a-greenfield.md`](docs/evidence/scn-a-greenfield.md) | SCN-A greenfield: status lookup built red-first in a LIVE run (stopped at the completion gate, explained); completed as REPLAY |
 | [`scn-c-replay.md`](docs/evidence/scn-c-replay.md) | SCN-C ambiguous requirement: G1 clarification, requirement version 2, resumption |
 | [`scn-b-regression.md`](docs/evidence/scn-b-regression.md) | SCN-B brownfield change (A-006, 7 days to 24 hours): impact analysis vs actual diff, regression suite |
 | [`t089-single-run.md`](docs/evidence/t089-single-run.md) | One run with kill-and-restart, approved replanning (distinct approver), parallel paths, READY, completed |
